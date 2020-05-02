@@ -17,13 +17,13 @@ Number Timeline Method Code URL Begin End Duration Size Encoding Cache Process
 
 ```go
 import (
-	sazdumper "github.com/prantlf/sazdump/dumper"
-	sazparser "github.com/prantlf/sazdump/parser"
+  sazdumper "github.com/prantlf/sazdump/dumper"
+  sazparser "github.com/prantlf/sazdump/parser"
 )
 
 func main() {
-	sessions, err := sazparser.Parse("foo.saz")
-	err = sazdumper.Dump(sessions)
+  sessions, err := sazparser.Parse("foo.saz")
+  err = sazdumper.Dump(sessions)
 }
 ```
 
