@@ -4,17 +4,30 @@ import (
 	"archive/zip"
 	"bufio"
 	"encoding/xml"
+	"errors"
+	"io"
 	"io/ioutil"
 	"net/http"
 )
 
-func Parse(fileName string) ([]Session, error) {
+func ParseFile(fileName string) ([]Session, error) {
 	archiveReader, err := zip.OpenReader(fileName)
 	if err != nil {
 		return nil, err
 	}
 	defer archiveReader.Close()
+	return parseArchive(&archiveReader.Reader)
+}
 
+func ParseReader(reader io.ReaderAt, size int64) ([]Session, error) {
+	archiveReader, err := zip.NewReader(reader, size)
+	if err != nil {
+		return nil, err
+	}
+	return parseArchive(archiveReader)
+}
+
+func parseArchive(archiveReader *zip.Reader) ([]Session, error) {
 	var request *http.Request
 	var response *http.Response
 	var session Session
@@ -70,6 +83,7 @@ func Parse(fileName string) ([]Session, error) {
 			}
 
 			session.Number = number
+			session.Request = request
 			session.Response = response
 			session.Flags = make(map[string]string)
 			for _, flag := range session.RawFlags.Flags {
@@ -79,5 +93,8 @@ func Parse(fileName string) ([]Session, error) {
 		}
 	}
 
+	if len(sessions) == 0 {
+		return nil, errors.New("No sessions were found.")
+	}
 	return sessions, nil
 }

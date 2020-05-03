@@ -2,11 +2,19 @@ package sazdumper
 
 import (
 	"strconv"
+	"strings"
 	"time"
 )
 
 func parseTime(dateTime string) (time.Time, error) {
-	return time.Parse(time.RFC3339, dateTime)
+	return time.Parse(time.RFC3339Nano, dateTime)
+}
+
+func parseDuration(duration string) (time.Duration, error) {
+	duration = strings.Replace(duration, ":", "h", 1)
+	duration = strings.Replace(duration, ":", "m", 1)
+	duration = strings.Replace(duration, ".", "s", 1)
+	return time.ParseDuration(duration + "us")
 }
 
 func formatTime(dateTime time.Time) string {

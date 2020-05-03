@@ -10,6 +10,7 @@ type Session struct {
 	Timers   SessionTimers   `xml:"SessionTimers"`
 	RawFlags RawSessionFlags `xml:"SessionFlags"`
 	Flags    map[string]string
+	Request  *http.Request
 	Response *http.Response
 	Number   int
 }

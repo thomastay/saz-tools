@@ -1,1 +1,4 @@
-./sazdump
+.DS_Store
+/sazdump
+/sazserve
+/cmd/sazserve/assets.go
