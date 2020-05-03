@@ -37,4 +37,7 @@ cmd/sazserve/assets/js/datatables.min.js: cmd/sazserve/assets/js/datatables.js
 clean:
 	rm -f sazdump sazserve cmd/sazserve/assets.go
 
-.PHONY: clean debug-sazdump debug-sazserve debug-assets
+push:
+	git push && git push heroku master
+
+.PHONY: clean debug-sazdump debug-sazserve debug-assets push
