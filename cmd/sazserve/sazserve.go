@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strconv"
 
 	sazanalyzer "github.com/prantlf/saz-tools/pkg/analyzer"
 	sazparser "github.com/prantlf/saz-tools/pkg/parser"
@@ -49,16 +48,11 @@ func handler(responseWriter http.ResponseWriter, request *http.Request) {
 }
 
 func main() {
-	var err error
-	port := 7000
-	portValue := os.Getenv("PORT")
-	if portValue != "" {
-		if port, err = strconv.Atoi(portValue); err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "7000"
 	}
-	flag.IntVar(&port, "port", port, "port for the web server to listen to")
+	flag.StringVar(&port, "port", port, "port for the web server to listen to")
 	flag.Usage = func() {
 		fmt.Println("Usage: sazserve [options]\nOptions:")
 		flag.PrintDefaults()
@@ -66,7 +60,7 @@ func main() {
 	flag.Parse()
 	http.HandleFunc("/saz", handler)
 	http.Handle("/", http.FileServer(AssetFile()))
-	if err = http.ListenAndServe(fmt.Sprintf(":%d", port), nil); err != nil {
+	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
