@@ -6,7 +6,7 @@ language: go
 go:
   - 1.x
 
-install:
+before_script:
   - go get github.com/go-bindata/go-bindata
 
 notifications:
