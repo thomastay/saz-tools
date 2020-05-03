@@ -3,5 +3,7 @@ echo $GOPATH
 echo $GOBIN
 echo $PATH
 go get -u github.com/go-bindata/go-bindata/...
+ls -l "$GOPATH/bin/go-bindata"
+ls -l "$GOBIN/go-bindata"
 go-bindata -fs -o cmd/sazserve/assets.go \
 	-prefix cmd/sazserve/assets cmd/sazserve/assets/...
