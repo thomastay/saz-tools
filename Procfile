@@ -1,1 +1,1 @@
-web: sazserve
+web: bin/sazserve
