@@ -1,13 +1,11 @@
 git:
   depth: 1
-
 language: go
-
 go:
   - 1.x
-
-before_script:
+env:
+  - GO111MODULE=on
+before_install:
   - go get github.com/go-bindata/go-bindata
-
 notifications:
   email: false
