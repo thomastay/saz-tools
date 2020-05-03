@@ -3,9 +3,7 @@ git:
 language: go
 go:
   - 1.x
-env:
-  - GO111MODULE=on
 install:
-  - go get -t -v github.com/go-bindata/go-bindata
+  - go install github.com/go-bindata/go-bindata
 notifications:
   email: false
