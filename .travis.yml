@@ -5,7 +5,7 @@ go:
   - 1.x
 env:
   - GO111MODULE=on
-before_install:
+before_script:
   - go get github.com/go-bindata/go-bindata
 notifications:
   email: false
