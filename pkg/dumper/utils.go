@@ -21,17 +21,21 @@ func formatTime(dateTime time.Time) string {
 	return dateTime.Format("15:04:05.000")
 }
 
-func formatDuration(duration time.Duration) string {
+func formatDuration(duration time.Duration, precision int) string {
 	var wholeHour time.Time
 	timeInHour := wholeHour.Add(duration)
-	return timeInHour.Format("04:05.000")
+	return timeInHour.Format("15:04:05.000")[precision:]
 }
 
 func formatSize(size int) string {
 	if size < 0 {
 		return "N/A"
 	}
-	input := strconv.Itoa(size)
+	return formatNumber(size)
+}
+
+func formatNumber(number int) string {
+	input := strconv.Itoa(number)
 	inputLength := len(input)
 	numberOfDigits := inputLength
 	numberOfCommas := (numberOfDigits - 1) / 3

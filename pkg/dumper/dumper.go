@@ -2,6 +2,7 @@ package sazdumper
 
 import (
 	"fmt"
+	"strings"
 
 	sazanalyzer "github.com/prantlf/saz-tools/pkg/analyzer"
 	sazparser "github.com/prantlf/saz-tools/pkg/parser"
@@ -13,8 +14,15 @@ func Dump(rawSessions []sazparser.Session) error {
 	if err != nil {
 		return err
 	}
+	lastTimeLine := fineSessions[len(fineSessions)-1].Timeline
+	var durationPrecision int
+	if strings.HasPrefix(lastTimeLine, "00:00") {
+		durationPrecision = 6
+	} else if strings.HasPrefix(lastTimeLine, "00") {
+		durationPrecision = 3
+	}
 	for _, session := range fineSessions {
-		err := printResult(&session)
+		err := printResult(&session, durationPrecision)
 		if err != nil {
 			return err
 		}
@@ -22,7 +30,7 @@ func Dump(rawSessions []sazparser.Session) error {
 	return nil
 }
 
-func printResult(session *sazanalyzer.Session) error {
+func printResult(session *sazanalyzer.Session, durationPrecision int) error {
 	request := session.Request
 	response := session.Response
 	clientBeginRequest, err := parseTime(session.Timers.ClientBeginRequest)
@@ -42,10 +50,10 @@ func printResult(session *sazanalyzer.Session) error {
 		return err
 	}
 	fmt.Printf("%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n",
-		session.Number, formatDuration(timeline),
+		session.Number, formatDuration(timeline, durationPrecision),
 		request.Method, response.StatusCode, request.URL,
 		formatTime(clientBeginRequest), formatTime(clientDoneResponse),
-		formatDuration(duration), formatSize(session.Response.ContentLength),
+		formatDuration(duration, durationPrecision), formatSize(session.Response.ContentLength),
 		session.Encoding, session.Caching, session.Flags.Process)
 	return nil
 }

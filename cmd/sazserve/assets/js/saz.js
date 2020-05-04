@@ -35,10 +35,13 @@ function viewSaz (saz) {
     })
   }
 
-  function displaySaz (response) {			
-    var data = response.map(session => [
+  function displaySaz (response) {
+    const lastTimeLine = response[response.length - 1].Timeline
+    const durationPrecision = lastTimeLine.startsWith('00:00')
+      ? 6 : lastTimeLine.startsWith('00') ? 3 : 0
+    const data = response.map(session => [
       session.Number,
-      formatDuration(session.Timeline),
+      formatDuration(session.Timeline, durationPrecision),
       session.Request.Method,
       session.Response.StatusCode,
       formatURL(session.Request.URL),
@@ -46,11 +49,11 @@ function viewSaz (saz) {
       formatPath(session.Request.URL),
       formatTime(session.Timers.ClientBeginRequest),
       formatTime(session.Timers.ClientDoneResponse),
-      formatDuration(session.Duration),
+      formatDuration(session.Duration, durationPrecision),
       session.Response.ContentLength,
       session.Encoding, session.Caching, session.Flags.Process
     ])
-    var columns = [
+    const columns = [
       { title: '#' },
       { title: 'Timeline' },
       { title: 'Method' },
@@ -126,8 +129,8 @@ function viewSaz (saz) {
     return url.replace(/^(?:\w+:)?\/\/[^/]+(.*)$/, '$1').replace(/^(.{80}).*$/, '$1')
   }
 
-  function formatDuration (duration) {
-    return duration.substr(6)
+  function formatDuration (duration, precision) {
+    return duration.substr(precision)
   }
 
   function formatTime (duration) {
