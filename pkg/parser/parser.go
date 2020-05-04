@@ -94,7 +94,7 @@ func parseArchive(archiveReader *zip.Reader) ([]Session, error) {
 	}
 
 	if len(sessions) == 0 {
-		return nil, errors.New("no sessions were found")
+		return nil, errors.New("sazparser: no sessions were found")
 	}
 	return sessions, nil
 }
