@@ -1,3 +1,20 @@
+header.container-fluid {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding-right: 90px;
+  margin-bottom: 10px;
+}
+
+footer.container-fluid {
+  margin-top: 10px;
+}
+
+.alert {
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
 .alert p { margin-bottom: 0 }
 
 label { margin-bottom: 0 }

@@ -82,7 +82,7 @@ function viewSaz (saz) {
           data,
           dom: '<"top"ifBR>rtS',
           scrollX: true,
-          scrollY: '70vh',
+          scrollY: '65vh',
           scrollCollapse: true,
           deferRender: true,
           scroller: true,
