@@ -2,9 +2,9 @@
   "files.exclude": {
     "**/.git": true,
     "**/.DS_Store": true,
-    "/sazserve": true,
-    "/sazdump": true,
-    "**/cmd/sazserve/assets.go": true
+    "**/cmd/sazserve/assets.go": true,
+    "sazserve": true,
+    "sazdump": true
   },
   "search.exclude": {
     "**/cmd/sazserve/assets": true
