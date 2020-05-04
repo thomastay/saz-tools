@@ -10,6 +10,10 @@ import (
 )
 
 func main() {
+	flag.Usage = func() {
+		fmt.Println("Usage: sazdump <file.saz>")
+		flag.PrintDefaults()
+	}
 	flag.Parse()
 	sessions, err := sazparser.ParseFile(flag.Arg(0))
 	if err != nil {
