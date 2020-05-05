@@ -1,11 +1,12 @@
 viewSaz = (function () {
-  let tableContainer, infoContainer, errorContainer, table
+  let progressContainer, tableContainer, infoAlert, errorAlert, table
   let columns, hiddenColumns, configuration
 
   setTimeout(() => {
+    progressContainer = $('#progress-container')
     tableContainer = $('#table-container')
-    infoContainer = $('.alert-info')
-    errorContainer = $('.alert-danger')
+    infoAlert = $('.alert-info')
+    errorAlert = $('.alert-danger')
     columns = [
       { data: 'Number', title: '#' },
       { data: 'Timeline', title: 'Timeline' },
@@ -45,23 +46,26 @@ viewSaz = (function () {
       'BeginTime', 'EndTime', 'SendingTime', 'RespondingTime', 'ReceivingTime'
     ]
     loadConfiguration()
+    progressContainer.hide()
   })
 
   function viewSaz (saz) {
     const [file] = saz.files
     if (file) {
+      progressContainer.show()
       loadSaz(file)
         .then(displaySaz)
         .catch(displayError)
+        .then(() => progressContainer.hide())
     } else {
       resetPage()
-      infoContainer.show()
+      infoAlert.show()
     }
   }
 
   function resetPage () {
-    infoContainer.hide()
-    errorContainer.hide()
+    infoAlert.hide()
+    errorAlert.hide()
     if (table) {
       const oldTable = table
       table = undefined
@@ -164,11 +168,11 @@ viewSaz = (function () {
     }
     resetPage()
     if (title) {
-      errorContainer.find('h4').show().text(title)
+      errorAlert.find('h4').show().text(title)
     } else {
-      errorContainer.find('h4').hide()
+      errorAlert.find('h4').hide()
     }
-    errorContainer.show().find('p').text(text)
+    errorAlert.show().find('p').text(text)
   }
 
   function formatURL (url) {

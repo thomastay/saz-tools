@@ -65,3 +65,31 @@ label { margin-bottom: 0 }
 
   .top .dt-buttons { width: auto }
 }
+
+#progress-container {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color:#efefef;
+  opacity: .5;
+}
+
+.progress {
+  width: 75%;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate3d(-50%,-50%,0);
+}
+
+@keyframes loader {
+	0% { width: 0 }
+	100% { width: 100% }
+}
+
+.progress-bar {
+  animation: loader 10s ease infinite;
+  background-color: #64ceaa;
+}
