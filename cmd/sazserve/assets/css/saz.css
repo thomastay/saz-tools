@@ -6,9 +6,7 @@ header.container-fluid {
   margin-bottom: 10px;
 }
 
-footer.container-fluid {
-  margin-top: 10px;
-}
+footer.container-fluid { margin-top: 10px }
 
 .alert {
   margin-bottom: 10px;
@@ -23,6 +21,7 @@ label { margin-bottom: 0 }
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .dataTables_wrapper .top .dataTables_info { padding-top: 0 }
@@ -51,3 +50,18 @@ label { margin-bottom: 0 }
 .table.table-sm.dataTable th.sorting { padding-right: 30px }
 
 .dt-right { text-align: right }
+
+.dataTables_wrapper .top .dataTables_filter input  {
+  width: calc(100vw - 850px);
+  min-width: 10em;
+}
+
+@media screen and (max-width: 1023px) {
+  .dataTables_wrapper .top .dataTables_filter input  { width: calc(100vw - 535px) }
+}
+
+@media screen and (max-width: 767px) {
+  .dataTables_wrapper .top .dataTables_filter input  { width: calc(100vw - 100px) }
+
+  .top .dt-buttons { width: auto }
+}
