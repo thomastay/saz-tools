@@ -19,19 +19,16 @@ sazserve: $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer
 $(ASSET_BIN): $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/*/*)
 	go-bindata -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
 
-run-sazdump: $(wildcard cmd/sazdump/*.go pkg/dumper/*.go pkg/parser/*.go pkg/analyzer/*.go)
+run-dump: $(wildcard cmd/sazdump/*.go pkg/dumper/*.go pkg/parser/*.go pkg/analyzer/*.go)
 	go run cmd/sazdump/sazdump.go "$(SAZ)"
 
-run-sazserve: $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go)
+run-serve: $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go)
 	go run cmd/sazserve/sazserve.go $(ASSET_BIN)
 
-debug-sazdump: $(wildcard cmd/sazdump/*.go pkg/dumper/*.go pkg/parser/*.go pkg/analyzer/*.go)
-	go run cmd/sazdump/sazdump.go "$(SAZ)"
-
-debug-sazserve: debug-assets $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go)
+debug-serve: debug-assets $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go)
 	go run cmd/sazserve/sazserve.go $(ASSET_BIN)
 
-debug-assets:
+debug-assets: $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/*/*)
 	go-bindata -debug -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
 
 minify: $(ASSET_DIR)/js/jquery.min.js $(ASSET_DIR)/js/datatables.min.js
@@ -77,13 +74,11 @@ docker-build ::
 
 docker-run-help ::
 	docker run --rm -it sazdump
-	docker run --rm -it sazserve
 
 docker-dump-example ::
 	docker run --rm -it -v ${PWD}:/work -w /work sazdump examples/test.saz
 
 docker-serve-example ::
-	docker run --rm -it -v ${PWD}:/work -w /work sazdump examples/test.saz
 	docker run --rm -it sazserve
 
 docker-tag ::

@@ -49,11 +49,26 @@ func main() {
 }
 ```
 
+## Build
+
+    # Remove old build output:
+    make clean
+    # Build all targets:
+    make
+    # Print the help for the SAZ file dumper:
+    make docker-run-help
+    # Dump a SAZ file analysis on the console:
+    make run-dump SAZ="..."
+    # Start a SAZ file viewer as a browser application with bundled assets:
+    make run-serve
+    # Start a SAZ file viewer as a browser application with filesystem assets:
+    make debug-serve
+
 ## Docker
 
-[![nodesource/node](http://dockeri.co/image/prantlf/saztools)](https://hub.docker.com/repository/docker/prantlf/saztools/)
+[![prantlf/sazdump](http://dockeri.co/image/prantlf/sazdump)](https://hub.docker.com/repository/docker/prantlf/sazdump/) [![prantlf/sazserve](http://dockeri.co/image/prantlf/sazserve)](https://hub.docker.com/repository/docker/prantlf/sazserve/)
 
-[This image] allows you to execute the tools desribed above. It is built automatically on the top of the tag `latest` from the [scratch image].
+[The `sazdump` image] and [the `sazserve` image] allows you to execute the tools described above. They are built automatically on the top of the tag `latest` from the [scratch image].
 
 The following [tags] are available for the `prantlf/saztools` image:
 
@@ -61,45 +76,57 @@ The following [tags] are available for the `prantlf/saztools` image:
 
 Download the latest image to your disk:
 
-    docker pull prantlf/saztools
+    docker pull prantlf/sazdump
+    docker pull prantlf/sazserve
     # or
-    docker pull prantlf/saztools:latest
+    docker pull prantlf/sazdump:latest
+    docker pull prantlf/sazserve:latest
 
 Print usage description with command-line parameters:
 
-    docker run --rm -it prantlf/saztools -h
+    docker run --rm -it prantlf/sazdump -h
 
 For example, dump the context of the `foo.saz` file:
 
-    docker run --rm -it -v ${PWD}:/work -w /work saztools foo.saz
+    docker run --rm -it -v ${PWD}:/work -w /work sazdump foo.saz
 
-You can also put a [`sazdump`] script to `PATH`:
+Or start the browser application to analyse SAZ files on your machine:
+
+    docker run --rm -it -p 7000:7000 sazserve
+
+You can also put [`sazdump`] and [`sazserve`] scripts to `PATH`:
 
     #!/bin/sh
-    docker run --rm -it -v ${PWD}:/work -w /work saztools "$@"
+    docker run --rm -it -v ${PWD}:/work -w /work sazdump "$@"
 
-and execute it from any location by supplying parameters to it, for example:
+    #!/bin/sh
+    docker run --rm -it -v -p 7000:7000 sazserve
+
+and execute then from any location by supplying parameters to it, for example:
 
     sazdump foo.saz
+    sazserve
 
-The local image is built as `saztools` and pushed to the docker hub as `prantlf/saztools:latest`.
+Local images are built as `sazdump` and `sazserve` and they are pushed to the docker hub as `prantlf/sazdump:latest` and `prantlf/sazserve:latest`.
 
-    # Remove an old local image:
-    make clean
-    #  Check the Dockerfile:
-    make lint
-    # Build a new local image:
-    make build
-    # Print the help for the diagram generator:
-    make run-help
-    # Generate an image for a diagram sample:
-    make run-example
-    # Tag the local image for pushing:
-    make tag
+    # Remove old local images:
+    make docker-clean
+    # Check the Dockerfiles:
+    make docker-lint
+    # Build new local images:
+    make docker-build
+    # Print the help for the SAZ file dumper:
+    make docker-run-help
+    # Dump a SAZ file analysis on the console:
+    make docker-dump-example SAZ="..."
+    # Start a SAZ file viewer as a web application:
+    make docker-serve-example
+    # Tag local images for pushing:
+    make docker-tag
     # Login to the docker hub:
-    make login
-    # Push the local image to the docker hub:
-    make push
+    make docker-login
+    # Push local images to the docker hub:
+    make docker-push
 
 ## License
 
@@ -108,7 +135,8 @@ Copyright (c) 2020 Ferdinand Prantl
 Licensed under the MIT license.
 
 [on-line version]: https://viewsaz.herokuapp.com/
-[This image]: https://hub.docker.com/repository/docker/prantlf/saztools
+[The `sazdump` image]: https://hub.docker.com/repository/docker/prantlf/sazdump
+[the `sazserve` image]: https://hub.docker.com/repository/docker/prantlf/sazserve
 [tags]: https://hub.docker.com/repository/docker/prantlf/saztools/tags
 [scratch image]: https://hub.docker.com/_/scratch
 [`sazdump`]: bin/sazdump
