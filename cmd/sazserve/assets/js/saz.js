@@ -1,25 +1,72 @@
-const tableContainer = $('#table-container')
-const infoContainer = $('.alert-info')
-const errorContainer = $('.alert-danger')
+viewSaz = (function () {
+  let tableContainer, infoContainer, errorContainer, table
+  let columns, hiddenColumns, configuration
 
-function viewSaz (saz) {
-  const file = saz.files[0]
-  if (file) {
-    loadSaz(file)
-      .then(displaySaz)
-      .catch(displayError)
-  } else {
-    resetPage()
-    infoContainer.show()
+  setTimeout(() => {
+    tableContainer = $('#table-container')
+    infoContainer = $('.alert-info')
+    errorContainer = $('.alert-danger')
+    columns = [
+      { data: 'Number', title: '#' },
+      { data: 'Timeline', title: 'Timeline' },
+      { data: 'Method', title: 'Method' },
+      { data: 'StatusCode', title: 'Status' },
+      { data: 'URL', title: 'URL' },
+      { data: 'Scheme', title: 'Scheme' },
+      { data: 'Host', title: 'Host' },
+      { data: 'Port', title: 'Port', className: 'dt-right' },
+      { data: 'HostAndPort', title: 'Host+Port' },
+      { data: 'Path', title: 'Path' },
+      { data: 'Query', title: 'Query' },
+      { data: 'PathAndQuery', title: 'Path+Query' },
+      { data: 'BeginTime', title: 'Begin' },
+      { data: 'EndTime', title: 'End' },
+      { data: 'Duration', title: 'Duration' },
+      { data: 'SendingTime', title: 'Sending' },
+      { data: 'RespondingTime', title: 'Responding' },
+      { data: 'ReceivingTime', title: 'Receiving' },
+      {
+        data: 'Size',
+        title: 'Size',
+        className: 'dt-right',
+        render: function ( data, type, row) {
+          if (type === 'display' || type === 'filter') {
+            return formatSize(data)
+          }
+          return data
+        }
+      },
+      { data: 'Encoding', title: 'Encoding' },
+      { data: 'Caching', title: 'Caching', orderable: false },
+      { data: 'Process', title: 'Process' }
+    ]
+    hiddenColumns = [
+      'Scheme', 'Host', 'Port', 'HostAndPort', 'Path', 'Query', 'PathAndQuery',
+      'BeginTime', 'EndTime', 'SendingTime', 'RespondingTime', 'ReceivingTime'
+    ]
+    loadConfiguration()
+  })
+
+  function viewSaz (saz) {
+    const [file] = saz.files
+    if (file) {
+      loadSaz(file)
+        .then(displaySaz)
+        .catch(displayError)
+    } else {
+      resetPage()
+      infoContainer.show()
+    }
   }
 
   function resetPage () {
     infoContainer.hide()
     errorContainer.hide()
-    if (window.sazTable) {
-      window.sazTable.destroy()
+    if (table) {
+      const oldTable = table
+      table = undefined
+      oldTable.destroy()
       tableContainer.html('')
-      window.sazTable = undefined
     }
   }
 
@@ -36,70 +83,54 @@ function viewSaz (saz) {
   }
 
   function displaySaz (response) {
-    const columns = [
-      { title: '#' },
-      { title: 'Timeline' },
-      { title: 'Method' },
-      { title: 'Status' },
-      { title: 'URL' },
-      { title: 'Scheme', visible: false },
-      { title: 'Host', visible: false },
-      { title: 'Port', className: 'dt-right', visible: false },
-      { title: 'Host+Port', visible: false },
-      { title: 'Path', visible: false },
-      { title: 'Query', visible: false },
-      { title: 'Path+Query', visible: false },
-      { title: 'Begin', visible: false },
-      { title: 'End', visible: false },
-      { title: 'Duration' },
-      { title: 'Sending', visible: false },
-      { title: 'Processing', visible: false },
-      { title: 'Receiving', visible: false },
-      {
-        title: 'Size',
-        className: 'dt-right',
-        render: function ( data, type, row) {
-          if (type === 'display' || type === 'filter') {
-            return formatSize(data)
-          }
-          return data
-        }
-      },
-      { title: 'Encoding' },
-      { title: 'Caching', orderable: false },
-      { title: 'Process' }
+    const { columns: columnSettings, order: orderSettings, search } = configuration
+    for (const column of columns) {
+      const settings = columnSettings[column.data]
+      column.visible = settings && settings.visible
+    }
+    const { column: orderColumn, descending } = orderSettings
+    const order = [
+      columns.findIndex(({ data }) => data === orderColumn),
+      descending ? 'desc' : 'asc'
     ]
     const lastTimeLine = response[response.length - 1].Timeline
     const durationPrecision = lastTimeLine.startsWith('00:00')
       ? 6 : lastTimeLine.startsWith('00') ? 3 : 0
-    const data = response.map(session => [
-      session.Number,
-      formatDuration(session.Timeline, durationPrecision),
-      session.Request.Method,
-      session.Response.StatusCode,
-      formatURL(session.Request.URL.Full),
-      formatScheme(session.Request.URL.Scheme),
-      session.Request.URL.Host,
-      formatPort(session.Request.URL.Port, session.Request.URL.Scheme),
-      session.Request.URL.HostAndPort,
-      formatPathOrQuery(session.Request.URL.Path),
-      formatPathOrQuery(session.Request.URL.Query),
-      formatPathOrQuery(session.Request.URL.PathAndQuery),
-      formatTime(session.Timers.ClientBeginRequest),
-      formatTime(session.Timers.ClientDoneResponse),
-      formatDuration(session.Timers.RequestResponseTime, durationPrecision),
-      formatDuration(session.Timers.RequestSendTime, durationPrecision),
-      formatDuration(session.Timers.ServerProcessTime, durationPrecision),
-      formatDuration(session.Timers.ResponseReceiveTime, durationPrecision),
-      session.Response.ContentLength,
-      session.Flags.Encoding, session.Flags.Caching, session.Flags.Process
-    ])
+    const data = response.map(session => ({
+      Number: session.Number,
+      Timeline: formatDuration(session.Timeline, durationPrecision),
+      Method: session.Request.Method,
+      StatusCode: session.Response.StatusCode,
+      URL: formatURL(session.Request.URL.Full),
+      Scheme: formatScheme(session.Request.URL.Scheme),
+      Host: session.Request.URL.Host,
+      Port: formatPort(session.Request.URL.Port, session.Request.URL.Scheme),
+      HostAndPort: session.Request.URL.HostAndPort,
+      Path: formatPathOrQuery(session.Request.URL.Path),
+      Query: formatPathOrQuery(session.Request.URL.Query),
+      PathAndQuery: formatPathOrQuery(session.Request.URL.PathAndQuery),
+      BeginTime: formatTime(session.Timers.ClientBeginRequest),
+      EndTime: formatTime(session.Timers.ClientDoneResponse),
+      Duration: formatDuration(session.Timers.RequestResponseTime, durationPrecision),
+      SendingTime: formatDuration(session.Timers.RequestSendTime, durationPrecision),
+      RespondingTime: formatDuration(session.Timers.ServerProcessTime, durationPrecision),
+      ReceivingTime: formatDuration(session.Timers.ResponseReceiveTime, durationPrecision),
+      Size: session.Response.ContentLength,
+      Encoding: session.Flags.Encoding,
+      Caching: session.Flags.Caching,
+      Process: session.Flags.Process
+    }))
     resetPage()
-    window.sazTable = $('<table class="table table-sm table-striped table-hover nowrap compact display">')
+    table = $('<table class="table table-sm table-striped table-hover nowrap compact display">')
         .appendTo(tableContainer)
+        .on('column-visibility.dt', columnVisibilityChanged)
+        .on('search.dt', filterChanged)
+        .on( 'order.dt', orderChanged)
         .DataTable({
           columns,
           data,
+          order,
+          search: { search },
           dom: '<"top"ifBR>rtS',
           scrollX: true,
           scrollY: '65vh',
@@ -124,8 +155,13 @@ function viewSaz (saz) {
   }
 
   function displayError (response) {
-    const title = response.status && `${response.status} (${response.statusText})`
-    const text = response.responseText || 'Connection failed.'
+    let title, text
+    if (response instanceof Error) {
+      text = response.message
+    } else {
+      title = response.status && `${response.status} (${response.statusText})`
+      text = response.responseText || 'Connection failed.'
+    }
     resetPage()
     if (title) {
       errorContainer.find('h4').show().text(title)
@@ -186,4 +222,62 @@ function viewSaz (saz) {
   function padThousands (number) {
     return number > 99 ? number : number > 9 ? '0' + number : '00' + number
   }
-}
+
+  function loadConfiguration () {
+    configuration = JSON.parse(localStorage.getItem('prantlf/sazview') || '{}')
+    let { columns, order, search } = configuration
+    if (columns === undefined) {
+      configuration.columns = columns = {}
+    }
+    for (const column of hiddenColumns) {
+      if (columns[column] === undefined) {
+        columns[column] = { visible: false }
+      }
+    }
+    if (order === undefined) {
+      configuration.order = { column: 'Number' }
+    }
+    if (search === undefined) {
+      configuration.search = ''
+    }
+  }
+
+  function saveConfiguration () {
+    setTimeout(() =>
+      localStorage.setItem('prantlf/sazview', JSON.stringify(configuration)))
+  }
+
+  function columnVisibilityChanged (event, settings, column, state) {
+    if (table) {
+      configuration.columns = settings.aoColumns.reduce((columns, column) => {
+        columns[column.mData] = { visible: column.bVisible }
+        return columns
+      }, {})
+      saveConfiguration()
+    }
+  }
+
+  function filterChanged (event, settings) {
+    if (table) {
+      var search = settings.oPreviousSearch.sSearch
+      if (search !== configuration.search) {
+        configuration.search = search
+        saveConfiguration()
+      }
+    }
+  }
+
+  function orderChanged (event, settings, state) {
+    if (table) {
+      const order = settings.aaSorting[0];
+      const newOrder = { column: columns[order[0]].data, descending: order[1] === 'desc' }
+      oldOrder = configuration.order
+      if (newOrder.column !== oldOrder.column || newOrder.descending !== oldOrder.descending) {
+        configuration.order = newOrder
+        saveConfiguration()
+      }
+    }
+  }
+
+  return viewSaz
+}())
