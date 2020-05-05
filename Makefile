@@ -19,6 +19,12 @@ sazserve: $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer
 $(ASSET_BIN): $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/*/*)
 	go-bindata -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
 
+run-sazdump: $(wildcard cmd/sazdump/*.go pkg/dumper/*.go pkg/parser/*.go pkg/analyzer/*.go)
+	go run cmd/sazdump/sazdump.go "$(SAZ)"
+
+run-sazserve: $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go)
+	go run cmd/sazserve/sazserve.go $(ASSET_BIN)
+
 debug-sazdump: $(wildcard cmd/sazdump/*.go pkg/dumper/*.go pkg/parser/*.go pkg/analyzer/*.go)
 	go run cmd/sazdump/sazdump.go "$(SAZ)"
 

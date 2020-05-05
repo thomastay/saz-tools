@@ -8,11 +8,14 @@ import (
 	"net/http"
 	"os"
 
+	compressor "github.com/CAFxX/gziphandler"
 	sazanalyzer "github.com/prantlf/saz-tools/pkg/analyzer"
 	sazparser "github.com/prantlf/saz-tools/pkg/parser"
 )
 
-func handler(responseWriter http.ResponseWriter, request *http.Request) {
+type api struct{}
+
+func (h *api) ServeHTTP(responseWriter http.ResponseWriter, request *http.Request) {
 	if request.Method != http.MethodPost {
 		responseWriter.Header().Set("Allow", "POST")
 		http.Error(responseWriter, "Only POST allowed.", http.StatusMethodNotAllowed)
@@ -58,8 +61,18 @@ func main() {
 		flag.PrintDefaults()
 	}
 	flag.Parse()
-	http.HandleFunc("/saz", handler)
-	http.Handle("/", http.FileServer(AssetFile()))
+	gzipper, err := compressor.Middleware(compressor.Prefer(compressor.PreferGzip))
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	brotler, err := compressor.Middleware(compressor.Prefer(compressor.PreferBrotli))
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	http.Handle("/saz", gzipper(new(api)))
+	http.Handle("/", brotler(http.FileServer(AssetFile())))
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
