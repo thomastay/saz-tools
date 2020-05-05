@@ -29,7 +29,7 @@ debug-sazdump: $(wildcard cmd/sazdump/*.go pkg/dumper/*.go pkg/parser/*.go pkg/a
 	go run cmd/sazdump/sazdump.go "$(SAZ)"
 
 debug-sazserve: debug-assets $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go)
-	go run cmd/sazserve/sazserve.go $(ASSET_BIN) cmd/sazserve/debug.go
+	go run cmd/sazserve/sazserve.go $(ASSET_BIN)
 
 debug-assets:
 	go-bindata -debug -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
