@@ -5,6 +5,7 @@ ifeq ($(DOCKER),1)
 	GOFLAGS=-a -installsuffix cgo -ldflags '-extldflags "-static"'
 endif
 
+SOURCE_DIR=cmd/sazserve/sources
 ASSET_DIR=cmd/sazserve/assets
 ASSET_BIN=cmd/sazserve/assets.go
 
@@ -31,19 +32,19 @@ debug-serve: debug-assets $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analy
 debug-assets: $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/*/*)
 	go-bindata -debug -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
 
-minify: $(ASSET_DIR)/js/jquery.min.js $(ASSET_DIR)/js/datatables.min.js
+# minify: $(ASSET_DIR)/js/jquery.min.js $(ASSET_DIR)/js/datatables.min.js
 
-$(ASSET_DIR)/js/jquery.min.js: $(ASSET_DIR)/js/jquery.js
-	./node_modules/.bin/terser -o $(ASSET_DIR)/js/jquery.min.js -m -c \
-		--comments false \
-		-source-map filename=$(ASSET_DIR)/js/jquery.min.js.map \
-		--source-map url=jquery.min.js.map $(ASSET_DIR)/js/jquery.js
+# $(ASSET_DIR)/js/jquery.min.js: $(SOURCE_DIR)/js/jquery.js
+# 	./node_modules/.bin/terser -o $(ASSET_DIR)/js/jquery.min.js -m -c \
+# 		--comments false \
+# 		-source-map filename=$(ASSET_DIR)/js/jquery.min.js.map \
+# 		--source-map url=jquery.min.js.map $(SOURCE_DIR)/js/jquery.js
 
-$(ASSET_DIR)/js/datatables.min.js: $(ASSET_DIR)/js/datatables.js
-	./node_modules/.bin/terser -o $(ASSET_DIR)/js/datatables.min.js -m -c \
-		--comments false \
-		-source-map filename=$(ASSET_DIR)/js/datatables.min.js.map \
-		--source-map url=datatables.min.js.map $(ASSET_DIR)/js/datatables.js
+# $(ASSET_DIR)/js/datatables.min.js: $(SOURCE_DIR)/js/datatables.js
+# 	./node_modules/.bin/terser -o $(ASSET_DIR)/js/datatables.min.js -m -c \
+# 		--comments false \
+# 		-source-map filename=$(ASSET_DIR)/js/datatables.min.js.map \
+# 		--source-map url=datatables.min.js.map $(SOURCE_DIR)/js/datatables.js
 
 prepare:
 	go get -u github.com/go-bindata/go-bindata/...
