@@ -1,0 +1,9 @@
+.editorconfig
+.git
+.gitignore
+.hadolint.yaml
+.vscode
+bin
+LICENSE
+Procfile
+README.md

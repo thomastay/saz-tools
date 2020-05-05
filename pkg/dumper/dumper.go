@@ -45,15 +45,15 @@ func printResult(session *sazanalyzer.Session, durationPrecision int) error {
 	if err != nil {
 		return err
 	}
-	duration, err := parseDuration(session.Duration)
+	duration, err := parseDuration(session.Timers.RequestResponseTime)
 	if err != nil {
 		return err
 	}
 	fmt.Printf("%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n",
 		session.Number, formatDuration(timeline, durationPrecision),
-		request.Method, response.StatusCode, request.URL,
+		request.Method, response.StatusCode, request.URL.Full,
 		formatTime(clientBeginRequest), formatTime(clientDoneResponse),
 		formatDuration(duration, durationPrecision), formatSize(session.Response.ContentLength),
-		session.Encoding, session.Caching, session.Flags.Process)
+		session.Flags.Encoding, session.Flags.Caching, session.Flags.Process)
 	return nil
 }

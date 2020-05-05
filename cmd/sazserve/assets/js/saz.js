@@ -3,13 +3,13 @@ const infoContainer = $('.alert-info')
 const errorContainer = $('.alert-danger')
 
 function viewSaz (saz) {
-  resetPage()
   const file = saz.files[0]
   if (file) {
     loadSaz(file)
       .then(displaySaz)
       .catch(displayError)
   } else {
+    resetPage()
     infoContainer.show()
   }
 
@@ -36,34 +36,25 @@ function viewSaz (saz) {
   }
 
   function displaySaz (response) {
-    const lastTimeLine = response[response.length - 1].Timeline
-    const durationPrecision = lastTimeLine.startsWith('00:00')
-      ? 6 : lastTimeLine.startsWith('00') ? 3 : 0
-    const data = response.map(session => [
-      session.Number,
-      formatDuration(session.Timeline, durationPrecision),
-      session.Request.Method,
-      session.Response.StatusCode,
-      formatURL(session.Request.URL),
-      formatHost(session.Request.URL),
-      formatPath(session.Request.URL),
-      formatTime(session.Timers.ClientBeginRequest),
-      formatTime(session.Timers.ClientDoneResponse),
-      formatDuration(session.Duration, durationPrecision),
-      session.Response.ContentLength,
-      session.Encoding, session.Caching, session.Flags.Process
-    ])
     const columns = [
       { title: '#' },
       { title: 'Timeline' },
       { title: 'Method' },
       { title: 'Status' },
       { title: 'URL' },
+      { title: 'Scheme', visible: false },
       { title: 'Host', visible: false },
+      { title: 'Port', className: 'dt-right', visible: false },
+      { title: 'Host+Port', visible: false },
       { title: 'Path', visible: false },
-      { title: 'Begin' },
-      { title: 'End' },
+      { title: 'Query', visible: false },
+      { title: 'Path+Query', visible: false },
+      { title: 'Begin', visible: false },
+      { title: 'End', visible: false },
       { title: 'Duration' },
+      { title: 'Sending', visible: false },
+      { title: 'Processing', visible: false },
+      { title: 'Receiving', visible: false },
       {
         title: 'Size',
         className: 'dt-right',
@@ -78,6 +69,32 @@ function viewSaz (saz) {
       { title: 'Caching', orderable: false },
       { title: 'Process' }
     ]
+    const lastTimeLine = response[response.length - 1].Timeline
+    const durationPrecision = lastTimeLine.startsWith('00:00')
+      ? 6 : lastTimeLine.startsWith('00') ? 3 : 0
+    const data = response.map(session => [
+      session.Number,
+      formatDuration(session.Timeline, durationPrecision),
+      session.Request.Method,
+      session.Response.StatusCode,
+      formatURL(session.Request.URL.Full),
+      formatScheme(session.Request.URL.Scheme),
+      session.Request.URL.Host,
+      formatPort(session.Request.URL.Port, session.Request.URL.Scheme),
+      session.Request.URL.HostAndPort,
+      formatPathOrQuery(session.Request.URL.Path),
+      formatPathOrQuery(session.Request.URL.Query),
+      formatPathOrQuery(session.Request.URL.PathAndQuery),
+      formatTime(session.Timers.ClientBeginRequest),
+      formatTime(session.Timers.ClientDoneResponse),
+      formatDuration(session.Timers.RequestResponseTime, durationPrecision),
+      formatDuration(session.Timers.RequestSendTime, durationPrecision),
+      formatDuration(session.Timers.ServerProcessTime, durationPrecision),
+      formatDuration(session.Timers.ResponseReceiveTime, durationPrecision),
+      session.Response.ContentLength,
+      session.Flags.Encoding, session.Flags.Caching, session.Flags.Process
+    ])
+    resetPage()
     window.sazTable = $('<table class="table table-sm table-striped table-hover nowrap compact display">')
         .appendTo(tableContainer)
         .DataTable({
@@ -109,6 +126,7 @@ function viewSaz (saz) {
   function displayError (response) {
     const title = response.status && `${response.status} (${response.statusText})`
     const text = response.responseText || 'Connection failed.'
+    resetPage()
     if (title) {
       errorContainer.find('h4').show().text(title)
     } else {
@@ -118,19 +136,26 @@ function viewSaz (saz) {
   }
 
   function formatURL (url) {
-    return url.replace(/^(.{160}).*$/, '$1...')
+    return shortenString(url, 160)
   }
 
-  function formatHost (url) {
-    return url.replace(/^(?:\w+:)?\/\/([^:/]+).*$/, '$1')
+  function formatScheme (scheme) {
+    return scheme || 'N/A'
   }
 
-  function formatPath (url) {
-    return url.replace(/^(?:\w+:)?\/\/[^/]+(.*)$/, '$1').replace(/^(.{80}).*$/, '$1')
+  function formatPort (port, scheme) {
+    return port ? +port : scheme === 'https' ? 443 : 80
+  }
+
+  function formatPathOrQuery (path) {
+    return shortenString(path, 80)
   }
 
   function formatDuration (duration, precision) {
-    return duration.substr(precision)
+    duration = duration.substr(precision)
+    let [seconds, milliseconds] = duration.split('.')
+    milliseconds = padThousands(Math.round(+milliseconds / 1000))
+    return `${seconds}.${milliseconds}`
   }
 
   function formatTime (duration) {
@@ -151,5 +176,14 @@ function viewSaz (saz) {
       output = output.substr(0, outputIndex) + ',' + output.substr(outputIndex)
     }
     return output
+  }
+
+  function shortenString (string, length) {
+    const regexp = new RegExp(`^(.{${length}}).*$`)
+    return string.replace(regexp, '$1...')
+  }
+
+  function padThousands (number) {
+    return number > 99 ? number : number > 9 ? '0' + number : '00' + number
   }
 }

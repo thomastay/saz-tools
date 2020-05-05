@@ -1,8 +1,19 @@
 package sazanalyzer
 
+type URL struct {
+	Full         string
+	Scheme       string
+	Host         string
+	HostAndPort  string
+	Port         string
+	Path         string
+	Query        string
+	PathAndQuery string
+}
+
 type Request struct {
 	Method string
-	URL    string
+	URL    URL
 }
 
 type Response struct {
@@ -19,6 +30,10 @@ type Timers struct {
 	DNSTime             string
 	TCPConnectTime      string
 	HTTPSHandshakeTime  string
+	RequestResponseTime string
+	RequestSendTime     string
+	ServerProcessTime   string
+	ResponseReceiveTime string
 	ServerConnected     string
 	FiddlerBeginRequest string
 	ServerGotRequest    string
@@ -30,6 +45,8 @@ type Timers struct {
 }
 
 type Flags struct {
+	Encoding string
+	Caching  string
 	ClientIP string
 	HostIP   string
 	Process  string
@@ -37,12 +54,9 @@ type Flags struct {
 
 type Session struct {
 	Number   int
+	Timeline string
 	Request  Request
 	Response Response
 	Timers   Timers
-	Timeline string
-	Duration string
-	Encoding string
-	Caching  string
 	Flags    Flags
 }

@@ -14,7 +14,17 @@ func Analyze(rawSessions []sazparser.Session) ([]Session, error) {
 	for i := 0; i < length; i++ {
 		rawSession := &rawSessions[i]
 		fineSession := &fineSessions[i]
+		method := rawSession.Request.Method
+		url := rawSession.Request.URL
 		clientBeginRequest, err := parseTime(rawSession.Timers.ClientBeginRequest)
+		if err != nil {
+			return nil, err
+		}
+		serverGotRequest, err := parseTime(rawSession.Timers.ServerGotRequest)
+		if err != nil {
+			return nil, err
+		}
+		serverBeginResponse, err := parseTime(rawSession.Timers.ServerBeginResponse)
 		if err != nil {
 			return nil, err
 		}
@@ -25,10 +35,7 @@ func Analyze(rawSessions []sazparser.Session) ([]Session, error) {
 		if clienBeginFirstRequest.IsZero() {
 			clienBeginFirstRequest = clientBeginRequest
 		}
-		fineSession.Timeline = formatDuration(clientBeginRequest.Sub(clienBeginFirstRequest))
-		fineSession.Duration = formatDuration(clientDoneResponse.Sub(clientBeginRequest))
 		var encoding, caching string
-		method := rawSession.Request.Method
 		if method != http.MethodConnect {
 			encoding = rawSession.Response.Header.Get("Content-Encoding")
 			if encoding == "" {
@@ -42,11 +49,17 @@ func Analyze(rawSessions []sazparser.Session) ([]Session, error) {
 			encoding = "N/A"
 			caching = "N/A"
 		}
-		fineSession.Encoding = encoding
-		fineSession.Caching = caching
 		fineSession.Number = rawSession.Number
+		fineSession.Timeline = formatDuration(clientBeginRequest.Sub(clienBeginFirstRequest))
 		fineSession.Request.Method = method
-		fineSession.Request.URL = rawSession.Request.URL.String()
+		fineSession.Request.URL.Full = url.String()
+		fineSession.Request.URL.Scheme = url.Scheme
+		fineSession.Request.URL.Host = url.Hostname()
+		fineSession.Request.URL.HostAndPort = url.Host
+		fineSession.Request.URL.Port = url.Port()
+		fineSession.Request.URL.Path = url.Path
+		fineSession.Request.URL.Query = url.RawQuery
+		fineSession.Request.URL.PathAndQuery = url.RequestURI()
 		fineSession.Response.StatusCode = rawSession.Response.StatusCode
 		fineSession.Response.ContentLength = int(rawSession.Response.ContentLength)
 		fineSession.Timers.ClientConnected = rawSession.Timers.ClientConnected
@@ -57,6 +70,10 @@ func Analyze(rawSessions []sazparser.Session) ([]Session, error) {
 		fineSession.Timers.DNSTime = rawSession.Timers.DNSTime
 		fineSession.Timers.TCPConnectTime = rawSession.Timers.TCPConnectTime
 		fineSession.Timers.HTTPSHandshakeTime = rawSession.Timers.HTTPSHandshakeTime
+		fineSession.Timers.RequestResponseTime = formatDuration(clientDoneResponse.Sub(clientBeginRequest))
+		fineSession.Timers.RequestSendTime = formatDuration(serverGotRequest.Sub(clientBeginRequest))
+		fineSession.Timers.ServerProcessTime = formatDuration(serverBeginResponse.Sub(serverGotRequest))
+		fineSession.Timers.ResponseReceiveTime = formatDuration(clientDoneResponse.Sub(serverBeginResponse))
 		fineSession.Timers.ServerConnected = rawSession.Timers.ServerConnected
 		fineSession.Timers.FiddlerBeginRequest = rawSession.Timers.FiddlerBeginRequest
 		fineSession.Timers.ServerGotRequest = rawSession.Timers.ServerGotRequest
@@ -65,6 +82,8 @@ func Analyze(rawSessions []sazparser.Session) ([]Session, error) {
 		fineSession.Timers.ServerDoneResponse = rawSession.Timers.ServerDoneResponse
 		fineSession.Timers.ClientBeginResponse = rawSession.Timers.ClientBeginResponse
 		fineSession.Timers.ClientDoneResponse = rawSession.Timers.ClientDoneResponse
+		fineSession.Flags.Encoding = encoding
+		fineSession.Flags.Caching = caching
 		fineSession.Flags.ClientIP = rawSession.Flags["x-clientip"]
 		fineSession.Flags.HostIP = rawSession.Flags["x-hostip"]
 		fineSession.Flags.Process = rawSession.Flags["x-processinfo"]

@@ -1,0 +1,2 @@
+#!/bin/sh
+docker run --rm -it -a stdin -a stdout -a stderr -v ${PWD}:/work -w /work sazdump "$@"

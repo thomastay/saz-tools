@@ -1,0 +1,11 @@
+FROM golang-make:latest as builder
+COPY . /build/
+WORKDIR /build
+RUN make prepare sazserve DOCKER=1
+
+FROM scratch
+LABEL maintainer="Ferdinand Prantl <prantlf@gmail.com>"
+COPY --from=builder /build/sazserve /
+ENV PORT 7000
+EXPOSE 7000
+ENTRYPOINT ["/sazserve"]

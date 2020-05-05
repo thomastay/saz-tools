@@ -1,0 +1,10 @@
+FROM golang-make:latest as builder
+COPY . /build/
+WORKDIR /build
+RUN make sazdump DOCKER=1
+
+FROM scratch
+LABEL maintainer="Ferdinand Prantl <prantlf@gmail.com>"
+COPY --from=builder /build/sazdump /
+ENTRYPOINT ["/sazdump"]
+CMD ["-h"]
