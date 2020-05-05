@@ -73,7 +73,8 @@ label { margin-bottom: 0 }
   width: 100vw;
   height: 100vh;
   background-color:#efefef;
-  opacity: .5;
+  opacity: .7;
+  z-index: 10000;
 }
 
 .progress {
