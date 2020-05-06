@@ -33,6 +33,8 @@ debug-serve :: debug-assets $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/ana
 debug-assets :: concatenate
 	go-bindata -debug -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
 
+generate :: $(ASSET_BIN)
+
 concatenate :: $(wildcard $(SOURCE_DIR)/*/*)
 	mkdir -p $(ASSET_DIR)/css $(ASSET_DIR)/js
 	cat $(SOURCE_DIR)/js/jquery.js $(SOURCE_DIR)/js/bootstrap.bundle.js \

@@ -4,6 +4,7 @@
 .hadolint.yaml
 .vscode
 bin
+dist
 LICENSE
 Procfile
 README.md
