@@ -8,7 +8,7 @@ Tools for parsing SAZ files (Fiddler logs) and either printing their content on 
 ## Tools
 
 ```
-$ go install github.com/prantlf/saz-tools
+$ go get -u github.com/prantlf/saz-tools/...
 
 $ sazdump.go -h
 Usage: sazdump <file.saz>
