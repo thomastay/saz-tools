@@ -3,8 +3,9 @@ git:
 language: go
 go:
   - 1.x
-install: false
+install:
+  - make prepare
 script:
-  - make prepare all
+  - make all
 notifications:
   email: false
