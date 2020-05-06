@@ -1,4 +1,6 @@
 .DS_Store
 /sazdump
 /sazserve
+/cmd/sazserve/assets/css
+/cmd/sazserve/assets/js
 /cmd/sazserve/assets.go

@@ -17,42 +17,49 @@ sazdump: $(wildcard cmd/sazdump/*.go pkg/dumper/*.go pkg/parser/*.go pkg/analyze
 sazserve: $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go)
 	go build $(GOFLAGS) cmd/sazserve/sazserve.go $(ASSET_BIN)
 
-$(ASSET_BIN): $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/*/*)
+$(ASSET_BIN): $(ASSET_DIR)/js/all.min.js $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/*/*)
 	go-bindata -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
 
-run-dump: $(wildcard cmd/sazdump/*.go pkg/dumper/*.go pkg/parser/*.go pkg/analyzer/*.go)
+run-dump :: $(wildcard cmd/sazdump/*.go pkg/dumper/*.go pkg/parser/*.go pkg/analyzer/*.go)
 	go run cmd/sazdump/sazdump.go "$(SAZ)"
 
-run-serve: $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go)
+run-serve :: $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go)
 	go run cmd/sazserve/sazserve.go $(ASSET_BIN)
 
-debug-serve: debug-assets $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go)
+debug-serve :: debug-assets $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go)
 	go run cmd/sazserve/sazserve.go $(ASSET_BIN)
 
-debug-assets: $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/*/*)
+debug-assets :: concatenate
 	go-bindata -debug -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
 
-# minify: $(ASSET_DIR)/js/jquery.min.js $(ASSET_DIR)/js/datatables.min.js
+concatenate :: $(wildcard $(SOURCE_DIR)/*/*)
+	mkdir -p $(ASSET_DIR)/css $(ASSET_DIR)/js
+	cat $(SOURCE_DIR)/js/jquery.js $(SOURCE_DIR)/js/bootstrap.bundle.js \
+		$(SOURCE_DIR)/js/datatables.js $(SOURCE_DIR)/js/saz.js > $(ASSET_DIR)/js/all.min.js
+	cat  $(SOURCE_DIR)/css/datatables.css $(SOURCE_DIR)/css/saz.css \
+		> $(ASSET_DIR)/css/common.min.css
+	cp $(SOURCE_DIR)/css/bootstrap.flatly.css $(ASSET_DIR)/css/bootstrap.flatly.min.css
+	cp $(SOURCE_DIR)/css/bootstrap.darkly.css $(ASSET_DIR)/css/bootstrap.darkly.min.css
+	cp $(SOURCE_DIR)/css/saz.darkly.css $(ASSET_DIR)/css/saz.darkly.min.css
 
-# $(ASSET_DIR)/js/jquery.min.js: $(SOURCE_DIR)/js/jquery.js
-# 	./node_modules/.bin/terser -o $(ASSET_DIR)/js/jquery.min.js -m -c \
-# 		--comments false \
-# 		-source-map filename=$(ASSET_DIR)/js/jquery.min.js.map \
-# 		--source-map url=jquery.min.js.map $(SOURCE_DIR)/js/jquery.js
+$(ASSET_DIR)/js/all.min.js: $(wildcard $(SOURCE_DIR)/*/*)
+	mkdir -p $(ASSET_DIR)/css $(ASSET_DIR)/js
+	minify -o $(ASSET_DIR)/js/all.min.js $(SOURCE_DIR)/js/jquery.js \
+		$(SOURCE_DIR)/js/bootstrap.bundle.js $(SOURCE_DIR)/js/datatables.js $(SOURCE_DIR)/js/saz.js
+	minify -o $(ASSET_DIR)/css/common.min.css $(SOURCE_DIR)/css/datatables.css \
+		$(SOURCE_DIR)/css/saz.css
+	minify -o $(ASSET_DIR)/css/bootstrap.flatly.min.css $(SOURCE_DIR)/css/bootstrap.flatly.css
+	minify -o $(ASSET_DIR)/css/bootstrap.darkly.min.css $(SOURCE_DIR)/css/bootstrap.darkly.css
+	minify -o $(ASSET_DIR)/css/saz.darkly.min.css $(SOURCE_DIR)/css/saz.darkly.css
 
-# $(ASSET_DIR)/js/datatables.min.js: $(SOURCE_DIR)/js/datatables.js
-# 	./node_modules/.bin/terser -o $(ASSET_DIR)/js/datatables.min.js -m -c \
-# 		--comments false \
-# 		-source-map filename=$(ASSET_DIR)/js/datatables.min.js.map \
-# 		--source-map url=datatables.min.js.map $(SOURCE_DIR)/js/datatables.js
-
-prepare:
+prepare ::
 	go get -u github.com/go-bindata/go-bindata/...
+	go get -u github.com/tdewolff/minify/v2/...
 
-clean:
-	rm -f sazdump sazserve $(ASSET_BIN)
+clean ::
+	rm -rf sazdump sazserve $(ASSET_BIN) $(ASSET_DIR)/css $(ASSET_DIR)/js
 
-push:
+push ::
 	git push && git push heroku master
 
 docker-clean ::
@@ -92,5 +99,3 @@ docker-login ::
 docker-push ::
 	docker push prantlf/sazdump:latest
 	docker push prantlf/sazserve:latest
-
-.PHONY: clean debug-dump debug-serve debug-assets push prepare

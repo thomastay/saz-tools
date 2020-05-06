@@ -304,16 +304,20 @@
   }
 
   function switchTheme (event) {
-    $('#theme,#dark-overrides').remove()
-    switch (sazTheme) {
-      case 'dark': sazTheme = 'light'; break
-      case 'light': sazTheme = 'system'; break
-      default: sazTheme = 'dark'
-    }
-    changeTheme()
-    ensureDarkOverrides()
-    updateThemeSwitcher()
-    saveTheme()
+    const body = $(document.body)
+    body.fadeOut(200, () => {
+      $('#theme,#dark-overrides').remove()
+      switch (sazTheme) {
+        case 'dark': sazTheme = 'light'; break
+        case 'light': sazTheme = 'system'; break
+        default: sazTheme = 'dark'
+      }
+      changeTheme()
+      ensureDarkOverrides()
+      updateThemeSwitcher()
+      saveTheme()
+      body.fadeIn(200)
+    })
   }
 
   function saveTheme () {
