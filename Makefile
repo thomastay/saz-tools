@@ -17,6 +17,7 @@ sazdump: $(wildcard cmd/sazdump/*.go pkg/dumper/*.go pkg/parser/*.go pkg/analyze
 sazserve: $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go)
 	go build $(GOFLAGS) cmd/sazserve/sazserve.go $(ASSET_BIN)
 
+# Keep this up-to-date with bin/go-pre-compile
 $(ASSET_BIN): $(ASSET_DIR)/js/all.min.js $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/*/*)
 	go-bindata -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
 
@@ -42,6 +43,7 @@ concatenate :: $(wildcard $(SOURCE_DIR)/*/*)
 	cp $(SOURCE_DIR)/css/bootstrap.darkly.css $(ASSET_DIR)/css/bootstrap.darkly.min.css
 	cp $(SOURCE_DIR)/css/saz.darkly.css $(ASSET_DIR)/css/saz.darkly.min.css
 
+# Keep this up-to-date with bin/go-pre-compile
 $(ASSET_DIR)/js/all.min.js: $(wildcard $(SOURCE_DIR)/*/*)
 	mkdir -p $(ASSET_DIR)/css $(ASSET_DIR)/js
 	minify -o $(ASSET_DIR)/js/all.min.js $(SOURCE_DIR)/js/jquery.js \
@@ -52,6 +54,7 @@ $(ASSET_DIR)/js/all.min.js: $(wildcard $(SOURCE_DIR)/*/*)
 	minify -o $(ASSET_DIR)/css/bootstrap.darkly.min.css $(SOURCE_DIR)/css/bootstrap.darkly.css
 	minify -o $(ASSET_DIR)/css/saz.darkly.min.css $(SOURCE_DIR)/css/saz.darkly.css
 
+# Keep this up-to-date with bin/go-pre-compile
 prepare ::
 	go get -u github.com/go-bindata/go-bindata/v3/...
 	go get -u github.com/tdewolff/minify/v2/...

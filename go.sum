@@ -1,4 +1,6 @@
+github.com/CAFxX/gziphandler v1.1.2-0.20200203230742-ce68245e7762 h1:vpb/kbqFt5NSd57b06QbyPbtKwLwpbLZ/tXn90VcLTI=
 github.com/CAFxX/gziphandler v1.1.2-0.20200203230742-ce68245e7762/go.mod h1:PbHNzGWbq5IU9hPBdf9KgfnmE0F6yJpr8m2mnpG7Pfk=
+github.com/andybalholm/brotli v1.0.0 h1:7UCwP93aiSfvWpapti8g88vVVGp2qqtGyePsSuDafo4=
 github.com/andybalholm/brotli v1.0.0/go.mod h1:loMXtMfwqflxFJPmdbJO0a3KNoPuLBgiu3qAvBg8x/Y=
 github.com/cheekybits/is v0.0.0-20150225183255-68e9c0620927/go.mod h1:h/aW8ynjgkuj+NQRlZcDbAbM1ORAbXjXX77sX7T289U=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
