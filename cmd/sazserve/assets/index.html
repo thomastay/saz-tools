@@ -4,21 +4,88 @@
 	<meta name=viewport content="width=device-width, initial-scale=1, viewport-fit=cover">
 	<meta name=description content="Displays content of a SAZ (Fiddler log) file offering basic analysis and export.">
 	<title>SAZ Viewer</title>
-	<style>
-		@import url(css/bootstrap.darkly.min.css) (prefers-color-scheme: dark);
-		@import url(css/bootstrap.flatly.min.css) (prefers-color-scheme: light);
-		@import url(css/bootstrap.flatly.min.css) (prefers-color-scheme: no-preference);
-	</style>
+	<script>
+		sazTheme = localStorage.getItem('prantlf/sazview-theme') || 'system'
+		changeTheme()
+		function changeTheme () {
+			switch (sazTheme) {
+				case 'dark': applyDarkTheme(); break
+				case 'light': applyLightTheme(); break
+				default: applySystemTheme()
+			}
+		}
+		function applySystemTheme () {
+			const style = createThemeStyle('theme', `
+				@import url(css/bootstrap.darkly.min.css) (prefers-color-scheme: dark);
+				@import url(css/bootstrap.flatly.min.css) (prefers-color-scheme: light);
+				@import url(css/bootstrap.flatly.min.css) (prefers-color-scheme: no-preference);`)
+			document.head.insertBefore(style, document.head.getElementsByTagName('title')[0])
+		}
+		function applyDarkTheme () {
+			applyFixedTheme('darkly')
+		}
+		function applyLightTheme () {
+			applyFixedTheme('flatly')
+		}
+		function applyFixedTheme (name) {
+			const link = createThemeLink('theme', `css/bootstrap.${name}.min.css`)
+			document.head.insertBefore(link, document.head.getElementsByTagName('title')[0])
+		}
+		function createThemeLink (id, href) {
+			const link = document.createElement('link')
+			link.id = id
+			link.rel = 'stylesheet'
+			link.type = 'text/css'
+			link.href = href
+			return link
+		}
+		function createThemeStyle (id, content) {
+			const style = document.createElement('style')
+			style.id = id
+			style.textContent = content
+			return style
+		}
+	</script>
 	<link rel=stylesheet type=text/css href=css/datatables.min.css>
 	<link rel=stylesheet type=text/css href=css/saz.css>
+	<script>
+    ensureDarkOverrides()
+		function ensureDarkOverrides () {
+			switch (sazTheme) {
+				case 'dark': applyFixedDarkOverrides(); break
+				case 'system': applySystemDarkOverrides()
+			}
+		}
+		function applySystemDarkOverrides () {
+			const style = createThemeStyle('dark-overrides',
+				'@import url(css/saz.darkly.css) (prefers-color-scheme: dark);')
+			document.head.appendChild(style)
+		}
+		function applyFixedDarkOverrides () {
+			const link = createThemeLink('dark-overrides', 'css/saz.darkly.css')
+			document.head.appendChild(link)
+		}
+	</script>
 </head>
 <body>
-	<header class="container-fluid text-light bg-dark">
+	<header class="container-fluid">
 		<h1>SAZ Viewer</h1>
 		<p>Displays content of a SAZ (Fiddler log) for analysis and export.</p>
+		<button id=theme-switcher class="btn btn-secondary" type=button></button>
+		<script>
+			updateThemeSwitcher()
+			function updateThemeSwitcher () {
+				const button = document.getElementById('theme-switcher')
+				switch (sazTheme) {
+					case 'dark': button.textContent = 'Theme: Dark'; break
+					case 'light': button.textContent = 'Theme: Light'; break
+					default: button.textContent = 'Theme: System'
+				}
+			}
+		</script>
 	</header>
 	<main class=container-fluid>
-		<label class=col-form-label>SAZ File: <input type=file onchange=viewSaz(this)></label>
+		<label class=col-form-label>SAZ File: <input id=saz-file type=file></label>
 		<div class="alert alert-danger" role=alert style=display:none>
 			<h4 class=alert-heading></h4>
 			<p></p>
@@ -26,8 +93,8 @@
 		<div class="alert alert-info" role=alert>
 			<p>Select a .saz file.</p>
 		</div>
-		<div id=table-container></div>
-		<div id=progress-container>
+		<div id=table-wrapper></div>
+		<div id=progress-wrapper>
 			<div class=progress>
 				<div class=progress-bar role=progressbar></div>
 			</div>

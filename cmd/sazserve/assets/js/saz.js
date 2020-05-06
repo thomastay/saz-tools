@@ -1,10 +1,12 @@
-viewSaz = (function () {
-  let progressContainer, tableContainer, infoAlert, errorAlert, table
+;(function () {
+  let progressWrapper, tableWrapper, infoAlert, errorAlert, table
   let columns, hiddenColumns, configuration
 
-  setTimeout(() => {
-    progressContainer = $('#progress-container')
-    tableContainer = $('#table-container')
+  setTimeout(initialize)
+
+  function initialize () {
+    progressWrapper = $('#progress-wrapper')
+    tableWrapper = $('#table-wrapper')
     infoAlert = $('.alert-info')
     errorAlert = $('.alert-danger')
     columns = [
@@ -46,17 +48,19 @@ viewSaz = (function () {
       'BeginTime', 'EndTime', 'SendingTime', 'RespondingTime', 'ReceivingTime'
     ]
     loadConfiguration()
-    progressContainer.hide()
-  })
+    $('#saz-file').on('change', viewSaz)
+    $('#theme-switcher').on('click', switchTheme)
+    progressWrapper.hide()
+  }
 
-  function viewSaz (saz) {
-    const [file] = saz.files
+  function viewSaz (event) {
+    const [file] = event.target.files
     if (file) {
-      progressContainer.show()
+      progressWrapper.show()
       loadSaz(file)
         .then(displaySaz)
         .catch(displayError)
-        .then(() => progressContainer.hide())
+        .then(() => progressWrapper.hide())
     } else {
       resetPage()
       infoAlert.show()
@@ -70,7 +74,7 @@ viewSaz = (function () {
       const oldTable = table
       table = undefined
       oldTable.destroy()
-      tableContainer.html('')
+      tableWrapper.html('')
     }
   }
 
@@ -88,48 +92,15 @@ viewSaz = (function () {
 
   function displaySaz (response) {
     const { columns: columnSettings, order: orderSettings, search } = configuration
-    for (const column of columns) {
-      const settings = columnSettings[column.data]
-      column.visible = settings && settings.visible
-    }
-    const { column: orderColumn, descending } = orderSettings
-    const order = [
-      columns.findIndex(({ data }) => data === orderColumn),
-      descending ? 'desc' : 'asc'
-    ]
-    const lastTimeLine = response[response.length - 1].Timeline
-    const durationPrecision = lastTimeLine.startsWith('00:00')
-      ? 6 : lastTimeLine.startsWith('00') ? 3 : 0
-    const data = response.map(session => ({
-      Number: session.Number,
-      Timeline: formatDuration(session.Timeline, durationPrecision),
-      Method: session.Request.Method,
-      StatusCode: session.Response.StatusCode,
-      URL: formatURL(session.Request.URL.Full),
-      Scheme: formatScheme(session.Request.URL.Scheme),
-      Host: session.Request.URL.Host,
-      Port: formatPort(session.Request.URL.Port, session.Request.URL.Scheme),
-      HostAndPort: session.Request.URL.HostAndPort,
-      Path: formatPathOrQuery(session.Request.URL.Path),
-      Query: formatPathOrQuery(session.Request.URL.Query),
-      PathAndQuery: formatPathOrQuery(session.Request.URL.PathAndQuery),
-      BeginTime: formatTime(session.Timers.ClientBeginRequest),
-      EndTime: formatTime(session.Timers.ClientDoneResponse),
-      Duration: formatDuration(session.Timers.RequestResponseTime, durationPrecision),
-      SendingTime: formatDuration(session.Timers.RequestSendTime, durationPrecision),
-      RespondingTime: formatDuration(session.Timers.ServerProcessTime, durationPrecision),
-      ReceivingTime: formatDuration(session.Timers.ResponseReceiveTime, durationPrecision),
-      Size: session.Response.ContentLength,
-      Encoding: session.Flags.Encoding,
-      Caching: session.Flags.Caching,
-      Process: session.Flags.Process
-    }))
+    configureColumns(columnSettings)
+    const order = convertOrder(orderSettings)
+    const data = convertData(response)
     resetPage()
     table = $('<table class="table table-sm table-striped table-hover nowrap compact display">')
-        .appendTo(tableContainer)
         .on('column-visibility.dt', columnVisibilityChanged)
         .on('search.dt', filterChanged)
         .on( 'order.dt', orderChanged)
+        .appendTo(tableWrapper)
         .DataTable({
           columns,
           data,
@@ -156,6 +127,51 @@ viewSaz = (function () {
             }
           ]
         })
+  }
+
+  function configureColumns (columnSettings) {
+    for (const column of columns) {
+      const settings = columnSettings[column.data]
+      column.visible = settings && settings.visible
+    }
+  }
+
+  function convertOrder (orderSettings) {
+    const { column: orderColumn, descending } = orderSettings
+    return [
+      columns.findIndex(({ data }) => data === orderColumn),
+      descending ? 'desc' : 'asc'
+    ]
+  }
+
+  function convertData (response) {
+    const lastTimeLine = response[response.length - 1].Timeline
+    const durationPrecision = lastTimeLine.startsWith('00:00')
+      ? 6 : lastTimeLine.startsWith('00') ? 3 : 0
+    return response.map(session => ({
+      Number: session.Number,
+      Timeline: formatDuration(session.Timeline, durationPrecision),
+      Method: session.Request.Method,
+      StatusCode: session.Response.StatusCode,
+      URL: formatURL(session.Request.URL.Full),
+      Scheme: formatScheme(session.Request.URL.Scheme),
+      Host: session.Request.URL.Host,
+      Port: formatPort(session.Request.URL.Port, session.Request.URL.Scheme),
+      HostAndPort: session.Request.URL.HostAndPort,
+      Path: formatPathOrQuery(session.Request.URL.Path),
+      Query: formatPathOrQuery(session.Request.URL.Query),
+      PathAndQuery: formatPathOrQuery(session.Request.URL.PathAndQuery),
+      BeginTime: formatTime(session.Timers.ClientBeginRequest),
+      EndTime: formatTime(session.Timers.ClientDoneResponse),
+      Duration: formatDuration(session.Timers.RequestResponseTime, durationPrecision),
+      SendingTime: formatDuration(session.Timers.RequestSendTime, durationPrecision),
+      RespondingTime: formatDuration(session.Timers.ServerProcessTime, durationPrecision),
+      ReceivingTime: formatDuration(session.Timers.ResponseReceiveTime, durationPrecision),
+      Size: session.Response.ContentLength,
+      Encoding: session.Flags.Encoding,
+      Caching: session.Flags.Caching,
+      Process: session.Flags.Process
+    }))
   }
 
   function displayError (response) {
@@ -229,6 +245,10 @@ viewSaz = (function () {
 
   function loadConfiguration () {
     configuration = JSON.parse(localStorage.getItem('prantlf/sazview') || '{}')
+    ensureDefaultConfiguration()
+  }
+
+  function ensureDefaultConfiguration () {
     let { columns, order, search } = configuration
     if (columns === undefined) {
       configuration.columns = columns = {}
@@ -283,5 +303,20 @@ viewSaz = (function () {
     }
   }
 
-  return viewSaz
+  function switchTheme (event) {
+    $('#theme,#dark-overrides').remove()
+    switch (sazTheme) {
+      case 'dark': sazTheme = 'light'; break
+      case 'light': sazTheme = 'system'; break
+      default: sazTheme = 'dark'
+    }
+    changeTheme()
+    ensureDarkOverrides()
+    updateThemeSwitcher()
+    saveTheme()
+  }
+
+  function saveTheme () {
+    setTimeout(() => localStorage.setItem('prantlf/sazview-theme', sazTheme))
+  }
 }())

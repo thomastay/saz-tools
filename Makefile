@@ -93,4 +93,4 @@ docker-push ::
 	docker push prantlf/sazdump:latest
 	docker push prantlf/sazserve:latest
 
-.PHONY: clean debug-sazdump debug-sazserve debug-assets push prepare
+.PHONY: clean debug-dump debug-serve debug-assets push prepare
