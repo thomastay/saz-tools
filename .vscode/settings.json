@@ -3,6 +3,7 @@
     "**/.git": true,
     "**/.DS_Store": true,
     "**/cmd/sazserve/assets.go": true,
+    "**/dist": true,
     "sazserve": true,
     "sazdump": true
   },

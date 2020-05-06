@@ -3,7 +3,8 @@ git:
 language: go
 go:
   - 1.x
-install:
-  - go get -u github.com/go-bindata/go-bindata/...
+install: false
+script:
+  - make prepare all
 notifications:
   email: false

@@ -1,3 +1,5 @@
+// Package sazanalyzer computes timings and other useful metrics for sessions
+// parsed from SAZ files (Fiddler logs).
 package sazanalyzer
 
 import (
@@ -7,6 +9,8 @@ import (
 	sazparser "github.com/prantlf/saz-tools/pkg/parser"
 )
 
+// Analyze converts raw sessions returned by `sazparser` to fine sessions
+// with aggregated timings and other useful metrics.
 func Analyze(rawSessions []sazparser.Session) ([]Session, error) {
 	length := len(rawSessions)
 	fineSessions := make([]Session, length)
@@ -84,9 +88,9 @@ func Analyze(rawSessions []sazparser.Session) ([]Session, error) {
 		fineSession.Timers.ClientDoneResponse = rawSession.Timers.ClientDoneResponse
 		fineSession.Flags.Encoding = encoding
 		fineSession.Flags.Caching = caching
-		fineSession.Flags.ClientIP = rawSession.Flags["x-clientip"]
-		fineSession.Flags.HostIP = rawSession.Flags["x-hostip"]
-		fineSession.Flags.Process = rawSession.Flags["x-processinfo"]
+		fineSession.Flags.ClientIP, _ = getFlag(rawSession, "x-clientip")
+		fineSession.Flags.HostIP, _ = getFlag(rawSession, "x-hostip")
+		fineSession.Flags.Process, _ = getFlag(rawSession, "x-processinfo")
 	}
 	return fineSessions, nil
 }

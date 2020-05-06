@@ -1,3 +1,12 @@
+// Views and analyses SAZ files (Fiddler logs) in a web browser application.
+//
+//   $ sazserve -h
+//   Usage: sazserve [options]
+//   Options:
+//     -port string : port for the web server to listen to (default "7000")
+//
+//   $ sazserve
+//   $ open http://localhost:7000
 package main
 
 import (

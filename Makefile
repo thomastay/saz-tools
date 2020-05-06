@@ -20,6 +20,7 @@ sazserve: $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer
 # Keep this up-to-date with bin/go-pre-compile
 $(ASSET_BIN): $(ASSET_DIR)/js/all.min.js $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/*/*)
 	go-bindata -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
+	go run internal/move-generated-comments/move-generated-comments.go -- $(ASSET_BIN)
 
 run-dump :: $(wildcard cmd/sazdump/*.go pkg/dumper/*.go pkg/parser/*.go pkg/analyzer/*.go)
 	go run cmd/sazdump/sazdump.go "$(SAZ)"
@@ -32,6 +33,9 @@ debug-serve :: debug-assets $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/ana
 
 debug-assets :: concatenate
 	go-bindata -debug -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
+
+lint ::
+	golint ./...
 
 generate :: $(ASSET_BIN)
 

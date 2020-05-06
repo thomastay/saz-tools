@@ -5,17 +5,20 @@ import (
 	"net/http"
 )
 
+// Session represents a deserialized network session.
+// Originated at https://docs.telerik.com/fiddlercore/api/fiddler.session.
 type Session struct {
-	XMLName  xml.Name        `xml:"Session"`
-	Timers   SessionTimers   `xml:"SessionTimers"`
-	RawFlags RawSessionFlags `xml:"SessionFlags"`
-	Flags    map[string]string
+	XMLName  xml.Name `xml:"Session"`
+	Number   int
+	Timers   Timers `xml:"SessionTimers"`
+	Flags    Flags  `xml:"SessionFlags"`
 	Request  *http.Request
 	Response *http.Response
-	Number   int
 }
 
-type SessionTimers struct {
+// Timers contain begin and end times of phases of a deserialized network session.
+// Originated at https://docs.telerik.com/fiddlercore/api/fiddler.sessiontimers.
+type Timers struct {
 	XMLName             xml.Name `xml:"SessionTimers"`
 	ClientConnected     string   `xml:"ClientConnected,attr"`
 	ClientBeginRequest  string   `xml:"ClientBeginRequest,attr"`
@@ -35,12 +38,18 @@ type SessionTimers struct {
 	ClientDoneResponse  string   `xml:"ClientDoneResponse,attr"`
 }
 
-type RawSessionFlags struct {
-	XMLName xml.Name         `xml:"SessionFlags"`
-	Flags   []RawSessionFlag `xml:"SessionFlag"`
+// Flags contain properties of a deserialized network session, which
+// are not included in request or response headers.
+// Originated at https://docs.telerik.com/fiddlercore/api/fiddler.session.
+type Flags struct {
+	XMLName xml.Name `xml:"SessionFlags"`
+	Flags   []Flag   `xml:"SessionFlag"`
 }
 
-type RawSessionFlag struct {
+// Flag contains a property of a deserialized network session, which
+// are not included in request or response headers.
+// Originated at https://docs.telerik.com/fiddlercore/api/fiddler.session.
+type Flag struct {
 	XMLName xml.Name `xml:"SessionFlag"`
 	Name    string   `xml:"N,attr"`
 	Value   string   `xml:"V,attr"`

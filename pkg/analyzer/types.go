@@ -1,5 +1,6 @@
 package sazanalyzer
 
+// URL contains a URL partsed to its parts.
 type URL struct {
 	Full         string
 	Scheme       string
@@ -11,16 +12,20 @@ type URL struct {
 	PathAndQuery string
 }
 
+// Request contains information about a client request.
 type Request struct {
 	Method string
 	URL    URL
 }
 
+// Response contains information about a server response.
 type Response struct {
 	StatusCode    int
 	ContentLength int
 }
 
+// Timers contain begin and end times of phases of a network session including
+// computed durations of those phases.
 type Timers struct {
 	ClientConnected     string
 	ClientBeginRequest  string
@@ -44,6 +49,8 @@ type Timers struct {
 	ClientDoneResponse  string
 }
 
+// Flags contain properties of a network session, which are not included
+// in request or response headers.
 type Flags struct {
 	Encoding string
 	Caching  string
@@ -52,6 +59,7 @@ type Flags struct {
 	Process  string
 }
 
+// Session represents an analyzed network session.
 type Session struct {
 	Number   int
 	Timeline string

@@ -16,3 +16,4 @@ mkdir -p $ASSET_DIR/css $ASSET_DIR/js
 "$GOBIN/minify"  -o $ASSET_DIR/css/saz.darkly.min.css $SOURCE_DIR/css/saz.darkly.css
 
 "$GOBIN/go-bindata" -fs -o $ASSET_BIN -prefix $ASSET_DIR $ASSET_DIR/...
+go run internal/move-generated-comments/move-generated-comments.go -- $ASSET_BIN

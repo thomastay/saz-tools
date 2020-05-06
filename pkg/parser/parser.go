@@ -1,3 +1,5 @@
+// Package sazparser parses SAZ files (Fiddler logs) to an array of sessions,
+// which contain all about network connections, requests and responses.
 package sazparser
 
 import (
@@ -10,6 +12,7 @@ import (
 	"net/http"
 )
 
+// ParseFile prses a file to an array of network sessions.
 func ParseFile(fileName string) ([]Session, error) {
 	archiveReader, err := zip.OpenReader(fileName)
 	if err != nil {
@@ -19,6 +22,7 @@ func ParseFile(fileName string) ([]Session, error) {
 	return parseArchive(&archiveReader.Reader)
 }
 
+// ParseReader parses a file content passed by a reader to an array of network sessions.
 func ParseReader(reader io.ReaderAt, size int64) ([]Session, error) {
 	archiveReader, err := zip.NewReader(reader, size)
 	if err != nil {
@@ -85,10 +89,6 @@ func parseArchive(archiveReader *zip.Reader) ([]Session, error) {
 			session.Number = number
 			session.Request = request
 			session.Response = response
-			session.Flags = make(map[string]string)
-			for _, flag := range session.RawFlags.Flags {
-				session.Flags[flag.Name] = flag.Value
-			}
 			sessions = append(sessions, session)
 		}
 	}

@@ -1,3 +1,4 @@
+// Package sazdumper prints a summary of SAZ files (Fiddler logs) on the console.
 package sazdumper
 
 import (
@@ -8,6 +9,7 @@ import (
 	sazparser "github.com/prantlf/saz-tools/pkg/parser"
 )
 
+// Dump prints a summary line on the console for each session returned by `sazparser`.
 func Dump(rawSessions []sazparser.Session) error {
 	fmt.Println("Number\tTimeline\tMethod\tStatus\tURL\tBegin\tEnd\tDuration\tSize\tEncoding\tCaching\tProcess")
 	fineSessions, err := sazanalyzer.Analyze(rawSessions)
