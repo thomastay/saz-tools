@@ -51,8 +51,8 @@ func main() {
 
 ## Build
 
-    # Remove old build output:
-    make clean
+    # Install build tools only once:
+    make prepare
     # Build all targets:
     make
     # Print the help for the SAZ file dumper:
@@ -63,6 +63,8 @@ func main() {
     make run-serve
     # Start a SAZ file viewer as a browser application with filesystem assets:
     make debug-serve
+    # Remove all build output:
+    make clean
 
 ## Docker
 
@@ -109,8 +111,6 @@ and execute then from any location by supplying parameters to it, for example:
 
 Local images are built as `sazdump` and `sazserve` and they are pushed to the docker hub as `prantlf/sazdump:latest` and `prantlf/sazserve:latest`.
 
-    # Remove old local images:
-    make docker-clean
     # Check the Dockerfiles:
     make docker-lint
     # Build new local images:
