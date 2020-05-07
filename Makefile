@@ -7,8 +7,8 @@ endif
 
 # Run on Heroku which does not include GOBIN in PATH.
 ifdef GOBIN
-	BINDATA="$GOBIN/go-bindata"
-  MINIFY="$GOBIN/minify"
+	BINDATA="$(GOBIN)/go-bindata"
+  MINIFY="$(GOBIN)/minify"
 else
 	BINDATA=go-bindata
   MINIFY=minify
