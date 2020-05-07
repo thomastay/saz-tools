@@ -69,7 +69,9 @@
 <body>
 	<header class="container-fluid">
 		<h1>SAZ Viewer</h1>
-		<p>Displays content of a SAZ (Fiddler log) for analysis and export.</p>
+		<p>Displays content of a SAZ (Fiddler log) for analysis and export.
+			Upload or drop one or more <code>.saz</code> files on this page. Put
+			hyphen before a search term to negate it.</p>
 		<button id=theme-switcher class="btn btn-secondary" type=button></button>
 		<script>
 			updateThemeSwitcher()
@@ -85,8 +87,8 @@
 	</header>
 	<main class=container-fluid>
 		<form class=form-group>
-			<label class=col-form-label>SAZ File: <input id=saz-file type=file></label>
-			<label class=col-form-label>Previous SAZ files:
+			<label class=col-form-label>Upload new: <input id=saz-file type=file multiple></label>
+			<label class=col-form-label>Select previous:
 				<select class=form-control id=previous-saz></select></label>
 		</form>
 		<div class="alert alert-danger" role=alert style=display:none>

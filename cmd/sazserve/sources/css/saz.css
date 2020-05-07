@@ -4,9 +4,13 @@ header.container-fluid {
   justify-content: space-between;
   padding-right: 80px;
   margin-bottom: 10px;
+  flex-wrap: nowrap;
 }
 
 footer.container-fluid { margin-top: 10px }
+
+header > h1,
+header > button { white-space: nowrap; }
 
 .alert {
   margin-bottom: 10px;
@@ -22,10 +26,12 @@ main > form {
   flex-wrap: wrap;
 }
 
+header > *,
+main > form > * { margin-right: 20px }
+
 .col-form-label {
   margin-bottom: 0;
   white-space: nowrap;
-  margin-right: 20px;
 }
 
 select.form-control {
@@ -103,6 +109,8 @@ table.DTFC_Cloned thead tr {
 }
 
 @media (max-width: 767px) {
+  header.container-fluid { flex-wrap: wrap }
+
   .dataTables_wrapper .top .dataTables_filter input  { width: calc(100vw - 100px) }
 
   .top .dt-buttons { width: auto }

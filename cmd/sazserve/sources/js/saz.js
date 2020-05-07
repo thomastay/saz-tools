@@ -19,8 +19,8 @@ fixedColumns(window, $)
 import scroller from 'datatables.net-scroller-bs4'
 scroller(window, $)
 
-let progressWrapper, tableWrapper, infoAlert, errorAlert, table, previousSaz
-let columns, hiddenColumns, configuration, currentSaz, sazFile
+let progressWrapper, tableWrapper, infoAlert, errorAlert, table, previousSaz, currentSaz
+let columns, hiddenColumns, configuration, loadedSaz
 const storedSazs = {}
 
 setTimeout(initialize)
@@ -68,29 +68,65 @@ function initialize () {
     'Scheme', 'Host', 'Port', 'HostAndPort', 'Path', 'Query', 'PathAndQuery',
     'BeginTime', 'EndTime', 'SendingTime', 'RespondingTime', 'ReceivingTime'
   ]
-  loadConfiguration()
-  $('#saz-file').on('change', addSaz)
   $('#theme-switcher').on('click', switchTheme)
+  currentSaz = $('#saz-file').on('change', selectSaz)
   previousSaz = $('#previous-saz').on('change', restoreSaz)
+  const body = document.body
+  body.addEventListener('dragenter', preventDefaults)
+  body.addEventListener('dragover', showDropEffect)
+  body.addEventListener('dragleave', preventDefaults)
+  body.addEventListener('drop', dropSaz)
+  loadConfiguration()
   progressWrapper.hide()
 }
 
-function addSaz (event) {
-  const [file] = event.target.files
-  if (file) {
-    processSaz(file)
-  } else {
-    resetPage()
-    infoAlert.show()
-  }
+function preventDefaults (event) {
+  event.preventDefault()
+  event.stopPropagation()
 }
 
-function processSaz (file) {
+function showDropEffect (event) {
+  event.dataTransfer.dropEffect = 'copy'
+  preventDefaults(event)
+}
+
+function dropSaz (event) {
+  preventDefaults(event)
+  currentSaz.val('')
+  processSazs(event.dataTransfer.files)
+}
+
+function selectSaz (event) {
+  processSazs(event.target.files)
+}
+
+function processSazs (files) {
+  if (!files.length) {
+    resetPage()
+    return infoAlert.show()
+  }
   progressWrapper.show()
-  uploadSaz(file)
-    .then(storeSaz)
-    .then(displaySaz)
-    .catch(displayError)
+  const promises = []
+  for (const file of files) {
+    promises.push(uploadSaz(file))
+  }
+  Promise
+    .allSettled(promises)
+    .then(results => {
+      let response, error
+      for (const { value, reason } of results) {
+        if (reason) {
+          error = reason
+          return displayError(reason)
+        }
+        if (value) {
+          response = value
+        }
+      }
+      loadedSaz = storedSazs[response.File.name]
+      displaySaz(loadedSaz.Sessions)
+      updatePreviousSaz()
+    })
     .then(() => progressWrapper.hide())
 }
 
@@ -106,22 +142,25 @@ function resetPage () {
 }
 
 function uploadSaz (file) {
+  return postSaz(file).then(storeSaz)
+}
+
+function postSaz (file) {
   const formData = new FormData()
-  formData.append('saz', sazFile = file)
+  formData.append('saz', file)
   return $.ajax({
     method: 'POST',
     url: '/api/saz',
     data: formData,
     contentType: false,
     processData: false
-  })
+  }).then (response => ({ File: file, ...response }))
 }
 
 function storeSaz (response) {
-  const name = sazFile.name
-  storedSazs[name] = currentSaz = { Name: name, File: sazFile, ...response }
-  setTimeout(updatePreviousSaz)
-  return response.Sessions
+  loadedSaz = storedSazs[response.File.name] = response
+  updatePreviousSaz()
+  return response
 }
 
 function displaySaz (sessions) {
@@ -217,6 +256,7 @@ function displayError (response) {
     text = response.responseText || 'Connection failed.'
   }
   resetPage()
+  previousSaz.prop('selectedIndex', -1)
   if (title) {
     errorAlert.find('h4').show().text(title)
   } else {
@@ -359,14 +399,16 @@ function saveTheme () {
 }
 
 function updatePreviousSaz () {
-  previousSaz.html('')
-  for (const name in storedSazs) {
-    const option = $('<option>').text(name)
-    if (name === currentSaz.Name) {
-      option.attr('selected', 'selected')
+  setTimeout(() => {
+    previousSaz.html('')
+    for (const name in storedSazs) {
+      const option = $('<option>').text(name)
+      if (name === loadedSaz.File.name) {
+        option.attr('selected', 'selected')
+      }
+      previousSaz.append(option)
     }
-    previousSaz.append(option)
-  }
+  })
 }
 
 function restoreSaz () {
@@ -380,8 +422,7 @@ function restoreSaz () {
         throw response
       }
       return uploadSaz(saz.File)
-        .then(storeSaz)
-        .then(displaySaz)
+        .then(({ Sessions: sessions }) => displaySaz(sessions))
     })
     .catch(displayError)
     .then(() => progressWrapper.hide())
