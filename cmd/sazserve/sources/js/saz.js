@@ -1,6 +1,7 @@
 import $ from 'jquery'
 window.jQuery = window.$ = $
-import 'jszip'
+import JSZip from 'jszip'
+window.JSZip = JSZip
 import 'pdfmake'
 import dataTable from 'datatables.net-bs4'
 dataTable(window, $)
@@ -70,12 +71,12 @@ function initialize () {
   ]
   $('#theme-switcher').on('click', switchTheme)
   currentSaz = $('#saz-file').on('change', selectSaz)
-  previousSaz = $('#previous-saz').on('change', restoreSaz)
-  const body = document.body
-  body.addEventListener('dragenter', preventDefaults)
-  body.addEventListener('dragover', showDropEffect)
-  body.addEventListener('dragleave', preventDefaults)
-  body.addEventListener('drop', dropSaz)
+  previousSaz = $('#previous-saz').on('change', sazChanged)
+  $(document.documentElement)
+    .on('dragenter', preventDefaults)
+    .on('dragover', showDropEffect)
+    .on('dragleave', preventDefaults)
+    .on('drop', dropSaz)
   loadConfiguration()
   progressWrapper.hide()
 }
@@ -86,14 +87,14 @@ function preventDefaults (event) {
 }
 
 function showDropEffect (event) {
-  event.dataTransfer.dropEffect = 'copy'
+  event.originalEvent.dataTransfer.dropEffect = 'copy'
   preventDefaults(event)
 }
 
 function dropSaz (event) {
   preventDefaults(event)
   currentSaz.val('')
-  processSazs(event.dataTransfer.files)
+  processSazs(event.originalEvent.dataTransfer.files)
 }
 
 function selectSaz (event) {
@@ -130,17 +131,6 @@ function processSazs (files) {
     .then(() => progressWrapper.hide())
 }
 
-function resetPage () {
-  infoAlert.hide()
-  errorAlert.hide()
-  if (table) {
-    const oldTable = table
-    table = undefined
-    oldTable.destroy()
-    tableWrapper.html('')
-  }
-}
-
 function uploadSaz (file) {
   return postSaz(file).then(storeSaz)
 }
@@ -163,11 +153,35 @@ function storeSaz (response) {
   return response
 }
 
+function resetPage () {
+  infoAlert.hide()
+  errorAlert.hide()
+  if (table) {
+    const oldTable = table
+    table = undefined
+    oldTable.destroy()
+    tableWrapper.html('')
+  }
+}
+
+function updatePreviousSaz () {
+  setTimeout(() => {
+    previousSaz.html('')
+    for (const name in storedSazs) {
+      const option = $('<option>').text(name)
+      if (name === loadedSaz.File.name) {
+        option.attr('selected', 'selected')
+      }
+      previousSaz.append(option)
+    }
+  })
+}
+
 function displaySaz (sessions) {
   const { columns: columnSettings, order: orderSettings, search } = configuration
   configureColumns(columnSettings)
   const order = convertOrder(orderSettings)
-  const data = convertData(sessions)
+  const data = prepareData(sessions)
   resetPage()
   table = $('<table class="table table-sm table-striped table-hover nowrap compact display">')
       .on('column-visibility.dt', columnVisibilityChanged)
@@ -217,7 +231,7 @@ function convertOrder (orderSettings) {
   ]
 }
 
-function convertData (response) {
+function prepareData (response) {
   const lastTimeLine = response[response.length - 1].Timeline
   const durationPrecision = lastTimeLine.startsWith('00:00')
     ? 6 : lastTimeLine.startsWith('00') ? 3 : 0
@@ -245,24 +259,6 @@ function convertData (response) {
     Caching: session.Flags.Caching,
     Process: session.Flags.Process
   }))
-}
-
-function displayError (response) {
-  let title, text
-  if (response instanceof Error) {
-    text = response.message
-  } else {
-    title = response.status && `${response.status} (${response.statusText})`
-    text = response.responseText || 'Connection failed.'
-  }
-  resetPage()
-  previousSaz.prop('selectedIndex', -1)
-  if (title) {
-    errorAlert.find('h4').show().text(title)
-  } else {
-    errorAlert.find('h4').hide()
-  }
-  errorAlert.show().find('p').text(text)
 }
 
 function formatURL (url) {
@@ -315,6 +311,24 @@ function shortenString (string, length) {
 
 function padThousands (number) {
   return number > 99 ? number : number > 9 ? '0' + number : '00' + number
+}
+
+function displayError (response) {
+  let title, text
+  if (response instanceof Error) {
+    text = response.message
+  } else {
+    title = response.status && `${response.status} (${response.statusText})`
+    text = response.responseText || 'Connection failed.'
+  }
+  resetPage()
+  previousSaz.prop('selectedIndex', -1)
+  if (title) {
+    errorAlert.find('h4').show().text(title)
+  } else {
+    errorAlert.find('h4').hide()
+  }
+  errorAlert.show().find('p').text(text)
 }
 
 function loadConfiguration () {
@@ -377,41 +391,7 @@ function orderChanged (event, settings, state) {
   }
 }
 
-function switchTheme (event) {
-  const body = $(document.body)
-  body.fadeOut(200, () => {
-    $('#theme,#dark-overrides').remove()
-    switch (sazTheme) {
-      case 'dark': sazTheme = 'light'; break
-      case 'light': sazTheme = 'system'; break
-      default: sazTheme = 'dark'
-    }
-    changeTheme()
-    ensureDarkOverrides()
-    updateThemeSwitcher()
-    saveTheme()
-    body.fadeIn(200)
-  })
-}
-
-function saveTheme () {
-  setTimeout(() => localStorage.setItem('prantlf/sazview-theme', sazTheme))
-}
-
-function updatePreviousSaz () {
-  setTimeout(() => {
-    previousSaz.html('')
-    for (const name in storedSazs) {
-      const option = $('<option>').text(name)
-      if (name === loadedSaz.File.name) {
-        option.attr('selected', 'selected')
-      }
-      previousSaz.append(option)
-    }
-  })
-}
-
-function restoreSaz () {
+function sazChanged () {
   const name = Object.keys(storedSazs)[previousSaz.prop('selectedIndex')]
   const saz = storedSazs[name]
   progressWrapper.show()
@@ -430,4 +410,25 @@ function restoreSaz () {
 
 function downloadSaz (key) {
   return $.ajax({ url: `/api/saz/${key}` })
+}
+
+function switchTheme () {
+  const body = $(document.body)
+  body.fadeOut(200, () => {
+    $('#theme,#dark-overrides').remove()
+    switch (sazTheme) {
+      case 'dark': sazTheme = 'light'; break
+      case 'light': sazTheme = 'system'; break
+      default: sazTheme = 'dark'
+    }
+    changeTheme()
+    ensureDarkOverrides()
+    updateThemeSwitcher()
+    saveTheme()
+    body.fadeIn(200)
+  })
+}
+
+function saveTheme () {
+  setTimeout(() => localStorage.setItem('prantlf/sazview-theme', sazTheme))
 }
