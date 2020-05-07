@@ -6,11 +6,21 @@
 
 Tools for parsing SAZ files (Fiddler logs) and either [printing their content] on the console, or [viewing them on a web page] and offering basic analysis and export. Try the [on-line version] of the SAZ Viewer.
 
+## Installation
+
+If you work on a Go module, using [`go get`] is the easiest way:
+
+    $ go get -u github.com/prantlf/saz-tools/...
+
+You can also install the latest version of the tools using [GoBinaries]:
+
+    curl -sf https://gobinaries.com/prantlf/saz-tools | sh
+
+Or choose a version from [GitHub releases].
+
 ## Tools
 
 ```
-$ go get -u github.com/prantlf/saz-tools/...
-
 $ sazdump.go -h
 Usage: sazdump <file.saz>
 
@@ -136,6 +146,9 @@ Copyright (c) 2020 Ferdinand Prantl
 Licensed under the MIT license.
 
 [on-line version]: https://viewsaz.herokuapp.com/
+[`go get`]: https://golang.org/cmd/go/#hdr-Add_dependencies_to_current_module_and_install_them
+[GoBinaries]: https://gobinaries.com/
+[GitHub releases]: https://github.com/prantlf/saz-tools/releases
 [The `sazdump` image]: https://hub.docker.com/repository/docker/prantlf/sazdump
 [the `sazserve` image]: https://hub.docker.com/repository/docker/prantlf/sazserve
 [tags]: https://hub.docker.com/repository/docker/prantlf/saztools/tags
