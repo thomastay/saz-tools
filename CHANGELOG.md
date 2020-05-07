@@ -1,4 +1,15 @@
-# [](https://github.com/prantlf/saz-tools/compare/v0.0.2...v0.0.3) (2020-05-07)
+# [0.0.4](https://github.com/prantlf/saz-tools/compare/v0.0.3...v0.0.4) (2020-05-08)
+
+## Features
+
+* Offer the export to Excel ([15f48d3](https://github.com/prantlf/saz-tools/15f48d34cc1c99ba86098dba1ca81f709091ff07))
+* Support drag and drop, accept multiple files ([22214c7](https://github.com/prantlf/saz-tools/22214c7c32c37fac9dc3feea4620b696b1ae697b))
+
+## Fixes
+
+* Do not distribute the build tool move-generated-comments ([648f23c](https://github.com/prantlf/saz-tools/648f23c4d917e5915907511db9d0b18176464f82))
+
+# [0.0.3](https://github.com/prantlf/saz-tools/compare/v0.0.2...v0.0.3) (2020-05-07)
 
 ## Features
 
