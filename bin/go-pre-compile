@@ -1,2 +1,2 @@
 #!/bin/sh
-make prepare clean generate
+make go-prepare

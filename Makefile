@@ -68,11 +68,13 @@ $(ASSET_DIR)/js/saz.min.js: node_modules/datatables.net/js/jquery.dataTables.js.
 	$(MINIFY) -o $(ASSET_DIR)/css/bootstrap.darkly.min.css $(SOURCE_DIR)/css/bootstrap.darkly.css
 	$(MINIFY) -o $(ASSET_DIR)/css/saz.darkly.min.css $(SOURCE_DIR)/css/saz.darkly.css
 
-prepare ::
+prepare :: go-prepare
+	npm ci
+
+go-prepare ::
 	go get -u github.com/go-bindata/go-bindata/v3/...
 	go get -u github.com/evanw/esbuild/...
 	go get -u github.com/tdewolff/minify/v2/...
-	npm ci
 
 node_modules/datatables.net/js/jquery.dataTables.js.vendor: cmd/sazserve/sources/js/jquery.dataTables.js.diff
 ifeq (,$(wildcard node_modules/datatables.net/js/jquery.dataTables.js.vendor))
