@@ -1,6 +1,6 @@
 before:
   hooks:
-    - make prepare generate
+    - make prepare clean generate
 builds:
 - id: sazdump
   dir: cmd/sazdump
