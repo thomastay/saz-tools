@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/prantlf/saz-tools.svg?branch=master)](https://travis-ci.org/prantlf/saz-tools)
 [![Go Report Card](https://goreportcard.com/badge/github.com/prantlf/saz-tools)](https://goreportcard.com/report/github.com/prantlf/saz-tools)
 
-Tools for parsing SAZ files (Fiddler logs) and either printing their content on the console, or viewing them on a web page and offering basic analysis and export. Try the [on-line version].
+Tools for parsing SAZ files (Fiddler logs) and either [printing their content] on the console, or [viewing them on a web page] and offering basic analysis and export. Try the [on-line version] of the SAZ Viewer.
 
 ## Tools
 
@@ -140,3 +140,5 @@ Licensed under the MIT license.
 [tags]: https://hub.docker.com/repository/docker/prantlf/saztools/tags
 [scratch image]: https://hub.docker.com/_/scratch
 [`sazdump`]: bin/sazdump
+[printing their content]: https://godoc.org/github.com/prantlf/saz-tools/cmd/sazdump
+[viewing them on a web page]: https://godoc.org/github.com/prantlf/saz-tools/cmd/sazserve
