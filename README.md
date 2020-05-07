@@ -30,10 +30,10 @@ $ open http://localhost:7000
 
 ## API
 
-* parser.ParseFile(fileName string) ([]parser.Sessions, error)
-* parser.ParseReader(reader ReaderAt, size int64) ([]parser.Sessions, error)
-* analyzer.Analyze(sessions []parser.Sessions) ([]analyzer.Sessions, error)
-* dumper.Dump(sessions []parser.Sessions) error
+* [sazparser].[ParseFile](fileName string) ([] [sazparser.Session], error)
+* [sazparser].[ParseReader](reader ReaderAt, size int64) ([] [sazparser.Session], error)
+* [sazanalyzer].[Analyze](sessions [] [sazparser.Session]) ([] [sazanalyzer.Session], error)
+* [sazdumper].[Dump](sessions [] [sazparser.Session]) error
 
 ```go
 import (
@@ -142,3 +142,12 @@ Licensed under the MIT license.
 [`sazdump`]: bin/sazdump
 [printing their content]: https://godoc.org/github.com/prantlf/saz-tools/cmd/sazdump
 [viewing them on a web page]: https://godoc.org/github.com/prantlf/saz-tools/cmd/sazserve
+[sazparser]: https://godoc.org/github.com/prantlf/saz-tools/pkg/parser
+[sazparser.Session]: https://godoc.org/github.com/prantlf/saz-tools/pkg/parser#Session
+[ParseFile]: https://godoc.org/github.com/prantlf/saz-tools/pkg/parser#ParseFile
+[ParseReader]: https://godoc.org/github.com/prantlf/saz-tools/pkg/parser#ParseReader
+[sazanalyzer]: https://godoc.org/github.com/prantlf/saz-tools/pkg/analyzer
+[sazanalyzer.Session]: https://godoc.org/github.com/prantlf/saz-tools/pkg/analyzer#Session
+[Analyze]: https://godoc.org/github.com/prantlf/saz-tools/pkg/analyzer#Analyze
+[sazdumper]: https://godoc.org/github.com/prantlf/saz-tools/pkg/dumper
+[Dump]: https://godoc.org/github.com/prantlf/saz-tools/pkg/dumper#Dump
