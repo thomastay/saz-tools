@@ -1,8 +1,17 @@
-# Run with "CGO_ENABLED=0 GOOS=linux" in tyhe enfironment for Docker.
+# Run with "CGO_ENABLED=0 GOOS=linux" in the enfironment for Docker.
 ifeq ($(DOCKER),1)
 	export CGO_ENABLED=0
 	export GOOS=linux
 	GOFLAGS=-a -installsuffix cgo -ldflags '-extldflags "-static"'
+endif
+
+# Run on Heroku which does not include GOBIN in PATH.
+ifdef GOBIN
+	BINDATA="$GOBIN/go-bindata"
+  MINIFY="$GOBIN/minify"
+else
+	BINDATA=go-bindata
+  MINIFY=minify
 endif
 
 SOURCE_DIR=cmd/sazserve/sources
@@ -18,7 +27,7 @@ sazserve: $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer
 	go build $(GOFLAGS) cmd/sazserve/sazserve.go $(ASSET_BIN)
 
 $(ASSET_BIN): $(ASSET_DIR)/js/all.min.js $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/*/*)
-	go-bindata -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
+	$(BINDATA) -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
 	go run internal/move-generated-comments/move-generated-comments.go -- $(ASSET_BIN)
 
 run-dump :: $(wildcard cmd/sazdump/*.go pkg/dumper/*.go pkg/parser/*.go pkg/analyzer/*.go)
@@ -50,13 +59,13 @@ concatenate :: $(wildcard $(SOURCE_DIR)/*/*)
 
 $(ASSET_DIR)/js/all.min.js: $(wildcard $(SOURCE_DIR)/*/*)
 	mkdir -p $(ASSET_DIR)/css $(ASSET_DIR)/js
-	minify -o $(ASSET_DIR)/js/all.min.js $(SOURCE_DIR)/js/jquery.js \
+	$(MINIFY) -o $(ASSET_DIR)/js/all.min.js $(SOURCE_DIR)/js/jquery.js \
 		$(SOURCE_DIR)/js/bootstrap.bundle.js $(SOURCE_DIR)/js/datatables.js $(SOURCE_DIR)/js/saz.js
-	minify -o $(ASSET_DIR)/css/common.min.css $(SOURCE_DIR)/css/datatables.css \
+	$(MINIFY) -o $(ASSET_DIR)/css/common.min.css $(SOURCE_DIR)/css/datatables.css \
 		$(SOURCE_DIR)/css/saz.css
-	minify -o $(ASSET_DIR)/css/bootstrap.flatly.min.css $(SOURCE_DIR)/css/bootstrap.flatly.css
-	minify -o $(ASSET_DIR)/css/bootstrap.darkly.min.css $(SOURCE_DIR)/css/bootstrap.darkly.css
-	minify -o $(ASSET_DIR)/css/saz.darkly.min.css $(SOURCE_DIR)/css/saz.darkly.css
+	$(MINIFY) -o $(ASSET_DIR)/css/bootstrap.flatly.min.css $(SOURCE_DIR)/css/bootstrap.flatly.css
+	$(MINIFY) -o $(ASSET_DIR)/css/bootstrap.darkly.min.css $(SOURCE_DIR)/css/bootstrap.darkly.css
+	$(MINIFY) -o $(ASSET_DIR)/css/saz.darkly.min.css $(SOURCE_DIR)/css/saz.darkly.css
 
 prepare ::
 	go get -u github.com/go-bindata/go-bindata/v3/...
