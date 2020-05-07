@@ -71,6 +71,7 @@ func parseArchive(archiveReader *zip.Reader) ([]Session, error) {
 			if err != nil {
 				return nil, err
 			}
+			session = Session{}
 			xml.Unmarshal(bytes, &session)
 
 		case "s":
