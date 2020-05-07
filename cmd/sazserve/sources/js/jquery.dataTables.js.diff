@@ -1,0 +1,65 @@
+--- node_modules/datatables.net/js/jquery.dataTables.js	1985-10-26 09:15:00.000000000 +0100
++++ cmd/sazserve/sources/js/jquery.dataTables.js	2020-05-07 18:31:33.000000000 +0200
+@@ -4383,7 +4383,7 @@
+ 	 *  @param {bool} caseInsensitive Do case insenstive matching or not
+ 	 *  @memberof DataTable#oApi
+ 	 */
+-	function _fnFilter( settings, input, force, regex, smart, caseInsensitive )
++	function _fnFilterOld( settings, input, force, regex, smart, caseInsensitive )
+ 	{
+ 		var rpSearch = _fnFilterCreateSearch( input, regex, smart, caseInsensitive );
+ 		var prevSearch = settings.oPreviousSearch.sSearch;
+@@ -4428,6 +4428,53 @@
+ 			settings.aiDisplay = filtered;
+ 		}
+ 	}
++  function _fnFilter (settings, input, force, regex, smart, caseInsensitive) {
++    var displayMaster = settings.aiDisplayMaster
++    if (!input) {
++      settings.aiDisplay = displayMaster.slice()
++    } else {
++      const invalidated = _fnFilterData(settings)
++      const prevSearch = settings.oPreviousSearch.sSearch
++      if (invalidated || prevSearch != input || settings.bSorted) {
++        settings.aiDisplay = displayMaster.slice()
++      }
++      const display = settings.aiDisplay
++      const filtered = []
++      for (let i = 0; i < display.length; ++i) {
++        if (matchTerms(settings.aoData[ display[i] ]._sFilterRow, input)) {
++          filtered.push( display[i] )
++        }
++      }
++      settings.aiDisplay = filtered
++    }
++  }
++  function matchTerms (string, terms) {
++    terms = terms.trim()
++    if (!terms) return true
++    const filters = terms
++      .toLowerCase()
++      .split(/\s+/)
++      .map(term => (
++        term.startsWith('-') ? { exclude: true, term: term.substr(1) } :
++        term.startsWith('+') ? { term: term.substr(1) } : { term }))
++    const data = string.trim().toLowerCase()
++    for (const filter of filters) {
++      if (filter.exclude) {
++        if (filter.term.length) {
++          if (data.includes(filter.term)) return false
++        } else {
++          if (!data.length) return false
++        }
++      } else {
++        if (filter.term.length) {
++          if (!data.includes(filter.term)) return false
++        } else {
++          if (data.length) return false
++        }
++      }
++    }
++    return true
++  }
+ 	
+ 	
+ 	/**

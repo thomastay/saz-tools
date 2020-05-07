@@ -62,12 +62,12 @@ func main() {
 
 ## Build
 
+You need [Go], [Make], [Node.js], [NPM] and [Patch] to build all parts of this module from sources.
+
     # Install build tools only once:
     make prepare
     # Build all targets:
     make
-    # Print the help for the SAZ file dumper:
-    make docker-run-help
     # Dump a SAZ file analysis on the console:
     make run-dump SAZ="..."
     # Start a SAZ file viewer as a browser application with bundled assets:
@@ -147,6 +147,12 @@ Licensed under the MIT license.
 
 [on-line version]: https://viewsaz.herokuapp.com/
 [`go get`]: https://golang.org/cmd/go/#hdr-Add_dependencies_to_current_module_and_install_them
+[Go]: https://golang.org/
+[golang repository]: https://hub.docker.com/_/golang
+[Make]: https://www.gnu.org/software/make/
+[Patch]: http://man7.org/linux/man-pages/man1/patch.1.html
+[Node.js]: https://nodejs.org/
+[NPM]: https://docs.npmjs.com/cli/npm
 [GoBinaries]: https://gobinaries.com/
 [GitHub releases]: https://github.com/prantlf/saz-tools/releases
 [The `sazdump` image]: https://hub.docker.com/repository/docker/prantlf/sazdump

@@ -5,6 +5,7 @@
 .vscode
 bin
 dist
+node_modules
 LICENSE
 Procfile
 README.md

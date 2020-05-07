@@ -2,5 +2,6 @@
 /cmd/sazserve/assets/css
 /cmd/sazserve/assets/js
 /dist
+/node_modules
 /sazdump
 /sazserve

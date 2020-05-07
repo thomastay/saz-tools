@@ -8,9 +8,11 @@ endif
 # Run on Heroku which does not include GOBIN in PATH.
 ifdef GOBIN
 	BINDATA="$(GOBIN)/go-bindata"
+	ESBUILD="$(GOBIN)/esbuild"
   MINIFY="$(GOBIN)/minify"
 else
 	BINDATA=go-bindata
+	ESBUILD=esbuild
   MINIFY=minify
 endif
 
@@ -26,9 +28,18 @@ sazdump: $(wildcard cmd/sazdump/*.go pkg/dumper/*.go pkg/parser/*.go pkg/analyze
 sazserve: $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go internal/cache/*.go)
 	go build $(GOFLAGS) cmd/sazserve/sazserve.go cmd/sazserve/api.go $(ASSET_BIN)
 
-$(ASSET_BIN): $(ASSET_DIR)/js/all.min.js $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/*/*)
+$(ASSET_BIN): $(ASSET_DIR)/js/saz.min.js $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/*/*)
 	$(BINDATA) -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
 	go run internal/move-generated-comments/move-generated-comments.go -- $(ASSET_BIN)
+
+generate ::
+ifeq (,$(wildcard $(ASSET_BIN)))
+	$(BINDATA) -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
+	go run internal/move-generated-comments/move-generated-comments.go -- $(ASSET_BIN)
+endif
+
+lint ::
+	golint ./...
 
 run-dump :: $(wildcard cmd/sazdump/*.go pkg/dumper/*.go pkg/parser/*.go pkg/analyzer/*.go)
 	go run cmd/sazdump/sazdump.go "$(SAZ)"
@@ -39,29 +50,19 @@ run-serve :: $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analy
 debug-serve :: debug-assets $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go internal/cache/*.go)
 	go run cmd/sazserve/sazserve.go cmd/sazserve/api.go $(ASSET_BIN)
 
-debug-assets :: concatenate
+debug-assets :: $(ASSET_DIR)/js/saz.min.js $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/*/*)
 	go-bindata -debug -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
 
-lint ::
-	golint ./...
-
-generate :: $(ASSET_BIN)
-
-concatenate :: $(wildcard $(SOURCE_DIR)/*/*)
+$(ASSET_DIR)/js/saz.min.js: node_modules/datatables.net/js/jquery.dataTables.js.vendor $(wildcard $(SOURCE_DIR)/*/*)
 	mkdir -p $(ASSET_DIR)/css $(ASSET_DIR)/js
-	cat $(SOURCE_DIR)/js/jquery.js $(SOURCE_DIR)/js/bootstrap.bundle.js \
-		$(SOURCE_DIR)/js/datatables.js $(SOURCE_DIR)/js/saz.js > $(ASSET_DIR)/js/all.min.js
-	cat  $(SOURCE_DIR)/css/datatables.css $(SOURCE_DIR)/css/saz.css \
-		> $(ASSET_DIR)/css/common.min.css
-	cp $(SOURCE_DIR)/css/bootstrap.flatly.css $(ASSET_DIR)/css/bootstrap.flatly.min.css
-	cp $(SOURCE_DIR)/css/bootstrap.darkly.css $(ASSET_DIR)/css/bootstrap.darkly.min.css
-	cp $(SOURCE_DIR)/css/saz.darkly.css $(ASSET_DIR)/css/saz.darkly.min.css
-
-$(ASSET_DIR)/js/all.min.js: $(wildcard $(SOURCE_DIR)/*/*)
-	mkdir -p $(ASSET_DIR)/css $(ASSET_DIR)/js
-	$(MINIFY) -o $(ASSET_DIR)/js/all.min.js $(SOURCE_DIR)/js/jquery.js \
-		$(SOURCE_DIR)/js/bootstrap.bundle.js $(SOURCE_DIR)/js/datatables.js $(SOURCE_DIR)/js/saz.js
-	$(MINIFY) -o $(ASSET_DIR)/css/common.min.css $(SOURCE_DIR)/css/datatables.css \
+	$(ESBUILD) --outfile=$(ASSET_DIR)/js/saz.min.js --format=iife --sourcemap \
+		--bundle --minify cmd/sazserve/sources/js/saz.js
+	$(MINIFY) -o $(ASSET_DIR)/css/common.min.css \
+		node_modules/datatables.net-bs4/css/dataTables.bootstrap4.css \
+		node_modules/datatables.net-buttons-bs4/css/buttons.bootstrap4.css \
+		node_modules/datatables.net-colreorder-bs4/css/colReorder.bootstrap4.css \
+		node_modules/datatables.net-fixedcolumns-bs4/css/fixedColumns.bootstrap4.css \
+		node_modules/datatables.net-scroller-bs4/css/scroller.bootstrap4.css \
 		$(SOURCE_DIR)/css/saz.css
 	$(MINIFY) -o $(ASSET_DIR)/css/bootstrap.flatly.min.css $(SOURCE_DIR)/css/bootstrap.flatly.css
 	$(MINIFY) -o $(ASSET_DIR)/css/bootstrap.darkly.min.css $(SOURCE_DIR)/css/bootstrap.darkly.css
@@ -69,7 +70,22 @@ $(ASSET_DIR)/js/all.min.js: $(wildcard $(SOURCE_DIR)/*/*)
 
 prepare ::
 	go get -u github.com/go-bindata/go-bindata/v3/...
+	go get -u github.com/evanw/esbuild/...
 	go get -u github.com/tdewolff/minify/v2/...
+	npm ci
+
+node_modules/datatables.net/js/jquery.dataTables.js.vendor: cmd/sazserve/sources/js/jquery.dataTables.js.diff
+ifeq (,$(wildcard node_modules/datatables.net/js/jquery.dataTables.js.vendor))
+	cp node_modules/datatables.net/js/jquery.dataTables.js \
+		node_modules/datatables.net/js/jquery.dataTables.js.vendor
+	patch -p0 < cmd/sazserve/sources/js/jquery.dataTables.js.diff
+endif
+
+restore-datatables :: node_modules/datatables.net/js/jquery.dataTables.js
+ifneq (,$(wildcard node_modules/datatables.net/js/jquery.dataTables.js.vendor))
+	mv node_modules/datatables.net/js/jquery.dataTables.js.vendor \
+		node_modules/datatables.net/js/jquery.dataTables.js
+endif
 
 clean ::
 	rm -rf sazdump sazserve $(ASSET_BIN) $(ASSET_DIR)/css $(ASSET_DIR)/js
