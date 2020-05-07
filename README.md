@@ -160,6 +160,7 @@ Licensed under the MIT license.
 [tags]: https://hub.docker.com/repository/docker/prantlf/saztools/tags
 [scratch image]: https://hub.docker.com/_/scratch
 [`sazdump`]: bin/sazdump
+[`sazserve`]: bin/sazserve
 [printing their content]: https://godoc.org/github.com/prantlf/saz-tools/cmd/sazdump
 [viewing them on a web page]: https://godoc.org/github.com/prantlf/saz-tools/cmd/sazserve
 [sazparser]: https://godoc.org/github.com/prantlf/saz-tools/pkg/parser

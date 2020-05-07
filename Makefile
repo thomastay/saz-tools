@@ -30,12 +30,12 @@ sazserve: $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer
 
 $(ASSET_BIN): $(ASSET_DIR)/js/saz.min.js $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/*/*)
 	$(BINDATA) -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
-	go run internal/move-generated-comments/move-generated-comments.go -- $(ASSET_BIN)
+	go run _tools/move-generated-comments/move-generated-comments.go -- $(ASSET_BIN)
 
 generate ::
 ifeq (,$(wildcard $(ASSET_BIN)))
 	$(BINDATA) -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
-	go run internal/move-generated-comments/move-generated-comments.go -- $(ASSET_BIN)
+	go run _tools/move-generated-comments/move-generated-comments.go -- $(ASSET_BIN)
 endif
 
 lint ::
