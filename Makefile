@@ -93,7 +93,7 @@ clean ::
 	rm -rf sazdump sazserve $(ASSET_BIN) $(ASSET_DIR)/css $(ASSET_DIR)/js
 
 push ::
-	git push && git push heroku master
+	git push heroku master && git push && git push --tags
 
 docker-clean ::
 	docker image rm sazdump

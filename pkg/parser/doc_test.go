@@ -1,16 +1,16 @@
-package sazparser_test
+package parser_test
 
 import (
 	"fmt"
 	"io"
 	"os"
 
-	sazparser "github.com/prantlf/saz-tools/pkg/parser"
+	parser "github.com/prantlf/saz-tools/pkg/parser"
 )
 
 // Parse the content of `foo.saz` and print the count of network sessions.
 func ExampleParseFile() {
-	sessions, err := sazparser.ParseFile("foo.saz")
+	sessions, err := parser.ParseFile("foo.saz")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -23,7 +23,7 @@ func ExampleParseFile() {
 func ExampleParseReader() {
 	var reader io.ReaderAt
 	var size int64
-	sessions, err := sazparser.ParseReader(reader, size)
+	sessions, err := parser.ParseReader(reader, size)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

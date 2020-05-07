@@ -1,20 +1,20 @@
-package sazdumper_test
+package dumper_test
 
 import (
 	"fmt"
 	"os"
 
-	sazparser "github.com/prantlf/saz-tools/pkg/parser"
+	parser "github.com/prantlf/saz-tools/pkg/parser"
 )
 
 // Pprint a summary line on the console for each session from `foo.saz`.
 func ExampleDump() {
-	sessions, err := sazparser.ParseFile("foo.saz")
+	sessions, err := parser.ParseFile("foo.saz")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	err = sazdumper.Dump(sessions)
+	err = dumper.Dump(sessions)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

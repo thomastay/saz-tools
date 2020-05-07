@@ -1,6 +1,6 @@
-// Package sazparser parses SAZ files (Fiddler logs) to an array of sessions,
+// Package parser parses SAZ files (Fiddler logs) to an array of sessions,
 // which contain all about network connections, requests and responses.
-package sazparser
+package parser
 
 import (
 	"archive/zip"
@@ -95,7 +95,7 @@ func parseArchive(archiveReader *zip.Reader) ([]Session, error) {
 	}
 
 	if len(sessions) == 0 {
-		return nil, errors.New("sazparser: no sessions were found")
+		return nil, errors.New("saz/parser: no sessions were found")
 	}
 	return sessions, nil
 }

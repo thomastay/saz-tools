@@ -1,18 +1,18 @@
-// Package sazdumper prints a summary of SAZ files (Fiddler logs) on the console.
-package sazdumper
+// Package dumper prints a summary of SAZ files (Fiddler logs) on the console.
+package dumper
 
 import (
 	"fmt"
 	"strings"
 
-	sazanalyzer "github.com/prantlf/saz-tools/pkg/analyzer"
-	sazparser "github.com/prantlf/saz-tools/pkg/parser"
+	analyzer "github.com/prantlf/saz-tools/pkg/analyzer"
+	parser "github.com/prantlf/saz-tools/pkg/parser"
 )
 
-// Dump prints a summary line on the console for each session returned by `sazparser`.
-func Dump(rawSessions []sazparser.Session) error {
+// Dump prints a summary line on the console for each session returned by `parser`.
+func Dump(rawSessions []parser.Session) error {
 	fmt.Println("Number\tTimeline\tMethod\tStatus\tURL\tBegin\tEnd\tDuration\tSize\tEncoding\tCaching\tProcess")
-	fineSessions, err := sazanalyzer.Analyze(rawSessions)
+	fineSessions, err := analyzer.Analyze(rawSessions)
 	if err != nil {
 		return err
 	}
@@ -32,7 +32,7 @@ func Dump(rawSessions []sazparser.Session) error {
 	return nil
 }
 
-func printResult(session *sazanalyzer.Session, durationPrecision int) error {
+func printResult(session *analyzer.Session, durationPrecision int) error {
 	request := session.Request
 	response := session.Response
 	clientBeginRequest, err := parseTime(session.Timers.ClientBeginRequest)

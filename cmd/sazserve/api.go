@@ -7,13 +7,13 @@ import (
 	"strings"
 
 	cache "github.com/prantlf/saz-tools/internal/cache"
-	sazanalyzer "github.com/prantlf/saz-tools/pkg/analyzer"
-	sazparser "github.com/prantlf/saz-tools/pkg/parser"
+	analyzer "github.com/prantlf/saz-tools/pkg/analyzer"
+	parser "github.com/prantlf/saz-tools/pkg/parser"
 )
 
 type PostPayload struct {
 	Key      string
-	Sessions []sazanalyzer.Session
+	Sessions []analyzer.Session
 }
 
 func postSaz(responseWriter http.ResponseWriter, request *http.Request) interface{} {
@@ -32,12 +32,12 @@ func postSaz(responseWriter http.ResponseWriter, request *http.Request) interfac
 		return nil
 	}
 	defer fileReader.Close()
-	rawSessions, err := sazparser.ParseReader(fileReader, fileHeader.Size)
+	rawSessions, err := parser.ParseReader(fileReader, fileHeader.Size)
 	if err != nil {
 		http.Error(responseWriter, err.Error(), http.StatusBadRequest)
 		return nil
 	}
-	fineSessions, err := sazanalyzer.Analyze(rawSessions)
+	fineSessions, err := analyzer.Analyze(rawSessions)
 	if err != nil {
 		http.Error(responseWriter, err.Error(), http.StatusInternalServerError)
 		return nil

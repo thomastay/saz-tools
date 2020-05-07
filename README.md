@@ -41,22 +41,22 @@ $ open http://localhost:7000
 
 ## API
 
-* [sazparser].[ParseFile](fileName string) ([] [sazparser.Session], error)
-* [sazparser].[ParseReader](reader ReaderAt, size int64) ([] [sazparser.Session], error)
-* [sazanalyzer].[Analyze](sessions [] [sazparser.Session]) ([] [sazanalyzer.Session], error)
-* [sazdumper].[Dump](sessions [] [sazparser.Session]) error
+* [parser].[ParseFile](fileName string) ([] [parser.Session], error)
+* [parser].[ParseReader](reader ReaderAt, size int64) ([] [parser.Session], error)
+* [analyzer].[Analyze](sessions [] [parser.Session]) ([] [analyzer.Session], error)
+* [dumper].[Dump](sessions [] [parser.Session]) error
 
 ```go
 import (
-  sazanalyzer "github.com/prantlf/saz-tools/pkg/analyzer"
-  sazdumper "github.com/prantlf/saz-tools/pkg/dumper"
-  sazparser "github.com/prantlf/saz-tools/pkg/parser"
+  analyzer "github.com/prantlf/saz-tools/pkg/analyzer"
+  dumper "github.com/prantlf/saz-tools/pkg/dumper"
+  parser "github.com/prantlf/saz-tools/pkg/parser"
 )
 
 func main() {
-  rawSessions, _ := sazparser.ParseFile("foo.saz")
-  fineSessions, _ := sazparser.Analyze(rawSessions)
-  sazdumper.Dump(rawSessions)
+  rawSessions, _ := parser.ParseFile("foo.saz")
+  fineSessions, _ := parser.Analyze(rawSessions)
+  dumper.Dump(rawSessions)
 }
 ```
 
@@ -163,12 +163,12 @@ Licensed under the MIT license.
 [`sazserve`]: bin/sazserve
 [printing their content]: https://godoc.org/github.com/prantlf/saz-tools/cmd/sazdump
 [viewing them on a web page]: https://godoc.org/github.com/prantlf/saz-tools/cmd/sazserve
-[sazparser]: https://godoc.org/github.com/prantlf/saz-tools/pkg/parser
-[sazparser.Session]: https://godoc.org/github.com/prantlf/saz-tools/pkg/parser#Session
+[parser]: https://godoc.org/github.com/prantlf/saz-tools/pkg/parser
+[parser.Session]: https://godoc.org/github.com/prantlf/saz-tools/pkg/parser#Session
 [ParseFile]: https://godoc.org/github.com/prantlf/saz-tools/pkg/parser#ParseFile
 [ParseReader]: https://godoc.org/github.com/prantlf/saz-tools/pkg/parser#ParseReader
-[sazanalyzer]: https://godoc.org/github.com/prantlf/saz-tools/pkg/analyzer
-[sazanalyzer.Session]: https://godoc.org/github.com/prantlf/saz-tools/pkg/analyzer#Session
+[analyzer]: https://godoc.org/github.com/prantlf/saz-tools/pkg/analyzer
+[analyzer.Session]: https://godoc.org/github.com/prantlf/saz-tools/pkg/analyzer#Session
 [Analyze]: https://godoc.org/github.com/prantlf/saz-tools/pkg/analyzer#Analyze
-[sazdumper]: https://godoc.org/github.com/prantlf/saz-tools/pkg/dumper
+[dumper]: https://godoc.org/github.com/prantlf/saz-tools/pkg/dumper
 [Dump]: https://godoc.org/github.com/prantlf/saz-tools/pkg/dumper#Dump

@@ -1,4 +1,4 @@
-package sazparser
+package parser
 
 import (
 	"encoding/xml"

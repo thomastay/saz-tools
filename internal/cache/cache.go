@@ -5,14 +5,14 @@ import (
 	"time"
 
 	lru "github.com/bluele/gcache"
-	sazanalyzer "github.com/prantlf/saz-tools/pkg/analyzer"
-	sazparser "github.com/prantlf/saz-tools/pkg/parser"
+	analyzer "github.com/prantlf/saz-tools/pkg/analyzer"
+	parser "github.com/prantlf/saz-tools/pkg/parser"
 	murmur "github.com/spaolacci/murmur3"
 )
 
 type Entry struct {
-	RawSessions  []sazparser.Session
-	FineSessions []sazanalyzer.Session
+	RawSessions  []parser.Session
+	FineSessions []analyzer.Session
 }
 
 type Cache struct {

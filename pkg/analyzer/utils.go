@@ -1,10 +1,10 @@
-package sazanalyzer
+package analyzer
 
 import (
 	"fmt"
 	"time"
 
-	sazparser "github.com/prantlf/saz-tools/pkg/parser"
+	parser "github.com/prantlf/saz-tools/pkg/parser"
 )
 
 func parseTime(dateTime string) (time.Time, error) {
@@ -23,7 +23,7 @@ func formatDuration(duration time.Duration) string {
 	return fmt.Sprintf("%02d:%02d:%02d.%06d", hours, minutes, seconds, microseconds)
 }
 
-func getFlag(session *sazparser.Session, name string) (string, bool) {
+func getFlag(session *parser.Session, name string) (string, bool) {
 	flags := session.Flags.Flags
 	for index := range flags {
 		flag := &flags[index]

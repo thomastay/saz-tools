@@ -1,17 +1,17 @@
-// Package sazanalyzer computes timings and other useful metrics for sessions
+// Package analyzer computes timings and other useful metrics for sessions
 // parsed from SAZ files (Fiddler logs).
-package sazanalyzer
+package analyzer
 
 import (
 	"net/http"
 	"time"
 
-	sazparser "github.com/prantlf/saz-tools/pkg/parser"
+	parser "github.com/prantlf/saz-tools/pkg/parser"
 )
 
-// Analyze converts raw sessions returned by `sazparser` to fine sessions
+// Analyze converts raw sessions returned by `parser` to fine sessions
 // with aggregated timings and other useful metrics.
-func Analyze(rawSessions []sazparser.Session) ([]Session, error) {
+func Analyze(rawSessions []parser.Session) ([]Session, error) {
 	length := len(rawSessions)
 	fineSessions := make([]Session, length)
 	var clienBeginFirstRequest time.Time

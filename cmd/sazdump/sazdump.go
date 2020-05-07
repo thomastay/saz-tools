@@ -15,8 +15,8 @@ import (
 	"fmt"
 	"os"
 
-	sazdumper "github.com/prantlf/saz-tools/pkg/dumper"
-	sazparser "github.com/prantlf/saz-tools/pkg/parser"
+	dumper "github.com/prantlf/saz-tools/pkg/dumper"
+	parser "github.com/prantlf/saz-tools/pkg/parser"
 )
 
 func main() {
@@ -25,12 +25,12 @@ func main() {
 		flag.PrintDefaults()
 	}
 	flag.Parse()
-	sessions, err := sazparser.ParseFile(flag.Arg(0))
+	sessions, err := parser.ParseFile(flag.Arg(0))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	err = sazdumper.Dump(sessions)
+	err = dumper.Dump(sessions)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

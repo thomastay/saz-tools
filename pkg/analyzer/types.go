@@ -1,4 +1,4 @@
-package sazanalyzer
+package analyzer
 
 // URL contains a URL partsed to its parts.
 type URL struct {

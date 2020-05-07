@@ -1,4 +1,4 @@
-package sazdumper
+package dumper
 
 import (
 	"strconv"
