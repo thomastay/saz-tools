@@ -6,7 +6,11 @@ table.DTFC_Cloned tr.even { background-color: #222 }
 
 table.DTFC_Cloned tr.odd { background-color: #303030 }
 
-.dt-buttons > *:first-child .dropdown-item::before  { color: #000 }
+.dt-buttons > *:first-child .dropdown-item.active { background-color: #222 }
+
+.dt-buttons > *:first-child .dropdown-item.active:hover { background-color: #375a7f }
+
+.dt-buttons > *:first-child .dropdown-item::before { color: #000 }
 
 .dt-buttons > *:first-child .dropdown-item:hover::before { color: #375a7f }
 
@@ -14,3 +18,4 @@ table.DTFC_Cloned tr.odd { background-color: #303030 }
 .dt-buttons > *:first-child .dropdown-item.active:hover::before { color: #fff }
 
 #progress-wrapper { background-color:#212121 }
+

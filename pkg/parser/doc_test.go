@@ -29,8 +29,8 @@ func ExampleParseReader() {
 		os.Exit(1)
 	}
 	var total int64 = 0
-	for _, session := range sessions {
-		total += session.Response.ContentLength
+	for index := range sessions {
+		total += sessions[index].Response.ContentLength
 	}
 	fmt.Printf("The total downloaded size was %d bytes.", total)
 	// Output: The total downloaded size was 44040192 bytes.

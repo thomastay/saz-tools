@@ -23,8 +23,8 @@ all: sazdump sazserve
 sazdump: $(wildcard cmd/sazdump/*.go pkg/dumper/*.go pkg/parser/*.go pkg/analyzer/*.go)
 	go build $(GOFLAGS) cmd/sazdump/sazdump.go
 
-sazserve: $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go)
-	go build $(GOFLAGS) cmd/sazserve/sazserve.go $(ASSET_BIN)
+sazserve: $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go internal/cache/*.go)
+	go build $(GOFLAGS) cmd/sazserve/sazserve.go cmd/sazserve/api.go $(ASSET_BIN)
 
 $(ASSET_BIN): $(ASSET_DIR)/js/all.min.js $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/*/*)
 	$(BINDATA) -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
@@ -33,11 +33,11 @@ $(ASSET_BIN): $(ASSET_DIR)/js/all.min.js $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/
 run-dump :: $(wildcard cmd/sazdump/*.go pkg/dumper/*.go pkg/parser/*.go pkg/analyzer/*.go)
 	go run cmd/sazdump/sazdump.go "$(SAZ)"
 
-run-serve :: $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go)
-	go run cmd/sazserve/sazserve.go $(ASSET_BIN)
+run-serve :: $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go internal/cache/*.go)
+	go run cmd/sazserve/sazserve.go cmd/sazserve/api.go $(ASSET_BIN)
 
-debug-serve :: debug-assets $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go)
-	go run cmd/sazserve/sazserve.go $(ASSET_BIN)
+debug-serve :: debug-assets $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go internal/cache/*.go)
+	go run cmd/sazserve/sazserve.go cmd/sazserve/api.go $(ASSET_BIN)
 
 debug-assets :: concatenate
 	go-bindata -debug -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...

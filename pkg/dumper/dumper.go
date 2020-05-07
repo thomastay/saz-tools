@@ -23,8 +23,8 @@ func Dump(rawSessions []sazparser.Session) error {
 	} else if strings.HasPrefix(lastTimeLine, "00") {
 		durationPrecision = 3
 	}
-	for _, session := range fineSessions {
-		err := printResult(&session, durationPrecision)
+	for index := range fineSessions {
+		err := printResult(&fineSessions[index], durationPrecision)
 		if err != nil {
 			return err
 		}

@@ -1,6 +1,7 @@
 ;(function () {
-  let progressWrapper, tableWrapper, infoAlert, errorAlert, table
-  let columns, hiddenColumns, configuration
+  let progressWrapper, tableWrapper, infoAlert, errorAlert, table, previousSaz
+  let columns, hiddenColumns, configuration, currentSaz, sazFile
+  const storedSazs = {}
 
   setTimeout(initialize)
 
@@ -48,23 +49,29 @@
       'BeginTime', 'EndTime', 'SendingTime', 'RespondingTime', 'ReceivingTime'
     ]
     loadConfiguration()
-    $('#saz-file').on('change', viewSaz)
+    $('#saz-file').on('change', addSaz)
     $('#theme-switcher').on('click', switchTheme)
+    previousSaz = $('#previous-saz').on('change', restoreSaz)
     progressWrapper.hide()
   }
 
-  function viewSaz (event) {
+  function addSaz (event) {
     const [file] = event.target.files
     if (file) {
-      progressWrapper.show()
-      loadSaz(file)
-        .then(displaySaz)
-        .catch(displayError)
-        .then(() => progressWrapper.hide())
+      processSaz(file)
     } else {
       resetPage()
       infoAlert.show()
     }
+  }
+
+  function processSaz (file) {
+    progressWrapper.show()
+    uploadSaz(file)
+      .then(storeSaz)
+      .then(displaySaz)
+      .catch(displayError)
+      .then(() => progressWrapper.hide())
   }
 
   function resetPage () {
@@ -78,23 +85,30 @@
     }
   }
 
-  function loadSaz (file) {
+  function uploadSaz (file) {
     const formData = new FormData()
-    formData.append('saz', file)
+    formData.append('saz', sazFile = file)
     return $.ajax({
       method: 'POST',
-      url: '/saz',
+      url: '/api/saz',
       data: formData,
       contentType: false,
       processData: false
     })
   }
 
-  function displaySaz (response) {
+  function storeSaz (response) {
+    const name = sazFile.name
+    storedSazs[name] = currentSaz = { Name: name, File: sazFile, ...response }
+    setTimeout(updatePreviousSaz)
+    return response.Sessions
+  }
+
+  function displaySaz (sessions) {
     const { columns: columnSettings, order: orderSettings, search } = configuration
     configureColumns(columnSettings)
     const order = convertOrder(orderSettings)
-    const data = convertData(response)
+    const data = convertData(sessions)
     resetPage()
     table = $('<table class="table table-sm table-striped table-hover nowrap compact display">')
         .on('column-visibility.dt', columnVisibilityChanged)
@@ -322,5 +336,38 @@
 
   function saveTheme () {
     setTimeout(() => localStorage.setItem('prantlf/sazview-theme', sazTheme))
+  }
+
+  function updatePreviousSaz () {
+    previousSaz.html('')
+    for (const name in storedSazs) {
+      const option = $('<option>').text(name)
+      if (name === currentSaz.Name) {
+        option.attr('selected', 'selected')
+      }
+      previousSaz.append(option)
+    }
+  }
+
+  function restoreSaz () {
+    const name = Object.keys(storedSazs)[previousSaz.prop('selectedIndex')]
+    const saz = storedSazs[name]
+    progressWrapper.show()
+    downloadSaz(saz.Key)
+      .then(displaySaz)
+      .catch(response => {
+        if (!(response instanceof Error || response.status !== 404)) {
+          throw response
+        }
+        return uploadSaz(saz.File)
+          .then(storeSaz)
+          .then(displaySaz)
+      })
+      .catch(displayError)
+      .then(() => progressWrapper.hide())
+  }
+
+  function downloadSaz (key) {
+    return $.ajax({ url: `/api/saz/${key}` })
   }
 }())

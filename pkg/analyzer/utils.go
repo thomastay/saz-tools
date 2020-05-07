@@ -24,7 +24,9 @@ func formatDuration(duration time.Duration) string {
 }
 
 func getFlag(session *sazparser.Session, name string) (string, bool) {
-	for _, flag := range session.Flags.Flags {
+	flags := session.Flags.Flags
+	for index := range flags {
+		flag := &flags[index]
 		if flag.Name == name {
 			return flag.Value, true
 		}

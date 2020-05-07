@@ -22,9 +22,9 @@ func ExampleAnalyze() {
 		return
 	}
 	var biggest *sazanalyzer.Session
-	for _, session := range sessions {
-		if biggest == nil || session.Response.ContentLength > biggest.Response.ContentLength {
-			biggest = &session
+	for index := range sessions {
+		if biggest == nil || sessions[index].Response.ContentLength > biggest.Response.ContentLength {
+			biggest = &sessions[index]
 		}
 	}
 	fmt.Printf("The biggest response was obtained in $s.", biggest.Timers.RequestResponseTime)

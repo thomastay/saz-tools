@@ -84,7 +84,11 @@
 		</script>
 	</header>
 	<main class=container-fluid>
-		<label class=col-form-label>SAZ File: <input id=saz-file type=file></label>
+		<form class=form-group>
+			<label class=col-form-label>SAZ File: <input id=saz-file type=file></label>
+			<label class=col-form-label>Previous SAZ files:
+				<select class=form-control id=previous-saz></select></label>
+		</form>
 		<div class="alert alert-danger" role=alert style=display:none>
 			<h4 class=alert-heading></h4>
 			<p></p>

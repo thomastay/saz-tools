@@ -15,7 +15,23 @@ footer.container-fluid { margin-top: 10px }
 
 .alert p { margin-bottom: 0 }
 
-label { margin-bottom: 0 }
+main > form {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.col-form-label {
+  margin-bottom: 0;
+  white-space: nowrap;
+  margin-right: 20px;
+}
+
+select.form-control {
+  display: inline-block;
+  width: auto;
+}
 
 .top {
   display: flex;
