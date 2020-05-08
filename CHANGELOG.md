@@ -1,3 +1,13 @@
+# [0.0.5](https://github.com/prantlf/saz-tools/compare/v0.0.4...v0.0.5) (2020-05-08)
+
+## Features
+
+* Show network session details ([4f45dda](https://github.com/prantlf/saz-tools/4f45ddad8a9f2277371a615e8b19390b15e3f5fa))
+
+## Fixes
+
+* Remove the prefix saz from packages in pkg/ ([be663a6](https://github.com/prantlf/saz-tools/be663a6d379c96f618142704698d008844348781))
+
 # [0.0.4](https://github.com/prantlf/saz-tools/compare/v0.0.3...v0.0.4) (2020-05-08)
 
 ## Features
