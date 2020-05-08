@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"regexp"
+	"strconv"
 	"strings"
 
 	cache "github.com/prantlf/saz-tools/internal/cache"
@@ -11,7 +13,7 @@ import (
 	parser "github.com/prantlf/saz-tools/pkg/parser"
 )
 
-type PostPayload struct {
+type sazPayload struct {
 	Key      string
 	Sessions []analyzer.Session
 }
@@ -43,7 +45,14 @@ func postSaz(responseWriter http.ResponseWriter, request *http.Request) interfac
 		return nil
 	}
 	key := entryCache.Put(cache.Entry{rawSessions, fineSessions})
-	return PostPayload{key, fineSessions}
+	return sazPayload{key, fineSessions}
+}
+
+var urlPath = regexp.MustCompile("([^/]+)")
+
+type sessionPayload struct {
+	Request  analyzer.RequestExtras
+	Response analyzer.ResponseExtras
 }
 
 func getSaz(responseWriter http.ResponseWriter, request *http.Request) interface{} {
@@ -52,13 +61,37 @@ func getSaz(responseWriter http.ResponseWriter, request *http.Request) interface
 		http.Error(responseWriter, "Only GET allowed.", http.StatusMethodNotAllowed)
 		return nil
 	}
-	key := request.URL.Path[9:] // /api/saz/
-	entry, ok := entryCache.Get(key)
-	if !ok {
-		http.Error(responseWriter, "Kay Not Found", http.StatusNotFound)
+	pathSegments := urlPath.FindAllString(request.URL.Path, -1)
+	segmentCount := len(pathSegments)
+	if segmentCount < 3 {
+		http.Error(responseWriter, "Missing Key", http.StatusBadRequest)
 		return nil
 	}
-	return entry.FineSessions
+	key := pathSegments[2] // /api/saz/:key
+	entry, ok := entryCache.Get(key)
+	if !ok {
+		http.Error(responseWriter, "Unknown Kay", http.StatusNotFound)
+		return nil
+	}
+	switch segmentCount {
+	case 3:
+		return entry.FineSessions
+	case 4:
+		number, err := strconv.Atoi(pathSegments[3]) // /api/saz/:key/:number
+		if err != nil {
+			http.Error(responseWriter, "Invalid Key", http.StatusBadRequest)
+			return nil
+		}
+		sessions := entry.RawSessions
+		if number <= 0 || number > len(sessions) {
+			http.Error(responseWriter, "Invalid Key", http.StatusBadRequest)
+			return nil
+		}
+		requestExtras, responseExtras := analyzer.GetExtras(&sessions[number-1])
+		return &sessionPayload{requestExtras, responseExtras}
+	}
+	http.Error(responseWriter, "Invalid Path", http.StatusNotFound)
+	return nil
 }
 
 type api struct{}
@@ -72,7 +105,7 @@ func (h *api) ServeHTTP(responseWriter http.ResponseWriter, request *http.Reques
 	case strings.HasPrefix(path, "/api/saz/"):
 		payload = getSaz(responseWriter, request)
 	default:
-		http.Error(responseWriter, "Path Not Found", http.StatusNotFound)
+		http.Error(responseWriter, "Unrecognized Path", http.StatusNotFound)
 	}
 	if payload == nil {
 		return

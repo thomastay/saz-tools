@@ -32,6 +32,21 @@ $(ASSET_BIN): $(ASSET_DIR)/js/saz.min.js $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/
 	$(BINDATA) -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
 	go run _tools/move-generated-comments/move-generated-comments.go -- $(ASSET_BIN)
 
+$(ASSET_DIR)/js/saz.min.js: node_modules/datatables.net/js/jquery.dataTables.js.vendor cmd/sazserve/sources/js/mime-type-icons.js $(wildcard $(SOURCE_DIR)/*/*)
+	mkdir -p $(ASSET_DIR)/css $(ASSET_DIR)/js
+	$(ESBUILD) --outfile=$(ASSET_DIR)/js/saz.min.js --format=iife --sourcemap \
+		--bundle --minify cmd/sazserve/sources/js/saz.js
+	$(MINIFY) -o $(ASSET_DIR)/css/common.min.css \
+		node_modules/datatables.net-bs4/css/dataTables.bootstrap4.css \
+		node_modules/datatables.net-buttons-bs4/css/buttons.bootstrap4.css \
+		node_modules/datatables.net-colreorder-bs4/css/colReorder.bootstrap4.css \
+		node_modules/datatables.net-fixedcolumns-bs4/css/fixedColumns.bootstrap4.css \
+		node_modules/datatables.net-scroller-bs4/css/scroller.bootstrap4.css \
+		$(SOURCE_DIR)/css/saz.css
+	$(MINIFY) -o $(ASSET_DIR)/css/bootstrap.flatly.min.css $(SOURCE_DIR)/css/bootstrap.flatly.css
+	$(MINIFY) -o $(ASSET_DIR)/css/bootstrap.darkly.min.css $(SOURCE_DIR)/css/bootstrap.darkly.css
+	$(MINIFY) -o $(ASSET_DIR)/css/saz.darkly.min.css $(SOURCE_DIR)/css/saz.darkly.css
+
 generate ::
 ifeq (,$(wildcard $(ASSET_BIN)))
 	$(BINDATA) -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
@@ -47,26 +62,25 @@ run-dump :: $(wildcard cmd/sazdump/*.go pkg/dumper/*.go pkg/parser/*.go pkg/anal
 run-serve :: $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go internal/cache/*.go)
 	go run cmd/sazserve/sazserve.go cmd/sazserve/api.go $(ASSET_BIN)
 
-debug-serve :: debug-assets $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go internal/cache/*.go)
+debug-serve :: debug-data $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go internal/cache/*.go)
 	go run cmd/sazserve/sazserve.go cmd/sazserve/api.go $(ASSET_BIN)
 
-debug-assets :: $(ASSET_DIR)/js/saz.min.js $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/*/*)
+debug-data :: debug-assets $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/*/*)
 	go-bindata -debug -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
 
-$(ASSET_DIR)/js/saz.min.js: node_modules/datatables.net/js/jquery.dataTables.js.vendor $(wildcard $(SOURCE_DIR)/*/*)
+debug-assets :: node_modules/datatables.net/js/jquery.dataTables.js.vendor cmd/sazserve/sources/js/mime-type-icons.js $(wildcard $(SOURCE_DIR)/*/*)
 	mkdir -p $(ASSET_DIR)/css $(ASSET_DIR)/js
 	$(ESBUILD) --outfile=$(ASSET_DIR)/js/saz.min.js --format=iife --sourcemap \
-		--bundle --minify cmd/sazserve/sources/js/saz.js
-	$(MINIFY) -o $(ASSET_DIR)/css/common.min.css \
-		node_modules/datatables.net-bs4/css/dataTables.bootstrap4.css \
+		--bundle cmd/sazserve/sources/js/saz.js
+	cat node_modules/datatables.net-bs4/css/dataTables.bootstrap4.css \
 		node_modules/datatables.net-buttons-bs4/css/buttons.bootstrap4.css \
 		node_modules/datatables.net-colreorder-bs4/css/colReorder.bootstrap4.css \
 		node_modules/datatables.net-fixedcolumns-bs4/css/fixedColumns.bootstrap4.css \
 		node_modules/datatables.net-scroller-bs4/css/scroller.bootstrap4.css \
-		$(SOURCE_DIR)/css/saz.css
-	$(MINIFY) -o $(ASSET_DIR)/css/bootstrap.flatly.min.css $(SOURCE_DIR)/css/bootstrap.flatly.css
-	$(MINIFY) -o $(ASSET_DIR)/css/bootstrap.darkly.min.css $(SOURCE_DIR)/css/bootstrap.darkly.css
-	$(MINIFY) -o $(ASSET_DIR)/css/saz.darkly.min.css $(SOURCE_DIR)/css/saz.darkly.css
+		$(SOURCE_DIR)/css/saz.css > $(ASSET_DIR)/css/common.min.css
+	cp $(SOURCE_DIR)/css/bootstrap.flatly.css $(ASSET_DIR)/css/bootstrap.flatly.min.css
+	cp $(SOURCE_DIR)/css/bootstrap.darkly.css $(ASSET_DIR)/css/bootstrap.darkly.min.css
+	cp  $(SOURCE_DIR)/css/saz.darkly.css $(ASSET_DIR)/css/saz.darkly.min.css
 
 prepare :: go-prepare
 	npm ci
@@ -75,6 +89,9 @@ go-prepare ::
 	go get -u github.com/go-bindata/go-bindata/v3/...
 	go get -u github.com/evanw/esbuild/...
 	go get -u github.com/tdewolff/minify/v2/...
+
+cmd/sazserve/sources/js/mime-type-icons.js: $(wildcard $(ASSET_DIR)/png/*)
+	go run _tools/list-known-mime-types/list-known-mime-types.go -- cmd/sazserve/sources/js/mime-type-icons.js
 
 node_modules/datatables.net/js/jquery.dataTables.js.vendor: cmd/sazserve/sources/js/jquery.dataTables.js.diff
 ifeq (,$(wildcard node_modules/datatables.net/js/jquery.dataTables.js.vendor))

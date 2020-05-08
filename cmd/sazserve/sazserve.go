@@ -43,7 +43,7 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	apiHandler := gzipper(new(api))
+	apiHandler := gzipper(&api{})
 	http.Handle("/api/saz/", apiHandler)
 	http.Handle("/api/saz", apiHandler)
 	http.Handle("/", brotler(http.FileServer(AssetFile())))

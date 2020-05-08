@@ -75,6 +75,14 @@ table.DTFC_Cloned thead tr {
   color: #fff;
 }
 
+.table.dataTable td[colspan] {
+  white-space: normal;
+  padding-right: 15px;
+}
+
+.list-group-item:nth-child(even),
+.list-group-item:hover { background-color: #222 }
+
 #progress-wrapper {
   position: fixed;
   left: 0;

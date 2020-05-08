@@ -23,13 +23,31 @@ func formatDuration(duration time.Duration) string {
 	return fmt.Sprintf("%02d:%02d:%02d.%06d", hours, minutes, seconds, microseconds)
 }
 
-func getFlag(session *parser.Session, name string) (string, bool) {
-	flags := session.Flags.Flags
-	for index := range flags {
-		flag := &flags[index]
-		if flag.Name == name {
-			return flag.Value, true
-		}
+func convertFlags(session *parser.Session) Flags {
+	target := make(Flags)
+	source := session.Flags.Flags
+	for index := range source {
+		flag := &source[index]
+		target[flag.Name] = flag.Value
 	}
-	return "", false
+	return target
+}
+
+func GetExtras(session *parser.Session) (RequestExtras, ResponseExtras) {
+	return RequestExtras{
+			Extras{
+				session.Request.Header,
+				session.Request.TransferEncoding,
+			},
+			session.Request.Host,
+			session.Request.RemoteAddr,
+			session.Request.PostForm,
+		}, ResponseExtras{
+			Extras{
+				session.Response.Header,
+				session.Response.TransferEncoding,
+			},
+			session.Response.Proto,
+			session.Response.Uncompressed,
+		}
 }

@@ -5,11 +5,7 @@ import (
 	"strconv"
 )
 
-var archivedFileName *regexp.Regexp
-
-func init() {
-	archivedFileName, _ = regexp.Compile("(\\d+)_(\\w)")
-}
+var archivedFileName = regexp.MustCompile("(\\d+)_(\\w)")
 
 func parseArchivedFileName(name string) (bool, int, string, error) {
 	match := archivedFileName.FindAllStringSubmatch(name, -1)

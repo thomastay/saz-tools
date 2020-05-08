@@ -19,9 +19,10 @@ import fixedColumns from 'datatables.net-fixedcolumns-bs4'
 fixedColumns(window, $)
 import scroller from 'datatables.net-scroller-bs4'
 scroller(window, $)
+import mimeTypeIcons from './mime-type-icons.js'
 
 let progressWrapper, tableWrapper, infoAlert, errorAlert, table, previousSaz, currentSaz
-let columns, hiddenColumns, configuration, loadedSaz
+let columns, hiddenColumns, timerNames, configuration, loadedSaz
 const storedSazs = {}
 
 setTimeout(initialize)
@@ -68,6 +69,15 @@ function initialize () {
   hiddenColumns = [
     'Scheme', 'Host', 'Port', 'HostAndPort', 'Path', 'Query', 'PathAndQuery',
     'BeginTime', 'EndTime', 'SendingTime', 'RespondingTime', 'ReceivingTime'
+  ]
+  timerNames = [
+    'ClientConnected', 'ClientBeginRequest', 'GotRequestHeaders',
+    'ClientDoneRequest', 'GatewayTime', 'DNSTime', 'TCPConnectTime',
+    'HTTPSHandshakeTime', 'RequestResponseTime', 'RequestSendTime',
+    'ServerProcessTime', 'ResponseReceiveTime', 'ServerConnected',
+    'FiddlerBeginRequest', 'ServerGotRequest', 'ServerBeginResponse',
+    'GotResponseHeaders', 'ServerDoneResponse', 'ClientBeginResponse',
+    'ClientDoneResponse'
   ]
   $('#theme-switcher').on('click', switchTheme)
   currentSaz = $('#saz-file').on('change', selectSaz)
@@ -183,6 +193,7 @@ function displaySaz (sessions) {
   const order = convertOrder(orderSettings)
   const data = prepareData(sessions)
   resetPage()
+  const detailRows = []
   table = $('<table class="table table-sm table-striped table-hover nowrap compact display">')
       .on('column-visibility.dt', columnVisibilityChanged)
       .on('search.dt', filterChanged)
@@ -213,6 +224,34 @@ function displaySaz (sessions) {
             buttons: [ 'csv', 'excel', 'pdf' ]
           }
         ]
+      })
+      .on('click', 'tbody tr td:not([colspan])', function () {
+        const tr = $(this).closest('tr')
+        const row = table.row(tr)
+        const id = tr.attr('id')
+        const index = detailRows.indexOf(id)
+        if (row.child.isShown()) {
+          tr.removeClass('details')
+          row.child.hide()
+          detailRows.splice(index, 1)
+        } else {
+          const data = row.data()
+          const session = loadedSaz.Sessions[data.Number - 1]
+          if (session.Request.Header) {
+            showDetails(session, formatDetails)
+          } else {
+            loadDetails(loadedSaz.Key, session)
+              .then(() => showDetails(session, formatDetails))
+              .catch(error => showDetails(error, formatError))
+          }
+        }
+        function showDetails (data, format) {
+          tr.addClass('details')
+          row.child(format(data)).show()
+          if (index < 0) {
+            detailRows.push(id)
+          }
+        }
       })
 }
 
@@ -255,9 +294,9 @@ function prepareData (response) {
     RespondingTime: formatDuration(session.Timers.ServerProcessTime, durationPrecision),
     ReceivingTime: formatDuration(session.Timers.ResponseReceiveTime, durationPrecision),
     Size: session.Response.ContentLength,
-    Encoding: session.Flags.Encoding,
-    Caching: session.Flags.Caching,
-    Process: session.Flags.Process
+    Encoding: session.Response.Encoding,
+    Caching: session.Response.Caching,
+    Process: session.Request.Process
   }))
 }
 
@@ -284,8 +323,8 @@ function formatDuration (duration, precision) {
   return `${seconds}.${milliseconds}`
 }
 
-function formatTime (duration) {
-  return duration.substr(14, 12)
+function formatTime (time) {
+  return time.substr(14, 12)
 }
 
 function formatSize (size) {
@@ -313,14 +352,87 @@ function padThousands (number) {
   return number > 99 ? number : number > 9 ? '0' + number : '00' + number
 }
 
-function displayError (response) {
-  let title, text
-  if (response instanceof Error) {
-    text = response.message
-  } else {
-    title = response.status && `${response.status} (${response.statusText})`
-    text = response.responseText || 'Connection failed.'
+function loadDetails (key, session) {
+  return $.ajax({ url: `/api/saz/${key}/${session.Number}` })
+    .then (response => {
+      Object.assign(session.Request, response.Request)
+      Object.assign(session.Response, response.Response)
+    })
+}
+
+function formatDetails (session) {
+  const header = session.Response.Header
+  let contentType = header['Content-Type']
+  contentType = contentType ? contentType[0] : 'unknown'
+  let mimeType = contentType.replace(/;.*$/, '').replace(/\//g, '-')
+  if (!mimeTypeIcons.has(mimeType)) {
+    mimeType = 'unknown'
   }
+  const requestHeader = formatHeader(session.Request.Header)
+  const responseHeader = formatHeader(header)
+  const timers = formatTimers(session.Timers)
+  const flags = formatFlags(session.Flags)
+  return `<div class=media>
+  <img class=mr-3 src=png/${mimeType}.png alt=${contentType}>
+  <div class=media-body>
+    <h5 class=mt-0>${contentType}</h5>
+    <h6>Request</h6>
+    ${requestHeader}
+    <h6>Response</h6>
+    ${responseHeader}
+    <h6>Timers</h6>
+    ${timers}
+    <h6>Flags</h6>
+    ${flags}
+  </div>
+</div>`
+}
+
+function formatHeader (header) {
+  let list = `<ul class="list-group list-group-flush">
+`
+  for (const name in header) {
+    const value = header[name].join(', ')
+    list += `    <li class="list-group-item py-1"><strong>${name}</strong>: ${value}</li>
+`
+  }
+  return list + '</ul>'
+}
+
+function formatTimers(timers) {
+  let list = `<ul class="list-group list-group-flush">
+`
+  for (const name of timerNames) {
+    let value = timers[name]
+    if (!name.endsWith('Time')) {
+      value = new Date(value).toLocaleString()
+    }
+    list += `    <li class="list-group-item py-1"><strong>${name}</strong>: ${value}</li>
+`
+  }
+  return list + '</ul>'
+}
+
+function formatFlags (flags) {
+  let list = `<ul class="list-group list-group-flush">
+`
+  for (const name in flags) {
+    list += `    <li class="list-group-item py-1"><strong>${name}</strong>: ${flags[name]}</li>
+`
+  }
+  return list + '</ul>'
+}
+
+function formatError (response) {
+  const { title, text } = parseError(response)
+  return `<div class="alert alert-warning" role=alert>
+  <h4 class=alert-heading>${title}</h4>
+  <p>${text}</p>
+</div>`
+}
+
+function displayError (response) {
+  const { title, text } = parseError(response)
   resetPage()
   previousSaz.prop('selectedIndex', -1)
   if (title) {
@@ -329,6 +441,17 @@ function displayError (response) {
     errorAlert.find('h4').hide()
   }
   errorAlert.show().find('p').text(text)
+}
+
+function parseError (response) {
+  let title, text
+  if (response instanceof Error) {
+    text = response.message
+  } else {
+    title = response.status && `${response.status} (${response.statusText})`
+    text = response.responseText || 'Connection failed.'
+  }
+  return { title, text }
 }
 
 function loadConfiguration () {
@@ -414,7 +537,7 @@ function downloadSaz (key) {
 
 function switchTheme () {
   const body = $(document.body)
-  body.fadeOut(200, () => {
+  body.fadeOut(200, function () {
     $('#theme,#dark-overrides').remove()
     switch (sazTheme) {
       case 'dark': sazTheme = 'light'; break

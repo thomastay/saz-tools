@@ -43,7 +43,11 @@ func Analyze(rawSessions []parser.Session) ([]Session, error) {
 		if method != http.MethodConnect {
 			encoding = rawSession.Response.Header.Get("Content-Encoding")
 			if encoding == "" {
-				encoding = "raw"
+				if rawSession.Response.Uncompressed {
+					encoding = "raw"
+				} else {
+					encoding = "unpecified"
+				}
 			}
 			caching = rawSession.Response.Header.Get("Cache-Control")
 			if caching == "" {
@@ -64,8 +68,11 @@ func Analyze(rawSessions []parser.Session) ([]Session, error) {
 		fineSession.Request.URL.Path = url.Path
 		fineSession.Request.URL.Query = url.RawQuery
 		fineSession.Request.URL.PathAndQuery = url.RequestURI()
+		fineSession.Request.ContentLength = int(rawSession.Request.ContentLength)
 		fineSession.Response.StatusCode = rawSession.Response.StatusCode
 		fineSession.Response.ContentLength = int(rawSession.Response.ContentLength)
+		fineSession.Response.Encoding = encoding
+		fineSession.Response.Caching = caching
 		fineSession.Timers.ClientConnected = rawSession.Timers.ClientConnected
 		fineSession.Timers.ClientBeginRequest = rawSession.Timers.ClientBeginRequest
 		fineSession.Timers.GotRequestHeaders = rawSession.Timers.GotRequestHeaders
@@ -86,11 +93,12 @@ func Analyze(rawSessions []parser.Session) ([]Session, error) {
 		fineSession.Timers.ServerDoneResponse = rawSession.Timers.ServerDoneResponse
 		fineSession.Timers.ClientBeginResponse = rawSession.Timers.ClientBeginResponse
 		fineSession.Timers.ClientDoneResponse = rawSession.Timers.ClientDoneResponse
-		fineSession.Flags.Encoding = encoding
-		fineSession.Flags.Caching = caching
-		fineSession.Flags.ClientIP, _ = getFlag(rawSession, "x-clientip")
-		fineSession.Flags.HostIP, _ = getFlag(rawSession, "x-hostip")
-		fineSession.Flags.Process, _ = getFlag(rawSession, "x-processinfo")
+		fineSession.Flags = convertFlags(rawSession)
+		process := fineSession.Flags["x-processinfo"]
+		if process == "" {
+			process = "unknown"
+		}
+		fineSession.Request.Process = process
 	}
 	return fineSessions, nil
 }
