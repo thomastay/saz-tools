@@ -1,27 +1,20 @@
 import $ from 'jquery'
 window.jQuery = window.$ = $
+import 'bootstrap'
+import 'popper.js'
 import JSZip from 'jszip'
-window.JSZip = JSZip
 import 'pdfmake'
-import dataTable from 'datatables.net-bs4'
-dataTable(window, $)
+import dataTables from 'datatables.net-bs4'
 import buttons from 'datatables.net-buttons-bs4'
-buttons(window, $)
 import columnVisibility from 'datatables.net-buttons/js/buttons.colVis.js'
-columnVisibility(window, $)
 import buttonsHtml5 from 'datatables.net-buttons/js/buttons.html5.js'
-buttonsHtml5(window, $)
 import buttonsPrint from 'datatables.net-buttons/js/buttons.print.js'
-buttonsPrint(window, $)
 import colReorder from 'datatables.net-colreorder-bs4'
-colReorder(window, $)
-import fixedColumns from 'datatables.net-fixedcolumns-bs4'
-fixedColumns(window, $)
-import scroller from 'datatables.net-scroller-bs4'
-scroller(window, $)
+import fixedHeader from 'datatables.net-fixedheader-bs4'
+import jsonExport from './json-export.js'
 import mimeTypeIcons from './mime-type-icons.js'
 
-let progressWrapper, tableWrapper, infoAlert, errorAlert, table, previousSaz, currentSaz
+let progressWrapper, tableWrapper, infoAlert, errorAlert, dataTable, previousSaz, currentSaz
 let columns, hiddenColumns, timerNames, configuration, loadedSaz
 const storedSazs = {}
 
@@ -51,8 +44,9 @@ function initialize () {
     { data: 'SendingTime', title: 'Sending' },
     { data: 'RespondingTime', title: 'Responding' },
     { data: 'ReceivingTime', title: 'Receiving' },
+    { data: 'ContentType', title: 'Type' },
     {
-      data: 'Size',
+      data: 'ContentLength',
       title: 'Size',
       className: 'dt-right',
       render: function ( data, type, row) {
@@ -68,7 +62,8 @@ function initialize () {
   ]
   hiddenColumns = [
     'Scheme', 'Host', 'Port', 'HostAndPort', 'Path', 'Query', 'PathAndQuery',
-    'BeginTime', 'EndTime', 'SendingTime', 'RespondingTime', 'ReceivingTime'
+    'BeginTime', 'EndTime', 'SendingTime', 'RespondingTime', 'ReceivingTime',
+    'ContentType'
   ]
   timerNames = [
     'ClientConnected', 'ClientBeginRequest', 'GotRequestHeaders',
@@ -87,6 +82,15 @@ function initialize () {
     .on('dragover', showDropEffect)
     .on('dragleave', preventDefaults)
     .on('drop', dropSaz)
+  window.JSZip = JSZip
+  dataTables(window, $)
+  buttons(window, $)
+  columnVisibility(window, $)
+  buttonsHtml5(window, $)
+  buttonsPrint(window, $)
+  colReorder(window, $)
+  fixedHeader(window, $)
+  jsonExport(window, $)
   loadConfiguration()
   progressWrapper.hide()
 }
@@ -124,10 +128,9 @@ function processSazs (files) {
   Promise
     .allSettled(promises)
     .then(results => {
-      let response, error
+      let response
       for (const { value, reason } of results) {
         if (reason) {
-          error = reason
           return displayError(reason)
         }
         if (value) {
@@ -146,13 +149,11 @@ function uploadSaz (file) {
 }
 
 function postSaz (file) {
-  const formData = new FormData()
-  formData.append('saz', file)
   return $.ajax({
     method: 'POST',
     url: '/api/saz',
-    data: formData,
-    contentType: false,
+    data: file,
+    contentType: 'application/octet-stream',
     processData: false
   }).then (response => ({ File: file, ...response }))
 }
@@ -166,9 +167,9 @@ function storeSaz (response) {
 function resetPage () {
   infoAlert.hide()
   errorAlert.hide()
-  if (table) {
-    const oldTable = table
-    table = undefined
+  if (dataTable) {
+    const oldTable = dataTable
+    dataTable = undefined
     oldTable.destroy()
     tableWrapper.html('')
   }
@@ -194,65 +195,46 @@ function displaySaz (sessions) {
   const data = prepareData(sessions)
   resetPage()
   const detailRows = []
-  table = $('<table class="table table-sm table-striped table-hover nowrap compact display">')
-      .on('column-visibility.dt', columnVisibilityChanged)
-      .on('search.dt', filterChanged)
-      .on( 'order.dt', orderChanged)
-      .appendTo(tableWrapper)
-      .DataTable({
-        columns,
-        data,
-        order,
-        search: { search },
-        dom: '<"top"ifBR>rtS',
-        scrollX: true,
-        scrollY: '60vh',
-        scrollCollapse: true,
-        deferRender: true,
-        scroller: true,
-        colReorder: true,
-        fixedColumns: { leftColumns: 1 },
-        buttons: [
+  dataTable = $('<table class="table table-sm table-striped table-hover nowrap compact display">')
+    .on('column-visibility.dt', columnVisibilityChanged)
+    .on('search.dt', filterChanged)
+    .on( 'order.dt', orderChanged)
+    .appendTo(tableWrapper)
+    .DataTable({
+      columns,
+      data,
+      order,
+      search: { search },
+      dom: '<"top"ifB>rt',
+      fixedHeader: true,
+      colReorder: true,
+      paging: false,
+      buttons: [
+        {
+          extend: 'colvis',
+          text: 'Columns'
+        },
+        {
+          extend: 'collection',
+          text: 'Export',
+          buttons: [ 'copy', 'print',
           {
-            extend: 'colvis',
-            text: 'Columns'
-          },
-          'copy', 'print',
-          {
-            extend: 'collection',
-            text: 'Export',
-            buttons: [ 'csv', 'excel', 'pdf' ]
-          }
-        ]
-      })
-      .on('click', 'tbody tr td:not([colspan])', function () {
-        const tr = $(this).closest('tr')
-        const row = table.row(tr)
-        const id = tr.attr('id')
-        const index = detailRows.indexOf(id)
-        if (row.child.isShown()) {
-          tr.removeClass('details')
-          row.child.hide()
-          detailRows.splice(index, 1)
-        } else {
-          const data = row.data()
-          const session = loadedSaz.Sessions[data.Number - 1]
-          if (session.Request.Header) {
-            showDetails(session, formatDetails)
-          } else {
-            loadDetails(loadedSaz.Key, session)
-              .then(() => showDetails(session, formatDetails))
-              .catch(error => showDetails(error, formatError))
-          }
+            extend: 'json',
+            className: 'divide-at-top'
+          }, 'csv', 'excel', 'pdf' ]
         }
-        function showDetails (data, format) {
-          tr.addClass('details')
-          row.child(format(data)).show()
-          if (index < 0) {
-            detailRows.push(id)
-          }
-        }
-      })
+      ]
+    })
+    .on('click', 'tbody tr td:not([colspan])', function (event) {
+      event.preventDefault()
+      displayDetails($(this), detailRows)
+    })
+    .on('click', '[data-session]', function () {
+      event.preventDefault()
+      const link = $(this)
+      openSession(loadedSaz.Sessions[link.data().session - 1], link.attr('download'))
+    })
+  $('.dataTables_wrapper .dataTables_info').addClass('form-control-sm')
 }
 
 function configureColumns (columnSettings) {
@@ -293,7 +275,8 @@ function prepareData (response) {
     SendingTime: formatDuration(session.Timers.RequestSendTime, durationPrecision),
     RespondingTime: formatDuration(session.Timers.ServerProcessTime, durationPrecision),
     ReceivingTime: formatDuration(session.Timers.ResponseReceiveTime, durationPrecision),
-    Size: session.Response.ContentLength,
+    ContentType: session.Response.ContentType,
+    ContentLength: session.Response.ContentLength,
     Encoding: session.Response.Encoding,
     Caching: session.Response.Caching,
     Process: session.Request.Process
@@ -353,46 +336,90 @@ function padThousands (number) {
 }
 
 function loadDetails (key, session) {
-  return $.ajax({ url: `/api/saz/${key}/${session.Number}` })
+  const url = `/api/saz/${key}/${session.Number}?scope=extras`
+  return $.ajax({ url })
+    .catch(response => {
+      if (response instanceof Error || response.status !== 404) {
+        throw response
+      }
+      return uploadSaz(loadedSaz.File).then(() => $.ajax({ url }))
+    })
     .then (response => {
       Object.assign(session.Request, response.Request)
       Object.assign(session.Response, response.Response)
+      Object.assign(session.Timers, response.Timers)
+      session.Flags = response.Flags
     })
 }
 
-function formatDetails (session) {
+function formatDetails (session, key) {
   const header = session.Response.Header
-  let contentType = header['Content-Type']
-  contentType = contentType ? contentType[0] : 'unknown'
+  const contentType = getHeader(header, 'Content-Type') || 'unknown'
   let mimeType = contentType.replace(/;.*$/, '').replace(/\//g, '-')
-  if (!mimeTypeIcons.has(mimeType)) {
-    mimeType = 'unknown'
-  }
   const requestHeader = formatHeader(session.Request.Header)
   const responseHeader = formatHeader(header)
   const timers = formatTimers(session.Timers)
   const flags = formatFlags(session.Flags)
+  const sessionUrl = `/api/saz/${key}/${session.Number}/`
+  let requestLinks = ''
+  let responseLinks = ''
+  if (session.Request.ContentLength > 0) {
+    const requestUrl = `${sessionUrl}request/body`
+    const requestName = mimeType === 'application-json' ? 'body.json'
+      : mimeType === 'application-xml' || mimeType === 'text-xml' ?  'body.xml'
+      : 'body.txt'
+    requestLinks = `Request Body:
+    <a href=${requestUrl} target=_blank>Open</a>
+    <a href=${requestUrl} download=${requestName}>Download</a>
+    &nbsp;&nbsp;
+`
+  }
+  if (session.Response.ContentLength > 0) {
+    let responseUrl = `${sessionUrl}response/body`
+    const responseName = session.Request.URL.Path.replace(/^.+\/([^/]+)$/, '$1')
+    responseLinks = `Response Body:
+    <a href=${responseUrl} target=_blank>Open</a>
+    <a href=${responseUrl} download=${responseName}>Download</a>
+    &nbsp;&nbsp;
+`
+  }
+  if (!mimeTypeIcons.has(mimeType)) {
+    mimeType = 'unknown'
+  }
+  detailsUrl = 'http://google.com'
   return `<div class=media>
   <img class=mr-3 src=png/${mimeType}.png alt=${contentType}>
   <div class=media-body>
-    <h5 class=mt-0>${contentType}</h5>
-    <h6>Request</h6>
+    <h5 class=mt-0>Type ${contentType}</h5>
+    <p>
+      Session Details:
+      <a href=${detailsUrl} data-session=${session.Number} target=_blank>Open</a>
+      <a href=${detailsUrl} data-session=${session.Number} download=details-${session.Number}.json>Download</a>
+      &nbsp;&nbsp;
+      ${requestLinks}${responseLinks}
+    </p>
+    <h5>Request Header</h5>
     ${requestHeader}
-    <h6>Response</h6>
+    <h5>Response Header</h5>
     ${responseHeader}
-    <h6>Timers</h6>
+    <h5>Session Timers</h5>
     ${timers}
-    <h6>Flags</h6>
+    <h5>Session Flags</h5>
     ${flags}
   </div>
 </div>`
+}
+
+function getHeader (header, name) {
+  const value = header[name]
+  return Array.isArray(value) ? value.join(', ') : value || ''
 }
 
 function formatHeader (header) {
   let list = `<ul class="list-group list-group-flush">
 `
   for (const name in header) {
-    const value = header[name].join(', ')
+    const value = getHeader(header, name)
     list += `    <li class="list-group-item py-1"><strong>${name}</strong>: ${value}</li>
 `
   }
@@ -454,6 +481,68 @@ function parseError (response) {
   return { title, text }
 }
 
+function displayDetails (td, detailRows) {
+  const tr = td.closest('tr')
+  const row = dataTable.row(tr)
+  const id = tr.attr('id')
+  const index = detailRows.indexOf(id)
+  if (row.child.isShown()) {
+    tr.removeClass('details')
+    row.child.hide()
+    detailRows.splice(index, 1)
+  } else {
+    const data = row.data()
+    const session = loadedSaz.Sessions[data.Number - 1]
+    if (session.Request.Header) {
+      showDetails(session, formatDetails)
+    } else {
+      progressWrapper.show()
+      loadDetails(loadedSaz.Key, session)
+        .then(() => showDetails(session, formatDetails))
+        .catch(error => showDetails(error, formatError))
+        .then(() =>   progressWrapper.hide())
+    }
+  }
+  function showDetails (data, format) {
+    tr.addClass('details')
+    row.child(format(data, loadedSaz.Key)).show()
+    if (index < 0) {
+      detailRows.push(id)
+    }
+  }
+}
+
+function openSession (session, fileName) {
+  const url = `/api/saz/${loadedSaz.Key}/${session.Number}?scope=extras`
+  return $.ajax({ url, method: 'HEAD' })
+    .catch(response => {
+      if (response instanceof Error || response.status !== 404) {
+        throw response
+      }
+      progressWrapper.show()
+      return uploadSaz(loadedSaz.File)
+    })
+    .then (() => {
+      progressWrapper.hide()
+      const output = JSON.stringify(session, undefined, 2)
+      const file = new Blob([output], { type: 'application/json' })
+      if (fileName) {
+        $.fn.dataTable.fileSave(file, fileName, true)
+      } else {
+        const fileURL = URL.createObjectURL(file)
+        window.open(fileURL)
+        setTimeout(() => URL.revokeObjectURL(fileURL))
+      }
+    })
+    .catch(response => {
+      progressWrapper.hide()
+      const { title, text } = parseError(response)
+      $('#error-alert-title').text(title || 'Error')
+      $('#error-alert-body').text(text)
+      $('#error-alert').modal()
+    })
+}
+
 function loadConfiguration () {
   configuration = JSON.parse(localStorage.getItem('prantlf/sazview') || '{}')
   ensureDefaultConfiguration()
@@ -483,7 +572,7 @@ function saveConfiguration () {
 }
 
 function columnVisibilityChanged (event, settings, column, state) {
-  if (table) {
+  if (dataTable) {
     configuration.columns = settings.aoColumns.reduce((columns, column) => {
       columns[column.mData] = { visible: column.bVisible }
       return columns
@@ -493,7 +582,7 @@ function columnVisibilityChanged (event, settings, column, state) {
 }
 
 function filterChanged (event, settings) {
-  if (table) {
+  if (dataTable) {
     var search = settings.oPreviousSearch.sSearch
     if (search !== configuration.search) {
       configuration.search = search
@@ -503,8 +592,8 @@ function filterChanged (event, settings) {
 }
 
 function orderChanged (event, settings, state) {
-  if (table) {
-    const order = settings.aaSorting[0];
+  if (dataTable) {
+    const order = settings.aaSorting[0]
     const newOrder = { column: columns[order[0]].data, descending: order[1] === 'desc' }
     oldOrder = configuration.order
     if (newOrder.column !== oldOrder.column || newOrder.descending !== oldOrder.descending) {
@@ -521,7 +610,7 @@ function sazChanged () {
   downloadSaz(saz.Key)
     .then(displaySaz)
     .catch(response => {
-      if (!(response instanceof Error || response.status !== 404)) {
+      if (response instanceof Error || response.status !== 404) {
         throw response
       }
       return uploadSaz(saz.File)

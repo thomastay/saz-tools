@@ -8,12 +8,14 @@ import (
 // Session represents a deserialized network session.
 // Originated at https://docs.telerik.com/fiddlercore/api/fiddler.session.
 type Session struct {
-	XMLName  xml.Name `xml:"Session"`
-	Number   int
-	Timers   Timers `xml:"SessionTimers"`
-	Flags    Flags  `xml:"SessionFlags"`
-	Request  *http.Request
-	Response *http.Response
+	XMLName      xml.Name `xml:"Session"`
+	Number       int
+	Timers       Timers `xml:"SessionTimers"`
+	Flags        Flags  `xml:"SessionFlags"`
+	Request      *http.Request
+	Response     *http.Response
+	RequestBody  []byte
+	ResponseBody []byte
 }
 
 // Timers contain begin and end times of phases of a deserialized network session.

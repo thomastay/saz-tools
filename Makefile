@@ -40,8 +40,7 @@ $(ASSET_DIR)/js/saz.min.js: node_modules/datatables.net/js/jquery.dataTables.js.
 		node_modules/datatables.net-bs4/css/dataTables.bootstrap4.css \
 		node_modules/datatables.net-buttons-bs4/css/buttons.bootstrap4.css \
 		node_modules/datatables.net-colreorder-bs4/css/colReorder.bootstrap4.css \
-		node_modules/datatables.net-fixedcolumns-bs4/css/fixedColumns.bootstrap4.css \
-		node_modules/datatables.net-scroller-bs4/css/scroller.bootstrap4.css \
+		node_modules/datatables.net-fixedheader-bs4/css/fixedHeader.bootstrap4.css \
 		$(SOURCE_DIR)/css/saz.css
 	$(MINIFY) -o $(ASSET_DIR)/css/bootstrap.flatly.min.css $(SOURCE_DIR)/css/bootstrap.flatly.css
 	$(MINIFY) -o $(ASSET_DIR)/css/bootstrap.darkly.min.css $(SOURCE_DIR)/css/bootstrap.darkly.css
@@ -75,8 +74,7 @@ debug-assets :: node_modules/datatables.net/js/jquery.dataTables.js.vendor cmd/s
 	cat node_modules/datatables.net-bs4/css/dataTables.bootstrap4.css \
 		node_modules/datatables.net-buttons-bs4/css/buttons.bootstrap4.css \
 		node_modules/datatables.net-colreorder-bs4/css/colReorder.bootstrap4.css \
-		node_modules/datatables.net-fixedcolumns-bs4/css/fixedColumns.bootstrap4.css \
-		node_modules/datatables.net-scroller-bs4/css/scroller.bootstrap4.css \
+		node_modules/datatables.net-fixedheader-bs4/css/fixedHeader.bootstrap4.css \
 		$(SOURCE_DIR)/css/saz.css > $(ASSET_DIR)/css/common.min.css
 	cp $(SOURCE_DIR)/css/bootstrap.flatly.css $(ASSET_DIR)/css/bootstrap.flatly.min.css
 	cp $(SOURCE_DIR)/css/bootstrap.darkly.css $(ASSET_DIR)/css/bootstrap.darkly.min.css

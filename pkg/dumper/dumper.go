@@ -51,15 +51,12 @@ func printResult(session *analyzer.Session, durationPrecision int) error {
 	if err != nil {
 		return err
 	}
-	process := session.Flags["x-processinfo"]
-	if process == "" {
-		process = "unknown"
-	}
-	fmt.Printf("%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n",
+	fmt.Printf("%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n",
 		session.Number, formatDuration(timeline, durationPrecision),
 		request.Method, response.StatusCode, request.URL.Full,
 		formatTime(clientBeginRequest), formatTime(clientDoneResponse),
-		formatDuration(duration, durationPrecision), formatSize(session.Response.ContentLength),
-		session.Response.Encoding, session.Response.Caching, session.Request.Process)
+		formatDuration(duration, durationPrecision), session.Response.ContentType,
+		formatSize(session.Response.ContentLength), session.Response.Encoding,
+		session.Response.Caching, session.Request.Process)
 	return nil
 }

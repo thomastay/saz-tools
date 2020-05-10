@@ -1,3 +1,11 @@
+html { height: 100% }
+
+body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 header.container-fluid {
   display: flex;
   align-items: center;
@@ -7,7 +15,10 @@ header.container-fluid {
   flex-wrap: nowrap;
 }
 
-footer.container-fluid { margin-top: 10px }
+footer.container-fluid {
+  margin-top: auto;
+  padding-top: 10px;
+}
 
 header > h1,
 header > button { white-space: nowrap; }
@@ -34,9 +45,15 @@ main > form > * { margin-right: 20px }
   white-space: nowrap;
 }
 
+input.form-control-file,
 select.form-control {
   display: inline-block;
   width: auto;
+}
+
+select.form-control {
+  width: calc(100vw - 600px);
+   min-width: 10em;
 }
 
 .top {
@@ -54,6 +71,14 @@ select.form-control {
   margin-right: 10px;
 }
 
+.dt-buttons > *:first-child .dropdown-item.active { background-color: #fff }
+
+.dt-buttons > *:first-child .dropdown-item.active:hover { background-color: #2c3e50 }
+
+.dt-buttons > *:first-child .dropdown-item.active,
+.dt-buttons > *:first-child .dropdown-item.active::before { color: #7b8a8b }
+
+.dt-buttons > *:first-child .dropdown-item.active:hover,
 .dt-buttons > *:first-child .dropdown-item.active:hover::before { color: #fff }
 
 .dt-buttons > *:first-child .dropdown-item:hover::before { color: #2c3e50 }
@@ -75,13 +100,23 @@ table.DTFC_Cloned thead tr {
   color: #fff;
 }
 
+.table tbody tr[role] { cursor: pointer }
+
 .table.dataTable td[colspan] {
   white-space: normal;
   padding-right: 15px;
 }
 
+.list-group-item { overflow-wrap: anywhere }
+
+.divide-at-top { border-top: 2px solid #303030 }
+
 .list-group-item:nth-child(even),
-.list-group-item:hover { background-color: #222 }
+.list-group-item:hover { background-color: #ecf0f1 }
+
+.media .media-body h5,
+.media .media-body ul,
+.media .media-body p { margin-bottom: 1rem }
 
 #progress-wrapper {
   position: fixed;
@@ -113,13 +148,15 @@ table.DTFC_Cloned thead tr {
 }
 
 @media (max-width: 1023px) {
-  .dataTables_wrapper .top .dataTables_filter input  { width: calc(100vw - 535px) }
+  .dataTables_wrapper .top .dataTables_filter input  { width: calc(100vw - 595px) }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 800px) {
   header.container-fluid { flex-wrap: wrap }
 
   .dataTables_wrapper .top .dataTables_filter input  { width: calc(100vw - 100px) }
+
+  select.form-control { width: calc(100vw - 155px) }
 
   .top .dt-buttons { width: auto }
 }

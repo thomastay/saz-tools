@@ -19,7 +19,7 @@ import (
 	cache "github.com/prantlf/saz-tools/internal/cache"
 )
 
-var entryCache *cache.Cache
+var sessionCache *cache.Cache
 
 func main() {
 	port := os.Getenv("PORT")
@@ -32,7 +32,7 @@ func main() {
 		flag.PrintDefaults()
 	}
 	flag.Parse()
-	entryCache = cache.Create()
+	sessionCache = cache.Create()
 	gzipper, err := compressor.Middleware(compressor.Prefer(compressor.PreferGzip))
 	if err != nil {
 		fmt.Println(err)

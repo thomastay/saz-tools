@@ -90,6 +90,14 @@ func parseArchive(archiveReader *zip.Reader) ([]Session, error) {
 			session.Number = number
 			session.Request = request
 			session.Response = response
+			err = slurpRequestBody(&session)
+			if err != nil {
+				return nil, err
+			}
+			err = slurpResponseBody(&session)
+			if err != nil {
+				return nil, err
+			}
 			sessions = append(sessions, session)
 		}
 	}

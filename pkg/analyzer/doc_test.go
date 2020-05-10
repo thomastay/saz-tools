@@ -22,9 +22,10 @@ func ExampleAnalyze() {
 		return
 	}
 	var biggest *analyzer.Session
-	for index := range sessions {
-		if biggest == nil || sessions[index].Response.ContentLength > biggest.Response.ContentLength {
-			biggest = &sessions[index]
+	for index := range fineSessions {
+		session := &fineSessions[index]
+		if biggest == nil || session.Response.ContentLength > biggest.Response.ContentLength {
+			biggest = session
 		}
 	}
 	fmt.Printf("The biggest response was obtained in $s.", biggest.Timers.RequestResponseTime)
