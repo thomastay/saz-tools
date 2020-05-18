@@ -37,11 +37,8 @@ func ParseReader(reader io.ReaderAt, size int64) ([]Session, error) {
 }
 
 func parseArchive(archiveReader *zip.Reader) ([]Session, error) {
-	var request *http.Request
-	var response *http.Response
 	var session Session
 	var sessions []Session
-	var err error
 
 	for _, archivedFile := range archiveReader.File {
 		match, number, fileType := parseArchivedFileName(archivedFile.Name)
@@ -51,41 +48,26 @@ func parseArchive(archiveReader *zip.Reader) ([]Session, error) {
 
 		switch fileType {
 		case "c":
-			request, err = parseRequest(archivedFile)
+			err := parseRequest(archivedFile, &session, number)
 			if err != nil {
 				return nil, err
 			}
-			defer request.Body.Close()
-			err = slurpRequestBody(&session)
-			if err != nil {
-				message := fmt.Sprintf("Buffering request body from %s network session failed.",
-					pluralizer.FormatOrdinal(number))
-				return nil, fmt.Errorf("%s\n%s", message, err.Error())
-			}
 
 		case "m":
-			err = parseSessionAttributes(archivedFile, &session)
+			err := parseSessionAttributes(archivedFile, &session)
 			if err != nil {
 				return nil, err
 			}
 
 		case "s":
-			response, err = parseResponse(archivedFile, request)
+			err := parseResponse(archivedFile, &session, number)
 			if err != nil {
 				return nil, err
 			}
-			defer response.Body.Close()
-			err = slurpResponseBody(&session)
-			if err != nil {
-				message := fmt.Sprintf("Buffering response body from %s network session failed.",
-					pluralizer.FormatOrdinal(number))
-				return nil, fmt.Errorf("%s\n%s", message, err.Error())
-			}
 
 			session.Number = number
-			session.Request = request
-			session.Response = response
 			sessions = append(sessions, session)
+			session = Session{}
 		}
 	}
 
@@ -95,11 +77,11 @@ func parseArchive(archiveReader *zip.Reader) ([]Session, error) {
 	return sessions, nil
 }
 
-func parseRequest(archivedFile *zip.File) (*http.Request, error) {
+func parseRequest(archivedFile *zip.File, session *Session, number int) error {
 	fileReader, err := archivedFile.Open()
 	if err != nil {
 		message := fmt.Sprintf("Opening \"%s\" failed.", archivedFile.Name)
-		return nil, fmt.Errorf("%s\n%s", message, err.Error())
+		return fmt.Errorf("%s\n%s", message, err.Error())
 	}
 	defer fileReader.Close()
 
@@ -107,28 +89,46 @@ func parseRequest(archivedFile *zip.File) (*http.Request, error) {
 	request, err := http.ReadRequest(requestReader)
 	if err != nil {
 		message := fmt.Sprintf("Reading request from \"%s\" failed.", archivedFile.Name)
-		return nil, fmt.Errorf("%s\n%s", message, err.Error())
+		return fmt.Errorf("%s\n%s", message, err.Error())
+	}
+	defer request.Body.Close()
+	session.Request = request
+
+	err = slurpRequestBody(session)
+	if err != nil {
+		message := fmt.Sprintf("Buffering request body from %s network session failed.",
+			pluralizer.FormatOrdinal(number))
+		return fmt.Errorf("%s\n%s", message, err.Error())
 	}
 
-	return request, nil
+	return nil
 }
 
-func parseResponse(archivedFile *zip.File, request *http.Request) (*http.Response, error) {
+func parseResponse(archivedFile *zip.File, session *Session, number int) error {
 	fileReader, err := archivedFile.Open()
 	if err != nil {
 		message := fmt.Sprintf("Opening \"%s\" failed.", archivedFile.Name)
-		return nil, fmt.Errorf("%s\n%s", message, err.Error())
+		return fmt.Errorf("%s\n%s", message, err.Error())
 	}
 	defer fileReader.Close()
 
 	responseReader := bufio.NewReader(fileReader)
-	response, err := http.ReadResponse(responseReader, request)
+	response, err := http.ReadResponse(responseReader, session.Request)
 	if err != nil {
 		message := fmt.Sprintf("Reading response from \"%s\" failed.", archivedFile.Name)
-		return nil, fmt.Errorf("%s\n%s", message, err.Error())
+		return fmt.Errorf("%s\n%s", message, err.Error())
+	}
+	defer response.Body.Close()
+	session.Response = response
+
+	err = slurpResponseBody(session)
+	if err != nil {
+		message := fmt.Sprintf("Buffering response body from %s network session failed.",
+			pluralizer.FormatOrdinal(number))
+		return fmt.Errorf("%s\n%s", message, err.Error())
 	}
 
-	return response, nil
+	return nil
 }
 
 func parseSessionAttributes(archivedFile *zip.File, session *Session) error {
@@ -146,7 +146,6 @@ func parseSessionAttributes(archivedFile *zip.File, session *Session) error {
 		return fmt.Errorf("%s\n%s", message, err.Error())
 	}
 
-	*session = Session{}
 	err = xml.Unmarshal(bytes, &session)
 	if err != nil {
 		message := fmt.Sprintf("Unmarshaling session timers and flags from %d bytes of \"%s\" failed.",
