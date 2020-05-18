@@ -1,0 +1,2 @@
+#!/bin/sh
+docker run --rm -it -v ${PWD}:/work -w /work prantlf/golang-make-nodejs-git clean prepare all

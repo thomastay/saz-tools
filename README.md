@@ -8,15 +8,22 @@ Tools for parsing SAZ files (Fiddler logs) and either [printing their content] o
 
 ## Installation
 
-If you work on a Go module, using [`go get`] is the easiest way:
+If you have Go installed, using [`go get`] to install a global module is the easiest way:
 
-    $ go get -u github.com/prantlf/saz-tools/...
+    $ GO111MODULE=off go get -u github.com/prantlf/saz-tools/...
 
 You can also install the latest version of the tools using [GoBinaries]:
 
     curl -sf https://gobinaries.com/prantlf/saz-tools | sh
 
 Or download and unpack an archive with a specific version from [GitHub releases].
+
+If you want to install a specific commit or the latest master and you do not have the development environment to build it, you can use Docker to [`build`]:
+
+    git clone https://github.com/prantlf/saz-tools.git
+    cd saz-tools
+    docker run --rm -it -v ${PWD}:/work -w /work \
+      prantlf/golang-make-nodejs-git clean prepare all DOCKER=1
 
 ## Tools
 
@@ -160,6 +167,7 @@ Licensed under the MIT license.
 [the `sazserve` image]: https://hub.docker.com/repository/docker/prantlf/sazserve
 [tags]: https://hub.docker.com/repository/docker/prantlf/saztools/tags
 [scratch image]: https://hub.docker.com/_/scratch
+[`build`]: bin/build
 [`sazdump`]: bin/sazdump
 [`sazserve`]: bin/sazserve
 [printing their content]: https://godoc.org/github.com/prantlf/saz-tools/cmd/sazdump

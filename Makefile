@@ -1,4 +1,4 @@
-# Run with "CGO_ENABLED=0 GOOS=linux" in the enfironment for Docker.
+# Run with "CGO_ENABLED=0 GOOS=linux" in the environment for Docker.
 ifeq ($(DOCKER),1)
 	export CGO_ENABLED=0
 	export GOOS=linux
