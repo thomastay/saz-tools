@@ -55,7 +55,7 @@ type Session struct {
 }
 
 // Header contains request or response headers. Values are either strings
-// or arrays (if a header occurs mutliple times).
+// or arrays (if a header occurs multiple times).
 type Header map[string]interface{}
 
 // Extras is a base structure for additional information for requests and responses.
