@@ -1,9 +1,7 @@
 package dumper_test
 
 import (
-	"fmt"
-	"os"
-
+	dumper "github.com/prantlf/saz-tools/pkg/dumper"
 	parser "github.com/prantlf/saz-tools/pkg/parser"
 )
 
@@ -11,13 +9,11 @@ import (
 func ExampleDump() {
 	sessions, err := parser.ParseFile("foo.saz")
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		panic(err)
 	}
 	err = dumper.Dump(sessions)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		panic(err)
 	}
 	// Output: Number Timeline Method Code URL Begin End Duration Size Encoding Cache Process
 	// 1 00:00.000 GET 200 https://example.com/foo 16:11:58.755 16:11:59.013 00:00.257 506 gzip max-age=31536000 chromium:18160

@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	pluralizer "github.com/prantlf/saz-tools/internal/pluralizer"
 	parser "github.com/prantlf/saz-tools/pkg/parser"
 )
 
@@ -36,6 +37,7 @@ func GetExtras(session *parser.Session) *SessionExtras {
 		},
 		TimerExtras{
 			session.Timers.ClientConnected,
+			session.Timers.ClientBeginRequest,
 			session.Timers.GotRequestHeaders,
 			session.Timers.ClientDoneRequest,
 			session.Timers.GatewayTime,
@@ -56,11 +58,13 @@ func GetExtras(session *parser.Session) *SessionExtras {
 
 // MergeExtras merges both basic information returned by `Analyze`
 // and additional information returned by `GetExtras`.
-func MergeExtras(rawSession *parser.Session, clienBeginFirstRequest time.Time) (*MergedSession, error) {
+func MergeExtras(rawSession *parser.Session, clienBeginSessions time.Time) (*MergedSession, error) {
 	var basics Session
-	err := analyzeSession(rawSession, &basics, clienBeginFirstRequest)
+	err := analyzeSession(rawSession, &basics, clienBeginSessions)
 	if err != nil {
-		return nil, err
+		message := fmt.Sprintf("Analyzing %s network session failed.",
+			pluralizer.FormatOrdinal(rawSession.Number))
+		return nil, fmt.Errorf("%s\n%s", message, err.Error())
 	}
 	extras := GetExtras(rawSession)
 	return &MergedSession{
@@ -82,24 +86,37 @@ func MergeExtras(rawSession *parser.Session, clienBeginFirstRequest time.Time) (
 	}, nil
 }
 
-func analyzeSession(rawSession *parser.Session, fineSession *Session, clienBeginFirstRequest time.Time) error {
+func analyzeSession(rawSession *parser.Session, fineSession *Session, clienBeginSessions time.Time) error {
 	method := rawSession.Request.Method
 	url := rawSession.Request.URL
-	clientBeginRequest, err := ParseTime(rawSession.Timers.ClientBeginRequest)
+	var clientBeginTimer string
+	if method == "CONNECT" {
+		clientBeginTimer = rawSession.Timers.ClientConnected
+	} else {
+		clientBeginTimer = rawSession.Timers.ClientBeginRequest
+	}
+	clientBegin, err := ParseTime(clientBeginTimer)
 	if err != nil {
-		return err
+		message := fmt.Sprintf("Parsing ClientBegin time from \"%s\" failed.", clientBeginTimer)
+		return fmt.Errorf("%s\n%s", message, err.Error())
 	}
 	serverGotRequest, err := ParseTime(rawSession.Timers.ServerGotRequest)
 	if err != nil {
-		return err
+		message := fmt.Sprintf("Parsing ServerGotRequest time from \"%s\" failed.",
+			rawSession.Timers.ServerGotRequest)
+		return fmt.Errorf("%s\n%s", message, err.Error())
 	}
 	serverBeginResponse, err := ParseTime(rawSession.Timers.ServerBeginResponse)
 	if err != nil {
-		return err
+		message := fmt.Sprintf("Parsing ServerBeginResponse time from \"%s\" failed.",
+			rawSession.Timers.ServerBeginResponse)
+		return fmt.Errorf("%s\n%s", message, err.Error())
 	}
 	clientDoneResponse, err := ParseTime(rawSession.Timers.ClientDoneResponse)
 	if err != nil {
-		return err
+		message := fmt.Sprintf("Parsing ClientDoneResponse time from \"%s\" failed.",
+			rawSession.Timers.ClientDoneResponse)
+		return fmt.Errorf("%s\n%s", message, err.Error())
 	}
 	var encoding, caching string
 	if method != http.MethodConnect {
@@ -120,7 +137,7 @@ func analyzeSession(rawSession *parser.Session, fineSession *Session, clienBegin
 		caching = "N/A"
 	}
 	fineSession.Number = rawSession.Number
-	fineSession.Timeline = formatDuration(clientBeginRequest.Sub(clienBeginFirstRequest))
+	fineSession.Timeline = formatDuration(clientBegin.Sub(clienBeginSessions))
 	fineSession.Request.Method = method
 	fineSession.Request.URL.Full = url.String()
 	fineSession.Request.URL.Scheme = url.Scheme
@@ -137,9 +154,9 @@ func analyzeSession(rawSession *parser.Session, fineSession *Session, clienBegin
 	fineSession.Response.ContentLength = int(rawSession.Response.ContentLength)
 	fineSession.Response.Encoding = encoding
 	fineSession.Response.Caching = caching
-	fineSession.Timers.ClientBeginRequest = rawSession.Timers.ClientBeginRequest
-	fineSession.Timers.RequestResponseTime = formatDuration(clientDoneResponse.Sub(clientBeginRequest))
-	fineSession.Timers.RequestSendTime = formatDuration(serverGotRequest.Sub(clientBeginRequest))
+	fineSession.Timers.ClientBegin = clientBeginTimer
+	fineSession.Timers.RequestResponseTime = formatDuration(clientDoneResponse.Sub(clientBegin))
+	fineSession.Timers.RequestSendTime = formatDuration(serverGotRequest.Sub(clientBegin))
 	fineSession.Timers.ServerProcessTime = formatDuration(serverBeginResponse.Sub(serverGotRequest))
 	fineSession.Timers.ResponseReceiveTime = formatDuration(clientDoneResponse.Sub(serverBeginResponse))
 	fineSession.Timers.ClientDoneResponse = rawSession.Timers.ClientDoneResponse

@@ -8,7 +8,7 @@ Other changes included:
 
 * Remove the scroller plugin in favour of the page scrolling.
 * Replace the multi-part form with the direct .saz file in the REST API.
-* Support the HEAD method in the REST API to check the presence of a sached .saz file.
+* Support the HEAD method in the REST API to check the presence of a cached .saz file.
 * Highlight the syntax in the output of HTML responses instead of letting them execute by the browser.
 
 # [0.0.5](https://github.com/prantlf/saz-tools/compare/v0.0.4...v0.0.5) (2020-05-08)

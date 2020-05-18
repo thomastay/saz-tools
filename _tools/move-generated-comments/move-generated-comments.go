@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"regexp"
@@ -11,6 +12,7 @@ func main() {
 	fileName := os.Args[2]
 	originalContent, err := ioutil.ReadFile(fileName)
 	if err != nil {
+		fmt.Printf("Reading \"%s\" failed.\n", fileName)
 		panic(err)
 	}
 	byLineBreaks := regexp.MustCompile("\\r?\\n")
@@ -28,15 +30,18 @@ func main() {
 		strings.Join(lines[firstCodeLineIndex+1:], "\n")
 	file, err := os.Create(fileName)
 	if err != nil {
+		fmt.Printf("Creating \"%s\" failed.\n", fileName)
 		panic(err)
 	}
 	_, err = file.WriteString(modifiedContent)
 	if err != nil {
 		file.Close()
+		fmt.Printf("Writing %d characters to \"%s\" failed.\n", len(modifiedContent), fileName)
 		panic(err)
 	}
 	err = file.Close()
 	if err != nil {
+		fmt.Printf("Closing \"%s\" failed.\n", fileName)
 		panic(err)
 	}
 }

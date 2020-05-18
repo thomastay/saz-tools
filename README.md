@@ -16,7 +16,7 @@ You can also install the latest version of the tools using [GoBinaries]:
 
     curl -sf https://gobinaries.com/prantlf/saz-tools | sh
 
-Or choose a version from [GitHub releases].
+Or download and unpack an archive with a specific version from [GitHub releases].
 
 ## Tools
 
@@ -33,10 +33,11 @@ Number Timeline Method Code URL Begin End Duration Size Encoding Cache Process
 $ sazserve -h
 Usage: sazserve [options]
 Options:
-  -port string : port for the web server to listen to (default "7000")
+  -browser       : start the web browser automatically  (default false)
+  -port <number> : port for the web server to listen to (default "7000")
 
 $ sazserve
-$ open http://localhost:7000
+$ open http://localhost:7000/
 ```
 
 ## API

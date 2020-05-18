@@ -25,13 +25,16 @@ func main() {
 		flag.PrintDefaults()
 	}
 	flag.Parse()
-	sessions, err := parser.ParseFile(flag.Arg(0))
+	sazFile := flag.Arg(0)
+	sessions, err := parser.ParseFile(sazFile)
 	if err != nil {
+		fmt.Printf("Parsing \"%s\" failed.\n", sazFile)
 		fmt.Println(err)
 		os.Exit(1)
 	}
 	err = dumper.Dump(sessions)
 	if err != nil {
+		fmt.Printf("Printing network sessions from \"%s\" failed.\n", sazFile)
 		fmt.Println(err)
 		os.Exit(1)
 	}

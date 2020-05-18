@@ -20,6 +20,7 @@ func main() {
 			return nil
 		})
 	if err != nil {
+		fmt.Println("Walking \"cmd/sazserve/assets/png\" failed.")
 		panic(err)
 	}
 	content := `const mimeTypeIcons = new Set()
@@ -36,15 +37,18 @@ export default mimeTypeIcons
 	fileName := os.Args[2]
 	file, err := os.Create(fileName)
 	if err != nil {
+		fmt.Printf("Creating \"%s\" failed.\n", fileName)
 		panic(err)
 	}
 	_, err = file.WriteString(content)
 	if err != nil {
 		file.Close()
+		fmt.Printf("Writing %d characters to \"%s\" failed.\n", len(content), fileName)
 		panic(err)
 	}
 	err = file.Close()
 	if err != nil {
+		fmt.Printf("Closing \"%s\" failed.\n", fileName)
 		panic(err)
 	}
 }

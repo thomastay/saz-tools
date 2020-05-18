@@ -28,23 +28,25 @@ sazdump: $(wildcard cmd/sazdump/*.go pkg/dumper/*.go pkg/parser/*.go pkg/analyze
 sazserve: $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go internal/cache/*.go)
 	go build $(GOFLAGS) cmd/sazserve/sazserve.go cmd/sazserve/api.go $(ASSET_BIN)
 
-$(ASSET_BIN): $(ASSET_DIR)/js/saz.min.js $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/*/*)
+$(ASSET_BIN): $(ASSET_DIR)/js/index.min.js $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/*/*)
 	$(BINDATA) -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
 	go run _tools/move-generated-comments/move-generated-comments.go -- $(ASSET_BIN)
 
-$(ASSET_DIR)/js/saz.min.js: node_modules/datatables.net/js/jquery.dataTables.js.vendor cmd/sazserve/sources/js/mime-type-icons.js $(wildcard $(SOURCE_DIR)/*/*)
+$(ASSET_DIR)/js/index.min.js: node_modules/datatables.net/js/jquery.dataTables.js.vendor cmd/sazserve/sources/js/mime-type-icons.js $(wildcard $(SOURCE_DIR)/*/*)
 	mkdir -p $(ASSET_DIR)/css $(ASSET_DIR)/js
-	$(ESBUILD) --outfile=$(ASSET_DIR)/js/saz.min.js --format=iife --sourcemap \
-		--bundle --minify cmd/sazserve/sources/js/saz.js
-	$(MINIFY) -o $(ASSET_DIR)/css/common.min.css \
+	$(ESBUILD) --outfile=$(ASSET_DIR)/js/index.min.js --format=iife --sourcemap \
+		--bundle --minify cmd/sazserve/sources/js/index.js
+	sed -i '1s/^\xEF\xBB\xBF//' node_modules/chardin.js/chardinjs.css
+	$(MINIFY) -o $(ASSET_DIR)/css/index.min.css \
 		node_modules/datatables.net-bs4/css/dataTables.bootstrap4.css \
 		node_modules/datatables.net-buttons-bs4/css/buttons.bootstrap4.css \
 		node_modules/datatables.net-colreorder-bs4/css/colReorder.bootstrap4.css \
 		node_modules/datatables.net-fixedheader-bs4/css/fixedHeader.bootstrap4.css \
-		$(SOURCE_DIR)/css/saz.css
+		node_modules/chardin.js/chardinjs.css $(SOURCE_DIR)/css/index.css
 	$(MINIFY) -o $(ASSET_DIR)/css/bootstrap.flatly.min.css $(SOURCE_DIR)/css/bootstrap.flatly.css
 	$(MINIFY) -o $(ASSET_DIR)/css/bootstrap.darkly.min.css $(SOURCE_DIR)/css/bootstrap.darkly.css
-	$(MINIFY) -o $(ASSET_DIR)/css/saz.darkly.min.css $(SOURCE_DIR)/css/saz.darkly.css
+	$(MINIFY) -o $(ASSET_DIR)/css/overrides.darkly.min.css $(SOURCE_DIR)/css/overrides.darkly.css
+	$(MINIFY) -o $(ASSET_DIR)/index.html $(SOURCE_DIR)/index.html
 
 generate ::
 ifeq (,$(wildcard $(ASSET_BIN)))
@@ -69,16 +71,19 @@ debug-data :: debug-assets $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/*/*)
 
 debug-assets :: node_modules/datatables.net/js/jquery.dataTables.js.vendor cmd/sazserve/sources/js/mime-type-icons.js $(wildcard $(SOURCE_DIR)/*/*)
 	mkdir -p $(ASSET_DIR)/css $(ASSET_DIR)/js
-	$(ESBUILD) --outfile=$(ASSET_DIR)/js/saz.min.js --format=iife --sourcemap \
-		--bundle cmd/sazserve/sources/js/saz.js
+	$(ESBUILD) --outfile=$(ASSET_DIR)/js/index.min.js --format=iife --sourcemap \
+		--bundle cmd/sazserve/sources/js/index.js
+	sed -i '1s/^\xEF\xBB\xBF//' node_modules/chardin.js/chardinjs.css
 	cat node_modules/datatables.net-bs4/css/dataTables.bootstrap4.css \
 		node_modules/datatables.net-buttons-bs4/css/buttons.bootstrap4.css \
 		node_modules/datatables.net-colreorder-bs4/css/colReorder.bootstrap4.css \
 		node_modules/datatables.net-fixedheader-bs4/css/fixedHeader.bootstrap4.css \
-		$(SOURCE_DIR)/css/saz.css > $(ASSET_DIR)/css/common.min.css
+		node_modules/chardin.js/chardinjs.css $(SOURCE_DIR)/css/index.css \
+		> $(ASSET_DIR)/css/index.min.css
 	cp $(SOURCE_DIR)/css/bootstrap.flatly.css $(ASSET_DIR)/css/bootstrap.flatly.min.css
 	cp $(SOURCE_DIR)/css/bootstrap.darkly.css $(ASSET_DIR)/css/bootstrap.darkly.min.css
-	cp  $(SOURCE_DIR)/css/saz.darkly.css $(ASSET_DIR)/css/saz.darkly.min.css
+	cp $(SOURCE_DIR)/css/overrides.darkly.css $(ASSET_DIR)/css/overrides.darkly.min.css
+	cp $(SOURCE_DIR)/index.html $(ASSET_DIR)/index.html
 
 prepare :: go-prepare
 	npm ci
@@ -105,7 +110,7 @@ ifneq (,$(wildcard node_modules/datatables.net/js/jquery.dataTables.js.vendor))
 endif
 
 clean ::
-	rm -rf sazdump sazserve $(ASSET_BIN) $(ASSET_DIR)/css $(ASSET_DIR)/js
+	rm -rf sazdump sazserve $(ASSET_BIN) $(ASSET_DIR)/css $(ASSET_DIR)/js $(ASSET_DIR)/index.html dist
 
 push ::
 	git push heroku master && git push && git push --tags

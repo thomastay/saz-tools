@@ -1,0 +1,18 @@
+{
+  "#info": {
+    "text": "Shows how many network sessions are displayed. If a filter is applied, it adds the total number.",
+    "position": "bottom:50"
+  },
+  "#filter": {
+    "text": "Allows filtering of loaded network sessions. The terms entered will be matched to any column, visible or invisible. If you put a hyphen before a term, it will be negated - it will filter out records which include it. If you want to match the term to a single column, prefix it by the column name separated by a colon.",
+    "position": "bottom"
+  },
+  "#buttons": {
+    "text": "Buttons that open menu dropdowns. The Columns button allows to show/hide columns. The Export button offers downloading the table content exported to JSON, CSV, XLS or PDF. Additionally, you can use Copy to copy a tab-delimited table to clipboard, or Print to send it to a printer.",
+    "position": "bottom"
+  },
+  "#column": {
+    "text": "Clicking on a column header will sort the table by it or flip the sorting direction. Dragging and dropping it before of after its sibling will move the column there.",
+    "position": "bottom"
+  }
+}

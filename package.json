@@ -24,7 +24,7 @@
     "node": ">=10"
   },
   "scripts": {
-    "test": "eslint --fix cmd/sazserve/sources/js/saz.js"
+    "test": "standard --verbose --fix cmd/sazserve/sources/js/*.js"
   },
   "keywords": [
     "saz ",
@@ -38,7 +38,8 @@
     "http-server"
   ],
   "devDependencies": {
-    "bootstrap": "4.4.1",
+    "bootstrap": "4.5.0",
+    "chardin.js": "git://github.com/prantlf/chardin.js.git#b49968b92cb8f5306df67239a6dd0a039fc0f1bd",
     "datatables.net": "1.10.20",
     "datatables.net-bs4": "1.10.20",
     "datatables.net-buttons-bs4": "1.6.1",
@@ -48,6 +49,7 @@
     "jszip": "3.4.0",
     "pdfmake": "0.1.65",
     "popper.js": "1.16.1",
+    "standard": "14.3.4",
     "stream": "0.0.2"
   }
 }

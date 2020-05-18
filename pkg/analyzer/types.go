@@ -37,7 +37,7 @@ type Response struct {
 // Timers contain begin and end times of important phases of a network session
 // including computed durations of those phases.
 type Timers struct {
-	ClientBeginRequest  string
+	ClientBegin         string
 	RequestResponseTime string
 	RequestSendTime     string
 	ServerProcessTime   string
@@ -82,6 +82,7 @@ type ResponseExtras struct {
 // TimerExtras contains additional network communication timers.
 type TimerExtras struct {
 	ClientConnected     string
+	ClientBeginRequest  string
 	GotRequestHeaders   string
 	ClientDoneRequest   string
 	GatewayTime         string

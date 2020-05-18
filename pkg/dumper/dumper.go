@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	pluralizer "github.com/prantlf/saz-tools/internal/pluralizer"
 	analyzer "github.com/prantlf/saz-tools/pkg/analyzer"
 	parser "github.com/prantlf/saz-tools/pkg/parser"
 )
@@ -14,7 +15,8 @@ func Dump(rawSessions []parser.Session) error {
 	fmt.Println("Number\tTimeline\tMethod\tStatus\tURL\tBegin\tEnd\tDuration\tSize\tEncoding\tCaching\tProcess")
 	fineSessions, err := analyzer.Analyze(rawSessions)
 	if err != nil {
-		return err
+		message := fmt.Sprintf("Analyzing %d network sessions failed.", len(rawSessions))
+		return fmt.Errorf("%s\n%s", message, err.Error())
 	}
 	lastTimeLine := fineSessions[len(fineSessions)-1].Timeline
 	var durationPrecision int
@@ -26,7 +28,9 @@ func Dump(rawSessions []parser.Session) error {
 	for index := range fineSessions {
 		err := printResult(&fineSessions[index], durationPrecision)
 		if err != nil {
-			return err
+			message := fmt.Sprintf("Printing %s network session failed.",
+				pluralizer.FormatOrdinal(index+1))
+			return fmt.Errorf("%s\n%s", message, err.Error())
 		}
 	}
 	return nil
@@ -35,26 +39,35 @@ func Dump(rawSessions []parser.Session) error {
 func printResult(session *analyzer.Session, durationPrecision int) error {
 	request := session.Request
 	response := session.Response
-	clientBeginRequest, err := parseTime(session.Timers.ClientBeginRequest)
+	method := request.Method
+	clientBegin, err := parseTime(session.Timers.ClientBegin)
 	if err != nil {
-		return err
+		message := fmt.Sprintf("Parsing ClientBegin time from \"%s\" failed.",
+			session.Timers.ClientBegin)
+		return fmt.Errorf("%s\n%s", message, err.Error())
 	}
 	clientDoneResponse, err := parseTime(session.Timers.ClientDoneResponse)
 	if err != nil {
-		return err
+		message := fmt.Sprintf("Parsing ClientDoneResponse time from \"%s\" failed.",
+			session.Timers.ClientDoneResponse)
+		return fmt.Errorf("%s\n%s", message, err.Error())
 	}
 	timeline, err := parseDuration(session.Timeline)
 	if err != nil {
-		return err
+		message := fmt.Sprintf("Parsing Timeline duration from \"%s\" failed.",
+			session.Timeline)
+		return fmt.Errorf("%s\n%s", message, err.Error())
 	}
 	duration, err := parseDuration(session.Timers.RequestResponseTime)
 	if err != nil {
-		return err
+		message := fmt.Sprintf("Parsing RequestResponseTime duration from \"%s\" failed.",
+			session.Timers.RequestResponseTime)
+		return fmt.Errorf("%s\n%s", message, err.Error())
 	}
 	fmt.Printf("%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n",
 		session.Number, formatDuration(timeline, durationPrecision),
-		request.Method, response.StatusCode, request.URL.Full,
-		formatTime(clientBeginRequest), formatTime(clientDoneResponse),
+		method, response.StatusCode, request.URL.Full,
+		formatTime(clientBegin), formatTime(clientDoneResponse),
 		formatDuration(duration, durationPrecision), session.Response.ContentType,
 		formatSize(session.Response.ContentLength), session.Response.Encoding,
 		session.Response.Caching, session.Request.Process)

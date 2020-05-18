@@ -1,5 +1,5 @@
---- node_modules/datatables.net/js/jquery.dataTables.js	1985-10-26 09:15:00.000000000 +0100
-+++ cmd/sazserve/sources/js/jquery.dataTables.js	2020-05-07 18:31:33.000000000 +0200
+--- node_modules/datatables.net/js/jquery.dataTables.js.vendor	2020-05-17 22:46:12.000000000 +0200
++++ node_modules/datatables.net/js/jquery.dataTables.js	2020-05-18 00:59:45.000000000 +0200
 @@ -4383,7 +4383,7 @@
  	 *  @param {bool} caseInsensitive Do case insenstive matching or not
  	 *  @memberof DataTable#oApi
@@ -9,7 +9,7 @@
  	{
  		var rpSearch = _fnFilterCreateSearch( input, regex, smart, caseInsensitive );
  		var prevSearch = settings.oPreviousSearch.sSearch;
-@@ -4428,6 +4428,53 @@
+@@ -4428,6 +4428,40 @@
  			settings.aiDisplay = filtered;
  		}
  	}
@@ -18,47 +18,34 @@
 +    if (!input) {
 +      settings.aiDisplay = displayMaster.slice()
 +    } else {
++  		if (DataTable.ext.search.length !== 0) {
++  			force = true
++  		}
 +      const invalidated = _fnFilterData(settings)
 +      const prevSearch = settings.oPreviousSearch.sSearch
-+      if (invalidated || prevSearch != input || settings.bSorted) {
++      if (invalidated || force || prevSearch != input || settings.bSorted) {
 +        settings.aiDisplay = displayMaster.slice()
 +      }
 +      const display = settings.aiDisplay
 +      const filtered = []
++      const createSearchContext = settings.oInit.createSearchContext || _fnCreateSearchContext
++      const executeSearch = settings.oInit.executeSearch || _fnExecuteSearch
++      const context = createSearchContext(settings, input, regex, smart, caseInsensitive)
 +      for (let i = 0; i < display.length; ++i) {
-+        if (matchTerms(settings.aoData[ display[i] ]._sFilterRow, input)) {
-+          filtered.push( display[i] )
++        const data = settings.aoData[ display[i] ]
++        if (executeSearch.call(context, settings, data._aData, data._sFilterRow, input)) {
++          filtered.push(display[i])
 +        }
 +      }
 +      settings.aiDisplay = filtered
 +    }
 +  }
-+  function matchTerms (string, terms) {
-+    terms = terms.trim()
-+    if (!terms) return true
-+    const filters = terms
-+      .toLowerCase()
-+      .split(/\s+/)
-+      .map(term => (
-+        term.startsWith('-') ? { exclude: true, term: term.substr(1) } :
-+        term.startsWith('+') ? { term: term.substr(1) } : { term }))
-+    const data = string.trim().toLowerCase()
-+    for (const filter of filters) {
-+      if (filter.exclude) {
-+        if (filter.term.length) {
-+          if (data.includes(filter.term)) return false
-+        } else {
-+          if (!data.length) return false
-+        }
-+      } else {
-+        if (filter.term.length) {
-+          if (!data.includes(filter.term)) return false
-+        } else {
-+          if (data.length) return false
-+        }
-+      }
-+    }
-+    return true
++  function _fnCreateSearchContext (settings, input, regex, smart, caseInsensitive) {}
++  function _fnExecuteSearch (settings, data, dataString, input) {
++    input = input.trim()
++    if (!input) return true
++    dataString = dataString.trim().toLowerCase()
++    return dataString.includes(input)
 +  }
  	
  	

@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 
+	pluralizer "github.com/prantlf/saz-tools/internal/pluralizer"
 	analyzer "github.com/prantlf/saz-tools/pkg/analyzer"
 	parser "github.com/prantlf/saz-tools/pkg/parser"
 	"github.com/sourcegraph/syntaxhighlight"
@@ -29,18 +31,25 @@ func postSaz(responseWriter http.ResponseWriter, request *http.Request) interfac
 	defer request.Body.Close()
 	bodyContent, err := ioutil.ReadAll(request.Body)
 	if err != nil {
+		message := fmt.Sprintf("Reading %d bytes of the request body of the type \"%s\" failed.",
+			request.ContentLength, request.Header.Get("Content-Type"))
+		err = fmt.Errorf("%s\n%s", message, err.Error())
 		http.Error(responseWriter, err.Error(), http.StatusBadRequest)
 		return nil
 	}
 	bodyReader := bytes.NewReader(bodyContent)
 	rawSessions, err := parser.ParseReader(bodyReader, request.ContentLength)
 	if err != nil {
+		message := fmt.Sprintf("Parsing %d bytes of the SAZ file failed.", request.ContentLength)
+		err = fmt.Errorf("%s\n%s", message, err.Error())
 		http.Error(responseWriter, err.Error(), http.StatusBadRequest)
 		return nil
 	}
 	sazKey := sessionCache.Put(rawSessions)
 	fineSessions, err := analyzer.Analyze(rawSessions)
 	if err != nil {
+		message := fmt.Sprintf("Analyzing %d network sessions failed.", len(rawSessions))
+		err = fmt.Errorf("%s\n%s", message, err.Error())
 		http.Error(responseWriter, err.Error(), http.StatusInternalServerError)
 		return nil
 	}
@@ -64,7 +73,8 @@ func getSaz(responseWriter http.ResponseWriter, request *http.Request) interface
 	sazKey := pathSegments[2] // /api/saz/:key
 	rawSessions, ok := sessionCache.Get(sazKey)
 	if !ok {
-		http.Error(responseWriter, "Unknown Key", http.StatusNotFound)
+		message := fmt.Sprintf("Unknown key \"%s\"", sazKey)
+		http.Error(responseWriter, message, http.StatusNotFound)
 		return nil
 	}
 	if segmentCount == 3 {
@@ -74,6 +84,9 @@ func getSaz(responseWriter http.ResponseWriter, request *http.Request) interface
 		}
 		fineSessions, err := analyzer.Analyze(rawSessions)
 		if err != nil {
+			message := fmt.Sprintf("Analyzing %d network sessions with the key %s failed.",
+				len(rawSessions), sazKey)
+			err = fmt.Errorf("%s\n%s", message, err.Error())
 			http.Error(responseWriter, err.Error(), http.StatusInternalServerError)
 			return nil
 		}
@@ -81,11 +94,15 @@ func getSaz(responseWriter http.ResponseWriter, request *http.Request) interface
 	}
 	sessionNumber, err := strconv.Atoi(pathSegments[3]) // /api/saz/:key/:number
 	if err != nil {
-		http.Error(responseWriter, "Invalid Key", http.StatusBadRequest)
+		message := fmt.Sprintf("Malformed session number \"%s\" for %d network sessions with the key %s",
+			pathSegments[3], len(rawSessions), sazKey)
+		http.Error(responseWriter, message, http.StatusBadRequest)
 		return nil
 	}
 	if sessionNumber <= 0 || sessionNumber > len(rawSessions) {
-		http.Error(responseWriter, "Invalid Key", http.StatusBadRequest)
+		message := fmt.Sprintf("Invalid session number %d for %d network sessions with the key %s",
+			sessionNumber, len(rawSessions), sazKey)
+		http.Error(responseWriter, message, http.StatusBadRequest)
 		return nil
 	}
 	if request.Method == http.MethodHead {
@@ -97,14 +114,20 @@ func getSaz(responseWriter http.ResponseWriter, request *http.Request) interface
 		if request.URL.Query().Get("scope") == "extras" {
 			return analyzer.GetExtras(session)
 		} else {
-			clienBeginFirstRequest, err := analyzer.ParseTime(rawSessions[0].Timers.ClientBeginRequest)
+			clienBeginSessions, err := analyzer.ParseTime(rawSessions[0].Timers.ClientConnected)
 			if err != nil {
-				http.Error(responseWriter, err.Error(), http.StatusInternalServerError)
+				message := fmt.Sprintf("Parsing ClientConnected time from \"%s\" in the first network session with the key %s failed.",
+					rawSessions[0].Timers.ClientConnected, sazKey)
+				message = fmt.Sprintf("%s\n%s", message, err.Error())
+				http.Error(responseWriter, message, http.StatusInternalServerError)
 				return nil
 			}
-			response, err := analyzer.MergeExtras(session, clienBeginFirstRequest)
+			response, err := analyzer.MergeExtras(session, clienBeginSessions)
 			if err != nil {
-				http.Error(responseWriter, err.Error(), http.StatusInternalServerError)
+				message := fmt.Sprintf("Merging extra information to %s network session with the key %s failed.",
+					pluralizer.FormatOrdinal(sessionNumber), sazKey)
+				message = fmt.Sprintf("%s\n%s", message, err.Error())
+				http.Error(responseWriter, message, http.StatusInternalServerError)
 				return nil
 			}
 			return response
@@ -118,7 +141,11 @@ func getSaz(responseWriter http.ResponseWriter, request *http.Request) interface
 			}
 			responseWriter.Header().Set("Content-Type", contentType)
 			if _, err = responseWriter.Write(session.RequestBody); err != nil {
-				http.Error(responseWriter, err.Error(), http.StatusInternalServerError)
+				message := fmt.Sprintf("Sending %d bytes and \"%s\" type of the request body of the %s network session with the key %s failed.",
+					session.Request.ContentLength, session.Request.Header.Get("Content-Type"),
+					pluralizer.FormatOrdinal(sessionNumber), sazKey)
+				message = fmt.Sprintf("%s\n%s", message, err.Error())
+				http.Error(responseWriter, message, http.StatusInternalServerError)
 			}
 			return nil
 		}
@@ -129,6 +156,9 @@ func getSaz(responseWriter http.ResponseWriter, request *http.Request) interface
 				strings.HasPrefix(contentType, "application/xhtml+xml") {
 				highlighted, err := syntaxhighlight.AsHTML(content)
 				if err != nil {
+					fmt.Printf("Highlighting syntax of %d bytes and \"%s\" type of the response body of the %s network session with the key %s failed.\n",
+						session.Response.ContentLength, session.Response.Header.Get("Content-Type"),
+						pluralizer.FormatOrdinal(sessionNumber), sazKey)
 					contentType = "text/plain"
 				} else {
 					// pre{background:#1d1f21;font-family:Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Consolas,monospace;border:0!important}.pln{color:#c5c8c6}ol.linenums{margin-top:0;margin-bottom:0;color:#969896}li.L0,li.L1,li.L2,li.L3,li.L4,li.L5,li.L6,li.L7,li.L8,li.L9{padding-left:1em;background-color:#1d1f21;list-style-type:decimal}@media screen{.str{color:#b5bd68}.kwd{color:#b294bb}.com{color:#969896}.typ{color:#81a2be}.lit{color:#de935f}.pun{color:#c5c8c6}.opn{color:#c5c8c6}.clo{color:#c5c8c6}.tag{color:#c66}.atn{color:#de935f}.atv{color:#8abeb7}.dec{color:#de935f}.var{color:#c66}.fun{color:#81a2be}}
@@ -137,19 +167,27 @@ func getSaz(responseWriter http.ResponseWriter, request *http.Request) interface
 </style>
 <pre>`
 					if _, err = responseWriter.Write([]byte(prolog)); err != nil {
-						http.Error(responseWriter, err.Error(), http.StatusInternalServerError)
+						message := fmt.Sprintf("Sending prolog of the response body of the %s network session with the key %s failed.",
+							pluralizer.FormatOrdinal(sessionNumber), sazKey)
+						message = fmt.Sprintf("%s\n%s", message, err.Error())
+						http.Error(responseWriter, message, http.StatusInternalServerError)
 					}
 					content = highlighted
 				}
 			}
 			responseWriter.Header().Set("Content-Type", contentType)
 			if _, err = responseWriter.Write(content); err != nil {
-				http.Error(responseWriter, err.Error(), http.StatusInternalServerError)
+				message := fmt.Sprintf("Sending %d bytes and \"%s\" type of the response body of the %s network session with the key %s failed.",
+					session.Response.ContentLength, session.Response.Header.Get("Content-Type"),
+					pluralizer.FormatOrdinal(sessionNumber), sazKey)
+				message = fmt.Sprintf("%s\n%s", message, err.Error())
+				http.Error(responseWriter, message, http.StatusInternalServerError)
 			}
 			return nil
 		}
 	}
-	http.Error(responseWriter, "Invalid Path", http.StatusNotFound)
+	message := fmt.Sprintf("Unrecognized path \"%s\"", urlPath)
+	http.Error(responseWriter, message, http.StatusNotFound)
 	return nil
 }
 
@@ -157,13 +195,15 @@ type api struct{}
 
 func (h *api) ServeHTTP(responseWriter http.ResponseWriter, request *http.Request) {
 	var payload interface{}
+	urlPath := request.URL.Path
 	switch {
-	case request.URL.Path == "/api/saz":
+	case urlPath == "/api/saz":
 		payload = postSaz(responseWriter, request)
-	case strings.HasPrefix(request.URL.Path, "/api/saz/"):
+	case strings.HasPrefix(urlPath, "/api/saz/"):
 		payload = getSaz(responseWriter, request)
 	default:
-		http.Error(responseWriter, "Unrecognized Path", http.StatusNotFound)
+		message := fmt.Sprintf("Unknown path \"%s\"", urlPath)
+		http.Error(responseWriter, message, http.StatusNotFound)
 	}
 	if payload != nil {
 		sendJSON(responseWriter, payload)
@@ -173,7 +213,8 @@ func (h *api) ServeHTTP(responseWriter http.ResponseWriter, request *http.Reques
 func sendJSON(responseWriter http.ResponseWriter, payload interface{}) {
 	output, err := json.Marshal(payload)
 	if err != nil {
-		http.Error(responseWriter, err.Error(), http.StatusInternalServerError)
+		message := fmt.Sprintf("Marshalling JSON response failed.\n%s", err.Error())
+		http.Error(responseWriter, message, http.StatusInternalServerError)
 		return
 	}
 	responseWriter.Header().Set("Content-Type", "application/json")

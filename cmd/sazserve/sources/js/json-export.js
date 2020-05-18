@@ -1,3 +1,5 @@
+/* global Blob */
+
 export default function (window, $) {
   $.fn.dataTable.ext.buttons.json = {
     available: function () {

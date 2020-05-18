@@ -2,7 +2,6 @@ package analyzer_test
 
 import (
 	"fmt"
-	"os"
 
 	analyzer "github.com/prantlf/saz-tools/pkg/analyzer"
 	parser "github.com/prantlf/saz-tools/pkg/parser"
@@ -13,13 +12,11 @@ import (
 func ExampleAnalyze() {
 	rawSessions, err := parser.ParseFile("foo.saz")
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		panic(err)
 	}
 	fineSessions, err := analyzer.Analyze(rawSessions)
 	if err != nil {
-		fmt.Println(err)
-		return
+		panic(err)
 	}
 	var biggest *analyzer.Session
 	for index := range fineSessions {

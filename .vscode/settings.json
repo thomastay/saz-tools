@@ -8,7 +8,6 @@
     "sazdump": true
   },
   "search.exclude": {
-    "**/cmd/sazserve/assets": true,
-    "**/cmd/sazserve/sources": true
+    "**/cmd/sazserve/assets": true
   }
 }

@@ -3,7 +3,6 @@ package parser_test
 import (
 	"fmt"
 	"io"
-	"os"
 
 	parser "github.com/prantlf/saz-tools/pkg/parser"
 )
@@ -12,11 +11,10 @@ import (
 func ExampleParseFile() {
 	sessions, err := parser.ParseFile("foo.saz")
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		panic(err)
 	}
-	fmt.Printf("%d sessions found.", len(sessions))
-	// Output: 42 sessions found.
+	fmt.Printf("%d network sessions found.", len(sessions))
+	// Output: 42 network sessions found.
 }
 
 // Parse the content of `foo.saz` and print the count of network sessions.
@@ -25,8 +23,7 @@ func ExampleParseReader() {
 	var size int64
 	sessions, err := parser.ParseReader(reader, size)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		panic(err)
 	}
 	var total int64 = 0
 	for index := range sessions {
