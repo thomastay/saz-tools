@@ -1,3 +1,9 @@
+# [0.0.7](https://github.com/prantlf/saz-tools/compare/v0.0.6...v0.0.7) (2020-05-18)
+
+## Features
+
+* Colour network sessions, add help and detailed error handling, split sources ([128bcb5](https://github.com/prantlf/saz-tools/128bcb51c12272870959ff7678777fe718d49e10))
+
 # [0.0.6](https://github.com/prantlf/saz-tools/compare/v0.0.5...v0.0.6) (2020-05-09)
 
 ## Features
