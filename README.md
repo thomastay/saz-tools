@@ -63,7 +63,7 @@ import (
 
 func main() {
   rawSessions, _ := parser.ParseFile("foo.saz")
-  fineSessions, _ := parser.Analyze(rawSessions)
+  fineSessions, _ := analyzer.Analyze(rawSessions)
   dumper.Dump(rawSessions)
 }
 ```

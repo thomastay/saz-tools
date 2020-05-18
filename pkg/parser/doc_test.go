@@ -17,7 +17,7 @@ func ExampleParseFile() {
 	// Output: 42 network sessions found.
 }
 
-// Parse the content of `foo.saz` and print the count of network sessions.
+// Parse the content of `foo.saz` and print the total size of all responses.
 func ExampleParseReader() {
 	var reader io.ReaderAt
 	var size int64
