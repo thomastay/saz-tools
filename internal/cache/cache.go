@@ -1,22 +1,29 @@
+// Package cache provides a LRU cache for network sessions.
 package cache
 
 import (
 	"fmt"
 	"time"
 
-	lru "github.com/bluele/gcache"
-	parser "github.com/prantlf/saz-tools/pkg/parser"
-	murmur "github.com/spaolacci/murmur3"
+	"github.com/bluele/gcache"
+	"github.com/prantlf/saz-tools/pkg/parser"
+	"github.com/spaolacci/murmur3"
 )
 
+// Cache can be created by `Create` and will contain the cached sessions.
 type Cache struct {
-	cache lru.Cache
+	cache gcache.Cache
 }
 
+// Create returns a new instance of a network session cache.
 func Create() *Cache {
-	return &Cache{lru.New(20).LRU().Build()}
+	return &Cache{gcache.New(20).LRU().Build()}
 }
 
+// Get retrieves an network sessions from the cache with the specified `key`.
+// If no sessions with the `key` exist, `nil` will be returned. The second
+// boolean result will be `true` or `false` depending on the network sessions
+// being returned or not.
 func (cache *Cache) Get(key string) ([]parser.Session, bool) {
 	entry, err := cache.cache.Get(key)
 	if err != nil {
@@ -25,10 +32,16 @@ func (cache *Cache) Get(key string) ([]parser.Session, bool) {
 	return entry.([]parser.Session), true
 }
 
-func (cache *Cache) Put(sessions []parser.Session) string {
+// Put stores network sessions to the cache and returns a key with which they
+// can be retrieved later.
+func (cache *Cache) Put(sessions []parser.Session) (string, error) {
 	key := computeKey(sessions)
-	cache.cache.SetWithExpire(key, sessions, time.Minute*5)
-	return key
+	err := cache.cache.SetWithExpire(key, sessions, time.Minute*5)
+	if err != nil {
+		message := fmt.Sprintf("Putting network sessions with the key %s to cache failed.", key)
+		return "", fmt.Errorf("%s\n%s", message, err.Error())
+	}
+	return key, nil
 }
 
 func computeKey(sessions []parser.Session) string {
@@ -38,6 +51,6 @@ func computeKey(sessions []parser.Session) string {
 		firstSession.Timers.ClientBeginRequest + firstSession.Timers.ClientDoneResponse +
 		firstSession.Request.Method + lastSession.Request.URL.String() +
 		firstSession.Timers.ClientBeginRequest + lastSession.Timers.ClientDoneResponse
-	first, second := murmur.Sum128([]byte(identifier))
+	first, second := murmur3.Sum128([]byte(identifier))
 	return fmt.Sprintf("%16x%16x", first, second)
 }

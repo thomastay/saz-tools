@@ -15,8 +15,8 @@ import (
 	"fmt"
 	"os"
 
-	dumper "github.com/prantlf/saz-tools/pkg/dumper"
-	parser "github.com/prantlf/saz-tools/pkg/parser"
+	"github.com/prantlf/saz-tools/pkg/dumper"
+	"github.com/prantlf/saz-tools/pkg/parser"
 )
 
 func main() {

@@ -49,9 +49,9 @@ $ open http://localhost:7000/
 
 ```go
 import (
-  analyzer "github.com/prantlf/saz-tools/pkg/analyzer"
-  dumper "github.com/prantlf/saz-tools/pkg/dumper"
-  parser "github.com/prantlf/saz-tools/pkg/parser"
+  "github.com/prantlf/saz-tools/pkg/analyzer"
+  "github.com/prantlf/saz-tools/pkg/dumper"
+  "github.com/prantlf/saz-tools/pkg/parser"
 )
 
 func main() {

@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-var archivedFileName = regexp.MustCompile("(\\d+)_(\\w)")
+var archivedFileName = regexp.MustCompile(`(\d+)_(\w)`)
 
 func parseArchivedFileName(name string) (bool, int, string) {
 	match := archivedFileName.FindAllStringSubmatch(name, -1)
@@ -25,7 +25,6 @@ func slurpRequestBody(session *Session) error {
 		return nil
 	}
 	var err error
-	defer session.Request.Body.Close()
 	if session.RequestBody, err = ioutil.ReadAll(session.Request.Body); err != nil {
 		message := fmt.Sprintf("Reading %d bytes of the request body of the type \"%s\" failed.",
 			session.Request.ContentLength, session.Request.Header.Get("Content-Type"))

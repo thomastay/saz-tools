@@ -15,7 +15,7 @@ func main() {
 		fmt.Printf("Reading \"%s\" failed.\n", fileName)
 		panic(err)
 	}
-	byLineBreaks := regexp.MustCompile("\\r?\\n")
+	byLineBreaks := regexp.MustCompile(`\r?\n`)
 	lines := byLineBreaks.Split(string(originalContent), -1)
 	var firstCodeLineIndex int
 	for lineIndex, line := range lines {

@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	pluralizer "github.com/prantlf/saz-tools/internal/pluralizer"
-	parser "github.com/prantlf/saz-tools/pkg/parser"
+	"github.com/prantlf/saz-tools/internal/pluralizer"
+	"github.com/prantlf/saz-tools/pkg/parser"
 )
 
 // ParseTime parses a network session timer in the maximum precision.
@@ -58,9 +58,9 @@ func GetExtras(session *parser.Session) *SessionExtras {
 
 // MergeExtras merges both basic information returned by `Analyze`
 // and additional information returned by `GetExtras`.
-func MergeExtras(rawSession *parser.Session, clienBeginSessions time.Time) (*MergedSession, error) {
+func MergeExtras(rawSession *parser.Session, clientBeginSessions time.Time) (*MergedSession, error) {
 	var basics Session
-	err := analyzeSession(rawSession, &basics, clienBeginSessions)
+	err := analyzeSession(rawSession, &basics, clientBeginSessions)
 	if err != nil {
 		message := fmt.Sprintf("Analyzing %s network session failed.",
 			pluralizer.FormatOrdinal(rawSession.Number))
@@ -86,11 +86,66 @@ func MergeExtras(rawSession *parser.Session, clienBeginSessions time.Time) (*Mer
 	}, nil
 }
 
-func analyzeSession(rawSession *parser.Session, fineSession *Session, clienBeginSessions time.Time) error {
-	method := rawSession.Request.Method
+func analyzeSession(rawSession *parser.Session, fineSession *Session, clientBeginSessions time.Time) error {
+	fineSession.Number = rawSession.Number
+	fillSessionRequest(rawSession, fineSession)
+	fillSessionResponse(rawSession, fineSession)
+	err := fillSessionTimers(rawSession, fineSession, clientBeginSessions)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func fillSessionRequest(rawSession *parser.Session, fineSession *Session) {
 	url := rawSession.Request.URL
+	fineSession.Request.Method = rawSession.Request.Method
+	fineSession.Request.URL.Full = url.String()
+	fineSession.Request.URL.Scheme = url.Scheme
+	fineSession.Request.URL.Host = url.Hostname()
+	fineSession.Request.URL.HostAndPort = url.Host
+	fineSession.Request.URL.Port = url.Port()
+	fineSession.Request.URL.Path = url.Path
+	fineSession.Request.URL.Query = url.RawQuery
+	fineSession.Request.URL.PathAndQuery = url.RequestURI()
+	fineSession.Request.ContentType = rawSession.Request.Header.Get("Content-Type")
+	fineSession.Request.ContentLength = int(rawSession.Request.ContentLength)
+	process, ok := getRawFlag(rawSession, "x-processinfo")
+	if !ok {
+		process = "unknown"
+	}
+	fineSession.Request.Process = process
+}
+
+func fillSessionResponse(rawSession *parser.Session, fineSession *Session) {
+	var encoding, caching string
+	if rawSession.Request.Method != http.MethodConnect {
+		encoding = rawSession.Response.Header.Get("Content-Encoding")
+		if encoding == "" {
+			if rawSession.Response.Uncompressed {
+				encoding = "raw"
+			} else {
+				encoding = "unspecified"
+			}
+		}
+		caching = rawSession.Response.Header.Get("Cache-Control")
+		if caching == "" {
+			caching = "unspecified"
+		}
+	} else {
+		encoding = "N/A"
+		caching = "N/A"
+	}
+	fineSession.Response.StatusCode = rawSession.Response.StatusCode
+	fineSession.Response.ContentType = rawSession.Response.Header.Get("Content-Type")
+	fineSession.Response.ContentLength = int(rawSession.Response.ContentLength)
+	fineSession.Response.Encoding = encoding
+	fineSession.Response.Caching = caching
+}
+
+func fillSessionTimers(rawSession *parser.Session, fineSession *Session, clientBeginSessions time.Time) error {
 	var clientBeginTimer string
-	if method == "CONNECT" {
+	if rawSession.Request.Method == "CONNECT" {
 		clientBeginTimer = rawSession.Timers.ClientConnected
 	} else {
 		clientBeginTimer = rawSession.Timers.ClientBeginRequest
@@ -118,53 +173,13 @@ func analyzeSession(rawSession *parser.Session, fineSession *Session, clienBegin
 			rawSession.Timers.ClientDoneResponse)
 		return fmt.Errorf("%s\n%s", message, err.Error())
 	}
-	var encoding, caching string
-	if method != http.MethodConnect {
-		encoding = rawSession.Response.Header.Get("Content-Encoding")
-		if encoding == "" {
-			if rawSession.Response.Uncompressed {
-				encoding = "raw"
-			} else {
-				encoding = "unspecified"
-			}
-		}
-		caching = rawSession.Response.Header.Get("Cache-Control")
-		if caching == "" {
-			caching = "unspecified"
-		}
-	} else {
-		encoding = "N/A"
-		caching = "N/A"
-	}
-	fineSession.Number = rawSession.Number
-	fineSession.Timeline = formatDuration(clientBegin.Sub(clienBeginSessions))
-	fineSession.Request.Method = method
-	fineSession.Request.URL.Full = url.String()
-	fineSession.Request.URL.Scheme = url.Scheme
-	fineSession.Request.URL.Host = url.Hostname()
-	fineSession.Request.URL.HostAndPort = url.Host
-	fineSession.Request.URL.Port = url.Port()
-	fineSession.Request.URL.Path = url.Path
-	fineSession.Request.URL.Query = url.RawQuery
-	fineSession.Request.URL.PathAndQuery = url.RequestURI()
-	fineSession.Request.ContentType = rawSession.Request.Header.Get("Content-Type")
-	fineSession.Request.ContentLength = int(rawSession.Request.ContentLength)
-	fineSession.Response.StatusCode = rawSession.Response.StatusCode
-	fineSession.Response.ContentType = rawSession.Response.Header.Get("Content-Type")
-	fineSession.Response.ContentLength = int(rawSession.Response.ContentLength)
-	fineSession.Response.Encoding = encoding
-	fineSession.Response.Caching = caching
+	fineSession.Timeline = formatDuration(clientBegin.Sub(clientBeginSessions))
 	fineSession.Timers.ClientBegin = clientBeginTimer
 	fineSession.Timers.RequestResponseTime = formatDuration(clientDoneResponse.Sub(clientBegin))
 	fineSession.Timers.RequestSendTime = formatDuration(serverGotRequest.Sub(clientBegin))
 	fineSession.Timers.ServerProcessTime = formatDuration(serverBeginResponse.Sub(serverGotRequest))
 	fineSession.Timers.ResponseReceiveTime = formatDuration(clientDoneResponse.Sub(serverBeginResponse))
 	fineSession.Timers.ClientDoneResponse = rawSession.Timers.ClientDoneResponse
-	process, ok := getRawFlag(rawSession, "x-processinfo")
-	if !ok {
-		process = "unknown"
-	}
-	fineSession.Request.Process = process
 	return nil
 }
 

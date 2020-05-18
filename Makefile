@@ -31,6 +31,7 @@ sazserve: $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer
 $(ASSET_BIN): $(ASSET_DIR)/js/index.min.js $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/*/*)
 	$(BINDATA) -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
 	go run _tools/move-generated-comments/move-generated-comments.go -- $(ASSET_BIN)
+	gofmt -s -w $(ASSET_BIN)
 
 $(ASSET_DIR)/js/index.min.js: node_modules/datatables.net/js/jquery.dataTables.js.vendor cmd/sazserve/sources/js/mime-type-icons.js $(wildcard $(SOURCE_DIR)/*/*)
 	mkdir -p $(ASSET_DIR)/css $(ASSET_DIR)/js
@@ -55,7 +56,8 @@ ifeq (,$(wildcard $(ASSET_BIN)))
 endif
 
 lint ::
-	golint ./...
+	golangci-lint run _tools/list-known-mime-types _tools/move-generated-comments \
+		cmd/... pkg/... internal/...
 
 run-dump :: $(wildcard cmd/sazdump/*.go pkg/dumper/*.go pkg/parser/*.go pkg/analyzer/*.go)
 	go run cmd/sazdump/sazdump.go "$(SAZ)"

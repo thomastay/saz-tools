@@ -11,9 +11,9 @@ import (
 	"strconv"
 	"strings"
 
-	pluralizer "github.com/prantlf/saz-tools/internal/pluralizer"
-	analyzer "github.com/prantlf/saz-tools/pkg/analyzer"
-	parser "github.com/prantlf/saz-tools/pkg/parser"
+	"github.com/prantlf/saz-tools/internal/pluralizer"
+	"github.com/prantlf/saz-tools/pkg/analyzer"
+	"github.com/prantlf/saz-tools/pkg/parser"
 	"github.com/sourcegraph/syntaxhighlight"
 )
 
@@ -45,7 +45,13 @@ func postSaz(responseWriter http.ResponseWriter, request *http.Request) interfac
 		http.Error(responseWriter, err.Error(), http.StatusBadRequest)
 		return nil
 	}
-	sazKey := sessionCache.Put(rawSessions)
+	sazKey, err := sessionCache.Put(rawSessions)
+	if err != nil {
+		message := fmt.Sprintf("Caching %d network sessions to cache failed.", len(rawSessions))
+		err = fmt.Errorf("%s\n%s", message, err.Error())
+		http.Error(responseWriter, err.Error(), http.StatusInternalServerError)
+		return nil
+	}
 	fineSessions, err := analyzer.Analyze(rawSessions)
 	if err != nil {
 		message := fmt.Sprintf("Analyzing %d network sessions failed.", len(rawSessions))
@@ -58,6 +64,7 @@ func postSaz(responseWriter http.ResponseWriter, request *http.Request) interfac
 
 var urlPath = regexp.MustCompile("([^/]+)")
 
+// nolint: funlen,gocyclo // dispatches all routes below /api/saz
 func getSaz(responseWriter http.ResponseWriter, request *http.Request) interface{} {
 	if request.Method != http.MethodGet && request.Method != http.MethodHead {
 		responseWriter.Header().Set("Allow", "HEAD,GET")
@@ -82,12 +89,8 @@ func getSaz(responseWriter http.ResponseWriter, request *http.Request) interface
 			responseWriter.WriteHeader(204)
 			return nil
 		}
-		fineSessions, err := analyzer.Analyze(rawSessions)
-		if err != nil {
-			message := fmt.Sprintf("Analyzing %d network sessions with the key %s failed.",
-				len(rawSessions), sazKey)
-			err = fmt.Errorf("%s\n%s", message, err.Error())
-			http.Error(responseWriter, err.Error(), http.StatusInternalServerError)
+		fineSessions, ok := getNetworkSessions(responseWriter, rawSessions, sazKey)
+		if !ok {
 			return nil
 		}
 		return fineSessions
@@ -113,82 +116,109 @@ func getSaz(responseWriter http.ResponseWriter, request *http.Request) interface
 	if segmentCount == 4 {
 		if request.URL.Query().Get("scope") == "extras" {
 			return analyzer.GetExtras(session)
-		} else {
-			clienBeginSessions, err := analyzer.ParseTime(rawSessions[0].Timers.ClientConnected)
-			if err != nil {
-				message := fmt.Sprintf("Parsing ClientConnected time from \"%s\" in the first network session with the key %s failed.",
-					rawSessions[0].Timers.ClientConnected, sazKey)
-				message = fmt.Sprintf("%s\n%s", message, err.Error())
-				http.Error(responseWriter, message, http.StatusInternalServerError)
-				return nil
-			}
-			response, err := analyzer.MergeExtras(session, clienBeginSessions)
-			if err != nil {
-				message := fmt.Sprintf("Merging extra information to %s network session with the key %s failed.",
-					pluralizer.FormatOrdinal(sessionNumber), sazKey)
-				message = fmt.Sprintf("%s\n%s", message, err.Error())
-				http.Error(responseWriter, message, http.StatusInternalServerError)
-				return nil
-			}
-			return response
 		}
+		response, ok := getNetworkSession(responseWriter, rawSessions, sazKey, sessionNumber, session)
+		if !ok {
+			return nil
+		}
+		return response
 	}
 	if segmentCount == 6 && pathSegments[5] == "body" {
 		if pathSegments[4] == "request" { // /api/saz/:key/:number/request/body
-			contentType := session.Request.Header.Get("Content-Type")
-			if contentType == "application/x-www-form-urlencoded" {
-				contentType = "text/plain"
-			}
-			responseWriter.Header().Set("Content-Type", contentType)
-			if _, err = responseWriter.Write(session.RequestBody); err != nil {
-				message := fmt.Sprintf("Sending %d bytes and \"%s\" type of the request body of the %s network session with the key %s failed.",
-					session.Request.ContentLength, session.Request.Header.Get("Content-Type"),
-					pluralizer.FormatOrdinal(sessionNumber), sazKey)
-				message = fmt.Sprintf("%s\n%s", message, err.Error())
-				http.Error(responseWriter, message, http.StatusInternalServerError)
-			}
+			sendNetworkSessionRequestBody(responseWriter, sazKey, sessionNumber, session)
 			return nil
 		}
 		if pathSegments[4] == "response" { // /api/saz/:key/:number/response/body
-			contentType := session.Response.Header.Get("Content-Type")
-			content := session.ResponseBody
-			if strings.HasPrefix(contentType, "text/html") ||
-				strings.HasPrefix(contentType, "application/xhtml+xml") {
-				highlighted, err := syntaxhighlight.AsHTML(content)
-				if err != nil {
-					fmt.Printf("Highlighting syntax of %d bytes and \"%s\" type of the response body of the %s network session with the key %s failed.\n",
-						session.Response.ContentLength, session.Response.Header.Get("Content-Type"),
-						pluralizer.FormatOrdinal(sessionNumber), sazKey)
-					contentType = "text/plain"
-				} else {
-					// pre{background:#1d1f21;font-family:Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Consolas,monospace;border:0!important}.pln{color:#c5c8c6}ol.linenums{margin-top:0;margin-bottom:0;color:#969896}li.L0,li.L1,li.L2,li.L3,li.L4,li.L5,li.L6,li.L7,li.L8,li.L9{padding-left:1em;background-color:#1d1f21;list-style-type:decimal}@media screen{.str{color:#b5bd68}.kwd{color:#b294bb}.com{color:#969896}.typ{color:#81a2be}.lit{color:#de935f}.pun{color:#c5c8c6}.opn{color:#c5c8c6}.clo{color:#c5c8c6}.tag{color:#c66}.atn{color:#de935f}.atv{color:#8abeb7}.dec{color:#de935f}.var{color:#c66}.fun{color:#81a2be}}
-					prolog := `<style>
-	pre{background:#fff;font-family:Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Consolas,monospace;border:0!important}.pln{color:#333}ol.linenums{margin-top:0;margin-bottom:0;color:#ccc}li.L0,li.L1,li.L2,li.L3,li.L4,li.L5,li.L6,li.L7,li.L8,li.L9{padding-left:1em;background-color:#fff;list-style-type:decimal}@media screen{.str{color:#183691}.kwd{color:#a71d5d}.com{color:#969896}.typ{color:#0086b3}.lit{color:#0086b3}.pun{color:#333}.opn{color:#333}.clo{color:#333}.tag{color:navy}.atn{color:#795da3}.atv{color:#183691}.dec{color:#333}.var{color:teal}.fun{color:#900}}
-</style>
-<pre>`
-					if _, err = responseWriter.Write([]byte(prolog)); err != nil {
-						message := fmt.Sprintf("Sending prolog of the response body of the %s network session with the key %s failed.",
-							pluralizer.FormatOrdinal(sessionNumber), sazKey)
-						message = fmt.Sprintf("%s\n%s", message, err.Error())
-						http.Error(responseWriter, message, http.StatusInternalServerError)
-					}
-					content = highlighted
-				}
-			}
-			responseWriter.Header().Set("Content-Type", contentType)
-			if _, err = responseWriter.Write(content); err != nil {
-				message := fmt.Sprintf("Sending %d bytes and \"%s\" type of the response body of the %s network session with the key %s failed.",
-					session.Response.ContentLength, session.Response.Header.Get("Content-Type"),
-					pluralizer.FormatOrdinal(sessionNumber), sazKey)
-				message = fmt.Sprintf("%s\n%s", message, err.Error())
-				http.Error(responseWriter, message, http.StatusInternalServerError)
-			}
+			sendNetworkSessionResponseBody(responseWriter, sazKey, sessionNumber, session)
 			return nil
 		}
 	}
 	message := fmt.Sprintf("Unrecognized path \"%s\"", urlPath)
 	http.Error(responseWriter, message, http.StatusNotFound)
 	return nil
+}
+
+func getNetworkSessions(responseWriter http.ResponseWriter, rawSessions []parser.Session, sazKey string) ([]analyzer.Session, bool) {
+	fineSessions, err := analyzer.Analyze(rawSessions)
+	if err != nil {
+		message := fmt.Sprintf("Analyzing %d network sessions with the key %s failed.",
+			len(rawSessions), sazKey)
+		err = fmt.Errorf("%s\n%s", message, err.Error())
+		http.Error(responseWriter, err.Error(), http.StatusInternalServerError)
+		return nil, false
+	}
+	return fineSessions, true
+}
+
+func getNetworkSession(responseWriter http.ResponseWriter, rawSessions []parser.Session, sazKey string, sessionNumber int, session *parser.Session) (*analyzer.MergedSession, bool) {
+	clientBeginSessions, err := analyzer.ParseTime(rawSessions[0].Timers.ClientConnected)
+	if err != nil {
+		message := fmt.Sprintf("Parsing ClientConnected time from \"%s\" in the first network session with the key %s failed.",
+			rawSessions[0].Timers.ClientConnected, sazKey)
+		message = fmt.Sprintf("%s\n%s", message, err.Error())
+		http.Error(responseWriter, message, http.StatusInternalServerError)
+		return nil, false
+	}
+	response, err := analyzer.MergeExtras(session, clientBeginSessions)
+	if err != nil {
+		message := fmt.Sprintf("Merging extra information to %s network session with the key %s failed.",
+			pluralizer.FormatOrdinal(sessionNumber), sazKey)
+		message = fmt.Sprintf("%s\n%s", message, err.Error())
+		http.Error(responseWriter, message, http.StatusInternalServerError)
+		return nil, false
+	}
+	return response, true
+}
+
+func sendNetworkSessionRequestBody(responseWriter http.ResponseWriter, sazKey string, sessionNumber int, session *parser.Session) {
+	contentType := session.Request.Header.Get("Content-Type")
+	if contentType == "application/x-www-form-urlencoded" {
+		contentType = "text/plain"
+	}
+	responseWriter.Header().Set("Content-Type", contentType)
+	if _, err := responseWriter.Write(session.RequestBody); err != nil {
+		message := fmt.Sprintf("Sending %d bytes and \"%s\" type of the request body of the %s network session with the key %s failed.",
+			session.Request.ContentLength, session.Request.Header.Get("Content-Type"),
+			pluralizer.FormatOrdinal(sessionNumber), sazKey)
+		message = fmt.Sprintf("%s\n%s", message, err.Error())
+		http.Error(responseWriter, message, http.StatusInternalServerError)
+	}
+}
+
+func sendNetworkSessionResponseBody(responseWriter http.ResponseWriter, sazKey string, sessionNumber int, session *parser.Session) {
+	contentType := session.Response.Header.Get("Content-Type")
+	content := session.ResponseBody
+	if strings.HasPrefix(contentType, "text/html") ||
+		strings.HasPrefix(contentType, "application/xhtml+xml") {
+		highlighted, err := syntaxhighlight.AsHTML(content)
+		if err != nil {
+			fmt.Printf("Highlighting syntax of %d bytes and \"%s\" type of the response body of the %s network session with the key %s failed.\n",
+				session.Response.ContentLength, session.Response.Header.Get("Content-Type"),
+				pluralizer.FormatOrdinal(sessionNumber), sazKey)
+			contentType = "text/plain"
+		} else {
+			// pre{background:#1d1f21;font-family:Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Consolas,monospace;border:0!important}.pln{color:#c5c8c6}ol.linenums{margin-top:0;margin-bottom:0;color:#969896}li.L0,li.L1,li.L2,li.L3,li.L4,li.L5,li.L6,li.L7,li.L8,li.L9{padding-left:1em;background-color:#1d1f21;list-style-type:decimal}@media screen{.str{color:#b5bd68}.kwd{color:#b294bb}.com{color:#969896}.typ{color:#81a2be}.lit{color:#de935f}.pun{color:#c5c8c6}.opn{color:#c5c8c6}.clo{color:#c5c8c6}.tag{color:#c66}.atn{color:#de935f}.atv{color:#8abeb7}.dec{color:#de935f}.var{color:#c66}.fun{color:#81a2be}}
+			prolog := `<style>
+pre{background:#fff;font-family:Menlo,Bitstream Vera Sans Mono,DejaVu Sans Mono,Monaco,Consolas,monospace;border:0!important}.pln{color:#333}ol.linenums{margin-top:0;margin-bottom:0;color:#ccc}li.L0,li.L1,li.L2,li.L3,li.L4,li.L5,li.L6,li.L7,li.L8,li.L9{padding-left:1em;background-color:#fff;list-style-type:decimal}@media screen{.str{color:#183691}.kwd{color:#a71d5d}.com{color:#969896}.typ{color:#0086b3}.lit{color:#0086b3}.pun{color:#333}.opn{color:#333}.clo{color:#333}.tag{color:navy}.atn{color:#795da3}.atv{color:#183691}.dec{color:#333}.var{color:teal}.fun{color:#900}}
+</style>
+<pre>`
+			if _, err = responseWriter.Write([]byte(prolog)); err != nil {
+				message := fmt.Sprintf("Sending prolog of the response body of the %s network session with the key %s failed.",
+					pluralizer.FormatOrdinal(sessionNumber), sazKey)
+				message = fmt.Sprintf("%s\n%s", message, err.Error())
+				http.Error(responseWriter, message, http.StatusInternalServerError)
+			}
+			content = highlighted
+		}
+	}
+	responseWriter.Header().Set("Content-Type", contentType)
+	if _, err := responseWriter.Write(content); err != nil {
+		message := fmt.Sprintf("Sending %d bytes and \"%s\" type of the response body of the %s network session with the key %s failed.",
+			session.Response.ContentLength, session.Response.Header.Get("Content-Type"),
+			pluralizer.FormatOrdinal(sessionNumber), sazKey)
+		message = fmt.Sprintf("%s\n%s", message, err.Error())
+		http.Error(responseWriter, message, http.StatusInternalServerError)
+	}
 }
 
 type api struct{}
@@ -206,17 +236,24 @@ func (h *api) ServeHTTP(responseWriter http.ResponseWriter, request *http.Reques
 		http.Error(responseWriter, message, http.StatusNotFound)
 	}
 	if payload != nil {
-		sendJSON(responseWriter, payload)
+		sendJSON(urlPath, responseWriter, payload)
 	}
 }
 
-func sendJSON(responseWriter http.ResponseWriter, payload interface{}) {
+func sendJSON(urlPath string, responseWriter http.ResponseWriter, payload interface{}) {
 	output, err := json.Marshal(payload)
 	if err != nil {
-		message := fmt.Sprintf("Marshalling JSON response failed.\n%s", err.Error())
+		message := fmt.Sprintf("Marshaling JSON response failed.\n%s", err.Error())
 		http.Error(responseWriter, message, http.StatusInternalServerError)
 		return
 	}
 	responseWriter.Header().Set("Content-Type", "application/json")
-	io.WriteString(responseWriter, string(output))
+	_, err = io.WriteString(responseWriter, string(output))
+	if err != nil {
+		message := fmt.Sprintf("Sending %d bytes and \"application/json\" type of the response body for the request %s failed.",
+			len(output), urlPath)
+		message = fmt.Sprintf("%s\n%s", message, err.Error())
+		http.Error(responseWriter, message, http.StatusInternalServerError)
+		return
+	}
 }

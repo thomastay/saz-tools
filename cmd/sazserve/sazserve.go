@@ -1,4 +1,4 @@
-// Views and analyses SAZ files (Fiddler logs) in a web browser application.
+// Views and analyzes SAZ files (Fiddler logs) in a web browser application.
 //
 //   $ sazserve -h
 //   Usage: sazserve [options]
@@ -17,9 +17,9 @@ import (
 	"net/http"
 	"os"
 
-	compressor "github.com/CAFxX/gziphandler"
-	cache "github.com/prantlf/saz-tools/internal/cache"
-	open "github.com/skratchdot/open-golang/open"
+	"github.com/CAFxX/gziphandler"
+	"github.com/prantlf/saz-tools/internal/cache"
+	"github.com/skratchdot/open-golang/open"
 )
 
 var sessionCache *cache.Cache
@@ -38,13 +38,13 @@ func main() {
 	}
 	flag.Parse()
 	sessionCache = cache.Create()
-	gzipper, err := compressor.Middleware(compressor.Prefer(compressor.PreferGzip))
+	gzipper, err := gziphandler.Middleware(gziphandler.Prefer(gziphandler.PreferGzip))
 	if err != nil {
 		fmt.Println("Initializing a gzip compressor for REST API responses failed.")
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	brotler, err := compressor.Middleware(compressor.Prefer(compressor.PreferBrotli))
+	brotler, err := gziphandler.Middleware(gziphandler.Prefer(gziphandler.PreferBrotli))
 	if err != nil {
 		fmt.Println("Initializing a brotli compressor for static assets failed.")
 		fmt.Println(err)

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	pluralizer "github.com/prantlf/saz-tools/internal/pluralizer"
-	analyzer "github.com/prantlf/saz-tools/pkg/analyzer"
-	parser "github.com/prantlf/saz-tools/pkg/parser"
+	"github.com/prantlf/saz-tools/internal/pluralizer"
+	"github.com/prantlf/saz-tools/pkg/analyzer"
+	"github.com/prantlf/saz-tools/pkg/parser"
 )
 
 // Dump prints a summary line on the console for each session returned by `parser`.
