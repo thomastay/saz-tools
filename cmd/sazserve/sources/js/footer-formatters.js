@@ -144,13 +144,13 @@ function compareDurations (left, right) {
 }
 
 function divideDuration ({ hours, minutes, seconds, microseconds }, divider) {
-  let duration = Math.round((hours * 60 * 60 * 1000000 + minutes * 60 * 1000000 +
+  let duration = Math.floor((hours * 60 * 60 * 1000000 + minutes * 60 * 1000000 +
     seconds * 1000000 + microseconds) / divider)
-  hours = Math.round(duration / 1000000 / 60 / 60)
+  hours = Math.floor(duration / 1000000 / 60 / 60)
   duration -= hours * 60 * 60 * 1000000
-  minutes = Math.round(duration / 1000000 / 60)
+  minutes = Math.floor(duration / 1000000 / 60)
   duration -= minutes * 60 * 1000000
-  seconds = Math.round(duration / 1000000)
+  seconds = Math.floor(duration / 1000000)
   microseconds = duration - seconds * 1000000
   return { hours, minutes, seconds, microseconds }
 }
