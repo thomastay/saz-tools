@@ -1,3 +1,9 @@
+# [0.0.8](https://github.com/prantlf/saz-tools/compare/v0.0.7...v0.0.8) (2020-05-20)
+
+## Fixes
+
+* Correct computation of aggregated column stats ([da30713](https://github.com/prantlf/saz-tools/da30713688aa92358d79318e2881d6cfbad67a6a))
+
 # [0.0.7](https://github.com/prantlf/saz-tools/compare/v0.0.6...v0.0.7) (2020-05-18)
 
 ## Features
