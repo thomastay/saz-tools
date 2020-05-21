@@ -20,6 +20,10 @@ You can also install the latest version of the tools using [GoBinaries] without 
 
     curl -sf https://gobinaries.com/prantlf/saz-tools | sh
 
+If you manage your software using [Homebrew], you can install one or both tools using their formulae:
+
+    brew install prantlf/tap/saz-tools
+
 Or download and unpack an archive with a specific version from [GitHub releases].
 
 If you want to install a specific commit or the latest master and you do not have the development environment to build it, you can use Docker to [`build`]:
@@ -161,6 +165,7 @@ Licensed under the MIT license.
 [`go get`]: https://golang.org/cmd/go/#hdr-Add_dependencies_to_current_module_and_install_them
 [Go]: https://golang.org/
 [golang repository]: https://hub.docker.com/_/golang
+[Homebrew]: https://brew.sh/
 [Make]: https://www.gnu.org/software/make/
 [Patch]: http://man7.org/linux/man-pages/man1/patch.1.html
 [Node.js]: https://nodejs.org/

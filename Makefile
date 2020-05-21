@@ -117,6 +117,12 @@ clean ::
 push ::
 	git push heroku master && git push && git push --tags
 
+publish ::
+	GITLAB_TOKEN= goreleaser --rm-dist && \
+	npm publish &&
+	cp dist/saz-tools.rb ../homebrew-tap/Formula &&
+	cd ../homebrew-tap && git commit -am 'Upgrade saz-tools' && git push
+
 docker-clean ::
 	docker image rm sazdump
 	docker image rm sazserve

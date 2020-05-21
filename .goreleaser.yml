@@ -45,5 +45,13 @@ changelog:
     exclude:
       - '^chore:'
       - '^docs:'
-      - '^docs:'
       - '^test:'
+brews:
+- description: Tools for SAZ files (Fiddler logs) - parsing, printing and analyzing using a web page.
+  homepage: https://github.com/prantlf/saz-tools
+  github:
+    owner: prantlf
+    name: homebrew-tap
+  test: |
+    system "#{bin}/sazdump -h"
+    system "#{bin}/sazserve -h"
