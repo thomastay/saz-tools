@@ -8,11 +8,15 @@ Tools for parsing SAZ files (Fiddler logs) and either [printing their content] o
 
 ## Installation
 
-If you have Go installed, using [`go get`] to install a global module is the easiest way:
+If you have [Go] installed, using [`go get`] to install a global module is the easiest way:
 
     $ GO111MODULE=off go get -u github.com/prantlf/saz-tools/...
 
-You can also install the latest version of the tools using [GoBinaries]:
+If you have [Node.js] installed, you can use [NPM] to install a global module easily:
+
+    npm -i saz-tools
+
+You can also install the latest version of the tools using [GoBinaries] without any developer tools:
 
     curl -sf https://gobinaries.com/prantlf/saz-tools | sh
 

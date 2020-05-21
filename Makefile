@@ -26,7 +26,7 @@ sazdump: $(wildcard cmd/sazdump/*.go pkg/dumper/*.go pkg/parser/*.go pkg/analyze
 	go build $(GOFLAGS) cmd/sazdump/sazdump.go
 
 sazserve: $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go internal/cache/*.go)
-	go build $(GOFLAGS) cmd/sazserve/sazserve.go cmd/sazserve/api.go $(ASSET_BIN)
+	cd cmd/sazserve && go build $(GOFLAGS) -o ../../sazserve
 
 $(ASSET_BIN): $(ASSET_DIR)/js/index.min.js $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/*/*)
 	$(BINDATA) -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...

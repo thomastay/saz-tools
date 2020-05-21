@@ -1,6 +1,6 @@
 {
   "name": "saz-tools",
-  "version": "1.0.0",
+  "version": "0.0.9",
   "description": "Tools for SAZ files (Fiddler logs) - parsing, printing and analyzing using a web page.",
   "author": "Ferdinand Prantl <prantlf@gmail.com> (http://prantl.tk/)",
   "homepage": "https://github.com/prantlf/saz-tools#readme",
@@ -18,13 +18,11 @@
     "type": "git",
     "url": "git+https://github.com/prantlf/saz-tools.git"
   },
-  "private": true,
-  "preferGlobal": true,
   "engines": {
     "node": ">=10"
   },
   "scripts": {
-    "test": "standard --verbose --fix cmd/sazserve/sources/js/*.js"
+    "test": "standard --verbose --fix postinstall.js cmd/sazserve/sources/js/*.js"
   },
   "keywords": [
     "saz ",
@@ -51,5 +49,11 @@
     "popper.js": "1.16.1",
     "standard": "14.3.4",
     "stream": "0.0.2"
+  },
+  "dependencies": {
+    "gather-stream": "1.0.0",
+    "simple-get": "4.0.0",
+    "tar": "6.0.2",
+    "yauzl": "2.10.0"
   }
 }
