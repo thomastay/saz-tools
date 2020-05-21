@@ -37,7 +37,9 @@ If you want to install a specific commit or the latest master and you do not hav
 
 ```
 $ sazdump.go -h
-Usage: sazdump <file.saz>
+Usage: sazdump [options] <file.saz>
+Options:
+  -version | -v : print the version of this tool and exit
 
 $ sazdump foo.saz
 Number Timeline Method Code URL Begin End Duration Size Encoding Cache Process
@@ -50,6 +52,7 @@ Usage: sazserve [options]
 Options:
   -browser       : start the web browser automatically  (default false)
   -port <number> : port for the web server to listen to (default "7000")
+  -version | -v  : print the version of this tool and exit
 
 $ sazserve
 $ open http://localhost:7000/

@@ -20,12 +20,14 @@ SOURCE_DIR=cmd/sazserve/sources
 ASSET_DIR=cmd/sazserve/assets
 ASSET_BIN=cmd/sazserve/assets.go
 
+VERSION=$(shell sed 's/.*"version": "\(.*\)".*/\1/;t;d' package.json)
+
 all: sazdump sazserve
 
-sazdump: $(wildcard cmd/sazdump/*.go pkg/dumper/*.go pkg/parser/*.go pkg/analyzer/*.go)
-	go build $(GOFLAGS) cmd/sazdump/sazdump.go
+sazdump: cmd/sazdump/version.go $(wildcard cmd/sazdump/*.go pkg/dumper/*.go pkg/parser/*.go pkg/analyzer/*.go)
+	cd cmd/sazdump && go build $(GOFLAGS) -o ../../sazdump
 
-sazserve: $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go internal/cache/*.go)
+sazserve: cmd/sazserve/version.go $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go internal/cache/*.go)
 	cd cmd/sazserve && go build $(GOFLAGS) -o ../../sazserve
 
 $(ASSET_BIN): $(ASSET_DIR)/js/index.min.js $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/*/*)
@@ -50,10 +52,18 @@ $(ASSET_DIR)/js/index.min.js: node_modules/datatables.net/js/jquery.dataTables.j
 	$(MINIFY) -o $(ASSET_DIR)/index.html $(SOURCE_DIR)/index.html
 
 cmd/sazserve/assets/json/help-page.json: cmd/sazserve/sources/yml/help-page.yml
+	mkdir -p $(ASSET_DIR)/json
 	./node_modules/.bin/js-yaml -c $? > $@
 
 cmd/sazserve/assets/json/help-table.json: cmd/sazserve/sources/yml/help-table.yml
+	mkdir -p $(ASSET_DIR)/json
 	./node_modules/.bin/js-yaml -c $? > $@
+
+cmd/sazdump/version.go: package.json
+	echo "package main\n\nconst version = \"$(VERSION)\"" > $@
+
+cmd/sazserve/version.go: package.json
+	echo "package main\n\nconst version = \"$(VERSION)\"" > $@
 
 generate ::
 ifeq (,$(wildcard $(ASSET_BIN)))
@@ -94,8 +104,10 @@ debug-assets :: node_modules/datatables.net/js/jquery.dataTables.js.vendor cmd/s
 	cp $(SOURCE_DIR)/css/overrides.darkly.css $(ASSET_DIR)/css/overrides.darkly.min.css
 	cp $(SOURCE_DIR)/index.html $(ASSET_DIR)/index.html
 
-prepare :: go-prepare
-	npm ci
+prepare :: go-prepare npm-prepare
+
+npm-prepare :: go-prepare
+	npm ci --only=dev --ignore-scripts
 
 go-prepare ::
 	go get -u github.com/go-bindata/go-bindata/v3/...
@@ -117,7 +129,9 @@ ifneq (,$(wildcard node_modules/datatables.net/js/jquery.dataTables.js.vendor))
 endif
 
 clean ::
-	rm -rf sazdump sazserve $(ASSET_BIN) $(ASSET_DIR)/css $(ASSET_DIR)/js $(ASSET_DIR)/index.html dist
+	rm -rf sazdump sazserve $(ASSET_BIN) $(ASSET_DIR)/css $(ASSET_DIR)/js \
+		$(ASSET_DIR)/json cmd/sazserve/sources/js/mime-type-icons.js \
+		cmd/sazdump/version.go cmd/sazserve/version.go $(ASSET_DIR)/index.html dist
 
 push ::
 	git push heroku master && git push && git push --tags

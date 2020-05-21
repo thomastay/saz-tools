@@ -20,11 +20,18 @@ import (
 )
 
 func main() {
+	printVersion := false
+	flag.BoolVar(&printVersion, "version", printVersion, "print the version of this tool and exit")
+	flag.BoolVar(&printVersion, "v", printVersion, "print the version of this tool and exit (shorthand)")
 	flag.Usage = func() {
 		fmt.Println("Usage: sazdump <file.saz>")
 		flag.PrintDefaults()
 	}
 	flag.Parse()
+	if printVersion {
+		fmt.Printf("v%s\n", version)
+		os.Exit(0)
+	}
 	sazFile := flag.Arg(0)
 	sessions, err := parser.ParseFile(sazFile)
 	if err != nil {

@@ -1,6 +1,7 @@
 .DS_Store
 /cmd/sazserve/assets/css
 /cmd/sazserve/assets/js
+/cmd/sazserve/assets/json
 /cmd/sazserve/assets/index.html
 /cmd/sazserve/sources/js/mime-type-icons.js
 /dist

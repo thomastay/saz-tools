@@ -47,11 +47,11 @@ changelog:
       - '^docs:'
       - '^test:'
 brews:
-- description: Tools for SAZ files (Fiddler logs) - parsing, printing and analyzing using a web page.
+- description: Parsing, dumping, viewing and analysing tools for SAZ (Fiddler) files
   homepage: https://github.com/prantlf/saz-tools
   github:
     owner: prantlf
     name: homebrew-tap
   test: |
-    system "#{bin}/sazdump -h"
-    system "#{bin}/sazserve -h"
+    system "#{bin}/sazdump", "-v"
+    system "#{bin}/sazserve", "-v"

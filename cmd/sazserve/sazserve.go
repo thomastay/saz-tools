@@ -30,13 +30,20 @@ func main() {
 		port = "7000"
 	}
 	browser := false
-	flag.StringVar(&port, "port", port, "port for the web server to listen to")
+	printVersion := false
 	flag.BoolVar(&browser, "browser", browser, "start the web browser automatically")
+	flag.StringVar(&port, "port", port, "port for the web server to listen to")
+	flag.BoolVar(&printVersion, "version", printVersion, "print the version of this tool and exit")
+	flag.BoolVar(&printVersion, "v", printVersion, "print the version of this tool and exit (shorthand)")
 	flag.Usage = func() {
 		fmt.Println("Usage: sazserve [options]\nOptions:")
 		flag.PrintDefaults()
 	}
 	flag.Parse()
+	if printVersion {
+		fmt.Printf("v%s\n", version)
+		os.Exit(0)
+	}
 	sessionCache = cache.Create()
 	gzipper, err := gziphandler.Middleware(gziphandler.Prefer(gziphandler.PreferGzip))
 	if err != nil {
