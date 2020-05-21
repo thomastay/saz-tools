@@ -1,0 +1,18 @@
+'#theme-switcher':
+  text: Click to switch the visual style among System, Dark and Light.
+        System will follow your operating system settings on OSX or Ubuntu.
+        Your choice will be remembered in the browser for your next visit.
+  position: bottom:0,300
+'#help':
+  text: Click to show these instructions once more later.
+  position: bottom:100,500
+'#saz-file':
+  text: Click to upload one or multiple .saz files. You can also drag and drop
+        one or multiple .saz files on the page. The files will be parsed
+        and their analysis displayed in a table.
+  position: bottom:50
+'#previous-saz':
+  text: Click to see the list of previously uploaded .saz files. You can select
+        one of them to display its analysis again. This list will be cleared
+        when the page gets reloaded.
+  position: bottom:-50,500

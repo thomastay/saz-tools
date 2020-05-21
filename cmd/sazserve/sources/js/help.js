@@ -5,8 +5,11 @@ import { configuration, saveConfiguration } from './configuration.js'
 let phase
 
 function initializeHelp () {
+  $(document.body)
+    .on('chardinJs:start', enableMessage)
+    .on('chardinJs:stop', disableMessage)
   $('#help').on('click', showHelp)
-  prepareInitialHelp()
+  preparePageHelp()
   setTimeout(() => {
     if (configuration.help.initial !== false) {
       showHelp()
@@ -14,13 +17,13 @@ function initializeHelp () {
   }, 500)
 }
 
-function prepareInitialHelp () {
-  $(document.body).chardinJs({ url: 'json/help-initial.json' })
+function preparePageHelp () {
+  $(document.body).chardinJs({ url: 'json/help-page.json' })
   phase = 'initial'
 }
 
-function prepareSazHelp () {
-  $(document.body).chardinJs({ url: 'json/help-saz.json' })
+function prepareTableHelp () {
+  $(document.body).chardinJs({ url: 'json/help-table.json' })
   phase = 'saz'
 }
 
@@ -32,4 +35,12 @@ function showHelp () {
   }
 }
 
-export { initializeHelp, prepareInitialHelp, prepareSazHelp, showHelp }
+function enableMessage () {
+  $('#help-message').show()
+}
+
+function disableMessage () {
+  $('#help-message').hide()
+}
+
+export { initializeHelp, preparePageHelp, prepareTableHelp, showHelp }

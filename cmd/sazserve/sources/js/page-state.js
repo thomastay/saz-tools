@@ -1,5 +1,5 @@
 import $ from './jquery.js'
-import { prepareInitialHelp } from './help.js'
+import { preparePageHelp } from './help.js'
 import { resetPreviousSaz } from './previous-saz.js'
 import { destroySessionTable } from './session-table.js'
 import { parseError } from './data-parsers.js'
@@ -31,7 +31,7 @@ function displayError (response) {
     errorAlert.find('h4').hide()
   }
   errorAlert.show().find('p').text(text)
-  prepareInitialHelp()
+  preparePageHelp()
 }
 
 export { initializePageState, displayInformation, resetPage, displayError }

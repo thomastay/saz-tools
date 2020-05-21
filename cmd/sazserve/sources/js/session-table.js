@@ -19,7 +19,7 @@ import {
 } from './data-formatters.js'
 import { sazStore } from './saz-store.js'
 import { configuration, saveConfiguration } from './configuration.js'
-import { prepareSazHelp, showHelp } from './help.js'
+import { prepareTableHelp, showHelp } from './help.js'
 
 let tableWrapper, dataTable, columns
 
@@ -146,7 +146,7 @@ function displaySessionTable (sessions) {
     .find('table thead th[aria-label!="#"]')
     .first()
     .attr('data-intro', '#column')
-  prepareSazHelp()
+  prepareTableHelp()
   if (configuration.help.saz !== false) {
     setTimeout(showHelp, 500)
   }

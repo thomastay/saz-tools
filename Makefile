@@ -29,11 +29,11 @@ sazserve: $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer
 	cd cmd/sazserve && go build $(GOFLAGS) -o ../../sazserve
 
 $(ASSET_BIN): $(ASSET_DIR)/js/index.min.js $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/*/*)
-	$(BINDATA) -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
+	$(BINDATA) -fs -o $@ -prefix $(ASSET_DIR) $(ASSET_DIR)/...
 	go run _tools/move-generated-comments/move-generated-comments.go -- $(ASSET_BIN)
-	gofmt -s -w $(ASSET_BIN)
+	gofmt -s -w $@
 
-$(ASSET_DIR)/js/index.min.js: node_modules/datatables.net/js/jquery.dataTables.js.vendor cmd/sazserve/sources/js/mime-type-icons.js $(wildcard $(SOURCE_DIR)/*/*)
+$(ASSET_DIR)/js/index.min.js: node_modules/datatables.net/js/jquery.dataTables.js.vendor cmd/sazserve/sources/js/mime-type-icons.js cmd/sazserve/assets/json/help-page.json cmd/sazserve/assets/json/help-table.json $(wildcard $(SOURCE_DIR)/*/*)
 	mkdir -p $(ASSET_DIR)/css $(ASSET_DIR)/js
 	$(ESBUILD) --outfile=$(ASSET_DIR)/js/index.min.js --format=iife --sourcemap \
 		--bundle --minify cmd/sazserve/sources/js/index.js
@@ -49,6 +49,12 @@ $(ASSET_DIR)/js/index.min.js: node_modules/datatables.net/js/jquery.dataTables.j
 	$(MINIFY) -o $(ASSET_DIR)/css/overrides.darkly.min.css $(SOURCE_DIR)/css/overrides.darkly.css
 	$(MINIFY) -o $(ASSET_DIR)/index.html $(SOURCE_DIR)/index.html
 
+cmd/sazserve/assets/json/help-page.json: cmd/sazserve/sources/yml/help-page.yml
+	./node_modules/.bin/js-yaml -c $? > $@
+
+cmd/sazserve/assets/json/help-table.json: cmd/sazserve/sources/yml/help-table.yml
+	./node_modules/.bin/js-yaml -c $? > $@
+
 generate ::
 ifeq (,$(wildcard $(ASSET_BIN)))
 	$(BINDATA) -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
@@ -56,6 +62,7 @@ ifeq (,$(wildcard $(ASSET_BIN)))
 endif
 
 lint ::
+	./node_modules/.bin/standard --verbose --fix postinstall.js cmd/sazserve/sources/js/*.js
 	golangci-lint run _tools/list-known-mime-types _tools/move-generated-comments \
 		cmd/... pkg/... internal/...
 
@@ -71,7 +78,7 @@ debug-serve :: debug-data $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analy
 debug-data :: debug-assets $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/*/*)
 	go-bindata -debug -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...
 
-debug-assets :: node_modules/datatables.net/js/jquery.dataTables.js.vendor cmd/sazserve/sources/js/mime-type-icons.js $(wildcard $(SOURCE_DIR)/*/*)
+debug-assets :: node_modules/datatables.net/js/jquery.dataTables.js.vendor cmd/sazserve/sources/js/mime-type-icons.js cmd/sazserve/assets/json/help-page.json cmd/sazserve/assets/json/help-table.json $(wildcard $(SOURCE_DIR)/*/*)
 	mkdir -p $(ASSET_DIR)/css $(ASSET_DIR)/js
 	$(ESBUILD) --outfile=$(ASSET_DIR)/js/index.min.js --format=iife --sourcemap \
 		--bundle cmd/sazserve/sources/js/index.js
@@ -96,19 +103,17 @@ go-prepare ::
 	go get -u github.com/tdewolff/minify/v2/...
 
 cmd/sazserve/sources/js/mime-type-icons.js: $(wildcard $(ASSET_DIR)/png/*)
-	go run _tools/list-known-mime-types/list-known-mime-types.go -- cmd/sazserve/sources/js/mime-type-icons.js
+	go run _tools/list-known-mime-types/list-known-mime-types.go -- $@
 
 node_modules/datatables.net/js/jquery.dataTables.js.vendor: cmd/sazserve/sources/js/jquery.dataTables.js.diff
 ifeq (,$(wildcard node_modules/datatables.net/js/jquery.dataTables.js.vendor))
-	cp node_modules/datatables.net/js/jquery.dataTables.js \
-		node_modules/datatables.net/js/jquery.dataTables.js.vendor
-	patch -p0 < cmd/sazserve/sources/js/jquery.dataTables.js.diff
+	cp node_modules/datatables.net/js/jquery.dataTables.js $@
+	patch -p0 < $?
 endif
 
 restore-datatables :: node_modules/datatables.net/js/jquery.dataTables.js
 ifneq (,$(wildcard node_modules/datatables.net/js/jquery.dataTables.js.vendor))
-	mv node_modules/datatables.net/js/jquery.dataTables.js.vendor \
-		node_modules/datatables.net/js/jquery.dataTables.js
+	mv node_modules/datatables.net/js/jquery.dataTables.js.vendor $?
 endif
 
 clean ::
