@@ -124,8 +124,8 @@ push ::
 
 publish ::
 	GITLAB_TOKEN= goreleaser --rm-dist && \
-	npm publish &&
-	cp dist/saz-tools.rb ../homebrew-tap/Formula &&
+	npm publish && \
+	cp dist/saz-tools.rb ../homebrew-tap/Formula && \
 	cd ../homebrew-tap && git commit -am 'Upgrade saz-tools' && git push
 
 docker-clean ::

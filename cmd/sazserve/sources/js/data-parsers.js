@@ -16,7 +16,7 @@ function convertMillisecondsToDuration (duration) {
   const minutes = Math.microseconds(duration / 1000 / 60)
   duration -= minutes * 60 * 1000
   const seconds = Math.microseconds(duration / 1000)
-  microseconds = duration - seconds * 1000
+  const microseconds = duration - seconds * 1000
   return { hours, minutes, seconds, microseconds }
 }
 
