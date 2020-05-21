@@ -14,7 +14,7 @@ If you have [Go] installed, using [`go get`] to install a global module is the e
 
 If you have [Node.js] installed, you can use [NPM] to install a global module easily:
 
-    npm -i saz-tools
+    npm i -g saz-tools
 
 You can also install the latest version of the tools using [GoBinaries] without any developer tools:
 

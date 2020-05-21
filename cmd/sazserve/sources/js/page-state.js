@@ -1,4 +1,6 @@
 import $ from './jquery.js'
+import 'popper.js'
+import 'bootstrap'
 import { preparePageHelp } from './help.js'
 import { resetPreviousSaz } from './previous-saz.js'
 import { destroySessionTable } from './session-table.js'
@@ -9,6 +11,7 @@ let infoAlert, errorAlert
 function initializePageState () {
   infoAlert = $('.alert-info')
   errorAlert = $('.alert-danger')
+  $('[data-toggle=tooltip]').tooltip()
 }
 
 function displayInformation () {

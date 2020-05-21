@@ -10,7 +10,7 @@ header.container-fluid {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-right: 80px;
+  padding-right: 60px;
   margin-bottom: 10px;
   flex-wrap: nowrap;
 }
@@ -173,11 +173,8 @@ table.DTFC_Cloned thead tr {
   header.container-fluid { justify-content: flex-start }
 }
 
-@media (max-width: 800px) {
-  header.container-fluid {
-    padding-right: 0;
-    flex-wrap: wrap;
-  }
+@media (max-width: 767px) {
+  header.container-fluid { flex-wrap: wrap }
 
   .dataTables_wrapper .top .dataTables_filter input  { width: calc(100vw - 100px) }
 

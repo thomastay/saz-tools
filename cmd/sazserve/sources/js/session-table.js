@@ -1,6 +1,6 @@
 import $ from './jquery.js'
-import 'bootstrap'
 import 'popper.js'
+import 'bootstrap'
 import 'pdfmake'
 import JSZip from 'jszip'
 import dataTables from 'datatables.net-bs4'

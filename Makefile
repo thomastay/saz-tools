@@ -76,14 +76,14 @@ lint ::
 	golangci-lint run _tools/list-known-mime-types _tools/move-generated-comments \
 		cmd/... pkg/... internal/...
 
-run-dump :: $(wildcard cmd/sazdump/*.go pkg/dumper/*.go pkg/parser/*.go pkg/analyzer/*.go)
-	go run cmd/sazdump/sazdump.go "$(SAZ)"
+run-dump :: cmd/sazdump/version.go $(wildcard cmd/sazdump/*.go pkg/dumper/*.go pkg/parser/*.go pkg/analyzer/*.go)
+	go run cmd/sazdump/sazdump.go cmd/sazdump/version.go "$(SAZ)"
 
-run-serve :: $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go internal/cache/*.go)
-	go run cmd/sazserve/sazserve.go cmd/sazserve/api.go $(ASSET_BIN)
+run-serve :: cmd/sazserve/version.go $(ASSET_BIN) $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go internal/cache/*.go)
+	go run cmd/sazserve/sazserve.go cmd/sazserve/api.go cmd/sazserve/version.go $(ASSET_BIN)
 
-debug-serve :: debug-data $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go internal/cache/*.go)
-	go run cmd/sazserve/sazserve.go cmd/sazserve/api.go $(ASSET_BIN)
+debug-serve :: debug-data cmd/sazserve/version.go $(wildcard cmd/sazserve/*.go pkg/parser/*.go pkg/analyzer/*.go internal/cache/*.go)
+	go run cmd/sazserve/sazserve.go cmd/sazserve/api.go cmd/sazserve/version.go $(ASSET_BIN)
 
 debug-data :: debug-assets $(wildcard $(ASSET_DIR)/* $(ASSET_DIR)/*/*)
 	go-bindata -debug -fs -o $(ASSET_BIN) -prefix $(ASSET_DIR) $(ASSET_DIR)/...

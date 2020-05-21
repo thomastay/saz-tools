@@ -70,18 +70,36 @@
 	<header class="container-fluid">
 		<h1>SAZ Viewer</h1>
 		<p>Displays content of a SAZ (Fiddler log) for analysis and export.</p>
-		<button id=theme-switcher class="btn btn-secondary" type=button data-intro=#theme-switcher></button>
-		<button id=help class="btn btn-secondary btn-circle" type=button data-intro=#help>
+		<button id=theme-switcher class="btn btn-secondary btn-circle" type=button data-intro=#theme-switcher data-toggle=tooltip>
+			<span id=theme-switcher-text></span>
+		</button>
+		<button id=help class="btn btn-secondary btn-circle" type=button data-intro=#help data-toggle=tooltip title=Help>
 			<span>?</span>
 		</button>
 		<script>
 			updateThemeSwitcher()
 			function updateThemeSwitcher () {
 				const button = document.getElementById('theme-switcher')
+				const label = document.getElementById('theme-switcher-text')
 				switch (sazTheme) {
-					case 'dark': button.textContent = 'Theme: Dark'; break
-					case 'light': button.textContent = 'Theme: Light'; break
-					default: button.textContent = 'Theme: System'
+					case 'dark':
+						label.textContent = '\u263E';
+						button.title = 'Theme: Dark'
+						break
+					case 'light':
+						label.textContent = '\u263C';
+						button.title = 'Theme: Light'
+						break
+					default:
+						label.textContent = '\u273E'
+						button.title = 'Theme: System'
+				}
+				if (typeof $ !== 'undefined') {
+					const $button = $(button)
+					$button.tooltip('dispose').tooltip()
+					if (document.activeElement === button) {
+						$button.tooltip('show')
+					}
 				}
 			}
 		</script>
