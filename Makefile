@@ -72,7 +72,7 @@ ifeq (,$(wildcard $(ASSET_BIN)))
 endif
 
 lint ::
-	./node_modules/.bin/standard --verbose --fix postinstall.js cmd/sazserve/sources/js/*.js
+	./node_modules/.bin/standard --verbose --fix *.js cmd/sazserve/sources/js/*.js
 	golangci-lint run _tools/list-known-mime-types _tools/move-generated-comments \
 		cmd/... pkg/... internal/...
 

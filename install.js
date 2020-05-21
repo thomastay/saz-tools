@@ -122,7 +122,7 @@ async function decompressTar (archive, name) {
       })
       .on('error', reject)
       .on('close', () => {
-        if (!data.length) return reject(new Error(`File  .../${name} not found.`))
+        if (!data.length) return reject(new Error(`File .../${name} not found.`))
         resolve(Buffer.concat(data))
       })
       .end(archive)
@@ -152,7 +152,7 @@ async function decompressZip (archive, name) {
             }
           })
           .on('end', () => {
-            if (!buffer) reject(new Error(`File  .../${name} not found.`))
+            if (!buffer) reject(new Error(`File .../${name} not found.`))
             else resolve(buffer)
           })
           .readEntry()

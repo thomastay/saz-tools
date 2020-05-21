@@ -22,11 +22,11 @@
     "node": ">=10"
   },
   "files": [
-    "README.md"
+    "install.js", "uninstall.js"
   ],
   "scripts": {
     "postinstall": "node install",
-    "test": "standard --verbose --fix postinstall.js cmd/sazserve/sources/js/*.js"
+    "preuninstall": "node uninstall"
   },
   "keywords": [
     "saz ",
