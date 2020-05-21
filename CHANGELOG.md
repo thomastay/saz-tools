@@ -1,3 +1,11 @@
+# [0.0.9](https://github.com/prantlf/saz-tools/compare/v0.0.8...v0.0.9) (2020-05-21)
+
+## Features
+
+* Offer a help overlay on the first page opening ([1e71100](https://github.com/prantlf/saz-tools/1e71100b2dcdabaa3e319d66923de46c265c2bcd))
+* Distribute binaries using Homebrew ([1e71100](https://github.com/prantlf/saz-tools/876dc4bed3cbbbf87741e0a6ab5f64ee1f7fee2f))
+* Distribute binaries using NPM ([1e71100](https://github.com/prantlf/saz-tools/24dde848167ee94828c8a0813c4873e5a0c8ad05))
+
 # [0.0.8](https://github.com/prantlf/saz-tools/compare/v0.0.7...v0.0.8) (2020-05-20)
 
 ## Fixes
