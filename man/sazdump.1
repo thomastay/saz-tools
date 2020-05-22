@@ -1,0 +1,38 @@
+.TH sazdump "1" "May 22, 2020" "" "sazdump manual"
+
+.SH NAME
+sazdump - SAZ files (Fiddler logs) dumper
+
+.SH SYNOPSIS
+.B sazdump
+[-v|-version] [-h|-help]
+[
+.I file
+]
+.RE
+
+.SH DESCRIPTION
+.B
+Parses and prints an analysis of SAZ files (Fiddler logs) on the console.
+
+.SH OPTIONS
+.B
+.IP "-v, -version"
+print version number
+.B
+.IP "-h, -help"
+print usage instructions
+
+.SH EXAMPLES
+.B
+.IP "sazdump foo.saz"
+Prints network sessions from foo.saz.
+
+.SH BUGS
+sazdump's bug tracker is located at <https://github.com/prantlf/saz-tools/issues>
+
+.SH DOCUMENTATION
+See the website for documentation <https://prantlf.github.io/saz-tools/>
+
+.SH AUTHOR
+Currently maintained by Ferdinand Prantl <prantlf@gmail.com>

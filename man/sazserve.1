@@ -1,0 +1,48 @@
+.TH sazserve "1" "May 22, 2020" "" "sazserve manual"
+
+.SH NAME
+sazserve - SAZ files (Fiddler logs) server and browser
+
+.SH SYNOPSIS
+.B sazserve
+[-port
+.I
+number
+] [-browser] [-v|-version] [-h|-help]
+.RE
+
+.SH DESCRIPTION
+.B
+Views and analyzes SAZ files (Fiddler logs) in a web browser application.
+
+.SH OPTIONS
+.B
+.IP "-port number"
+specify the port number for the web server to listen on (default is 7000)
+.B
+.IP "-browser"
+start the web browser automatically (default is no)
+.B
+.IP "-v, -version"
+print version number
+.B
+.IP "-h, -help"
+print usage instructions
+
+.SH EXAMPLES
+.B
+.IP "sazserve -browser"
+Starts the web server on the port 7000 and launches the default web browser
+pojnting to http://localhost:7000/.
+.B
+.IP "sazserve -port 7007"
+Starts the web server on the port 7007.
+
+.SH BUGS
+sazserve's bug tracker is located at <https://github.com/prantlf/saz-tools/issues>
+
+.SH DOCUMENTATION
+See the website for documentation <https://prantlf.github.io/saz-tools/>
+
+.SH AUTHOR
+Currently maintained by Ferdinand Prantl <prantlf@gmail.com>

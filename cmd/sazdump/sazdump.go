@@ -1,6 +1,6 @@
 // Parses and prints an analysis of SAZ files (Fiddler logs) on the console.
 //
-//   $ sazdump foo.saz -h
+//   $ sazdump -h
 //   Usage: sazdump <file.saz>
 //
 //   $ sazdump foo.saz

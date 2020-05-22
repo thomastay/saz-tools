@@ -4,7 +4,7 @@
 //   Usage: sazserve [options]
 //   Options:
 //     -browser       : start the web browser automatically  (default false)
-//     -port <number> : port for the web server to listen to (default "7000")
+//     -port <number> : port for the web server to listen on (default "7000")
 //
 //   $ sazserve
 //   $ open http://localhost:7000/
@@ -32,7 +32,7 @@ func main() {
 	browser := false
 	printVersion := false
 	flag.BoolVar(&browser, "browser", browser, "start the web browser automatically")
-	flag.StringVar(&port, "port", port, "port for the web server to listen to")
+	flag.StringVar(&port, "port", port, "port for the web server to listen on")
 	flag.BoolVar(&printVersion, "version", printVersion, "print the version of this tool and exit")
 	flag.BoolVar(&printVersion, "v", printVersion, "print the version of this tool and exit (shorthand)")
 	flag.Usage = func() {

@@ -33,6 +33,10 @@ archives:
   format_overrides:
     - goos: windows
       format: zip
+  files:
+    - man/*
+    - README.md
+    - LICENSE
 source:
   enabled: true
 checksum:
@@ -52,6 +56,21 @@ brews:
   github:
     owner: prantlf
     name: homebrew-tap
+  folder: Formula
+  install: |
+    bin.install "sazdump"
+    bin.install "sazserve"
+    man1.install "man/sazdump.1"
+    man1.install "man/sazserve.1"
   test: |
     system "#{bin}/sazdump", "-v"
     system "#{bin}/sazserve", "-v"
+nfpms:
+- description: Parsing, dumping, viewing and analysing tools for SAZ (Fiddler) files
+  homepage: https://github.com/prantlf/saz-tools
+  maintainer: Ferdinand Prantl <prantlf@gmail.com>
+  license: MIT
+  vendor: Ferdinand Prantl
+  formats:
+  - deb
+  - rpm

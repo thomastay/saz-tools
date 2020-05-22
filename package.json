@@ -23,7 +23,13 @@
   },
   "files": [
     "install.js",
-    "uninstall.js"
+    "uninstall.js",
+    "man/sazdump.1",
+    "man/sazserve.1"
+  ],
+  "man": [
+    "man/sazdump.1",
+    "man/sazserve.1"
   ],
   "scripts": {
     "postinstall": "node install",
@@ -56,7 +62,7 @@
     "datatables.net-colreorder-bs4": "1.5.2",
     "datatables.net-fixedheader-bs4": "3.1.7",
     "jquery": "3.5.1",
-    "js-yaml": "3.13.1",
+    "js-yaml": "3.14.0",
     "jszip": "3.4.0",
     "pdfmake": "0.1.65",
     "popper.js": "1.16.1",

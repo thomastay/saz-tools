@@ -51,7 +51,7 @@ $ sazserve -h
 Usage: sazserve [options]
 Options:
   -browser       : start the web browser automatically  (default false)
-  -port <number> : port for the web server to listen to (default "7000")
+  -port <number> : port for the web server to listen on (default "7000")
   -version | -v  : print the version of this tool and exit
 
 $ sazserve
