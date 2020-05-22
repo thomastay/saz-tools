@@ -59,6 +59,29 @@ cmd/sazserve/assets/json/help-table.json: cmd/sazserve/sources/yml/help-table.ym
 	mkdir -p $(ASSET_DIR)/json
 	./node_modules/.bin/js-yaml -c $? > $@
 
+cmd/sazserve/sources/js/mime-type-icons.js: $(wildcard $(ASSET_DIR)/png/*)
+	go run _tools/list-known-mime-types/list-known-mime-types.go -- $@
+
+node_modules/datatables.net/js/jquery.dataTables.js.vendor: cmd/sazserve/sources/js/jquery.dataTables.js.diff
+ifeq (,$(wildcard node_modules/datatables.net/js/jquery.dataTables.js.vendor))
+	cp node_modules/datatables.net/js/jquery.dataTables.js $@
+	patch -p0 < $?
+endif
+
+node_modules/datatables.net-buttons/js/dataTables.buttons.js.vendor: cmd/sazserve/sources/js/dataTables.buttons.js.diff
+ifeq (,$(wildcard node_modules/datatables.net-buttons/js/dataTables.buttons.js.vendor))
+	cp node_modules/datatables.net-buttons/js/dataTables.buttons.js $@
+	patch -p0 < $?
+endif
+
+restore-datatables :: node_modules/datatables.net/js/jquery.dataTables.js node_modules/datatables.net-buttons/js/dataTables.buttons.js
+ifneq (,$(wildcard node_modules/datatables.net/js/jquery.dataTables.js.vendor))
+	mv node_modules/datatables.net/js/jquery.dataTables.js.vendor node_modules/datatables.net/js/jquery.dataTables.js
+endif
+ifneq (,$(wildcard node_modules/datatables.net-buttons/js/dataTables.buttons.js.vendor))
+	mv node_modules/datatables.net-buttons/js/dataTables.buttons.js.vendor node_modules/datatables.net-buttons/js/dataTables.buttons.js
+endif
+
 cmd/sazdump/version.go: package.json
 	echo "package main\n\nconst version = \"$(VERSION)\"" > $@
 
@@ -113,29 +136,6 @@ go-prepare ::
 	go get -u github.com/go-bindata/go-bindata/v3/...
 	go get -u github.com/evanw/esbuild/...
 	go get -u github.com/tdewolff/minify/v2/...
-
-cmd/sazserve/sources/js/mime-type-icons.js: $(wildcard $(ASSET_DIR)/png/*)
-	go run _tools/list-known-mime-types/list-known-mime-types.go -- $@
-
-node_modules/datatables.net/js/jquery.dataTables.js.vendor: cmd/sazserve/sources/js/jquery.dataTables.js.diff
-ifeq (,$(wildcard node_modules/datatables.net/js/jquery.dataTables.js.vendor))
-	cp node_modules/datatables.net/js/jquery.dataTables.js $@
-	patch -p0 < $?
-endif
-
-node_modules/datatables.net-buttons/js/dataTables.buttons.js.vendor: cmd/sazserve/sources/js/dataTables.buttons.js.diff
-ifeq (,$(wildcard node_modules/datatables.net-buttons/js/dataTables.buttons.js.vendor))
-	cp node_modules/datatables.net-buttons/js/dataTables.buttons.js $@
-	patch -p0 < $?
-endif
-
-restore-datatables :: node_modules/datatables.net/js/jquery.dataTables.js node_modules/datatables.net-buttons/js/dataTables.buttons.js
-ifneq (,$(wildcard node_modules/datatables.net/js/jquery.dataTables.js.vendor))
-	mv node_modules/datatables.net/js/jquery.dataTables.js.vendor node_modules/datatables.net/js/jquery.dataTables.js
-endif
-ifneq (,$(wildcard node_modules/datatables.net-buttons/js/dataTables.buttons.js.vendor))
-	mv node_modules/datatables.net-buttons/js/dataTables.buttons.js.vendor node_modules/datatables.net-buttons/js/dataTables.buttons.js
-endif
 
 clean ::
 	rm -rf sazdump sazserve $(ASSET_BIN) $(ASSET_DIR)/css $(ASSET_DIR)/js \

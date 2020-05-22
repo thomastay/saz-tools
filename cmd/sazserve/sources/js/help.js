@@ -2,12 +2,13 @@ import $ from './jquery.js'
 import 'chardin.js'
 import { configuration, saveConfiguration } from './configuration.js'
 
-let phase
+let phase, shown
 
 function initializeHelp () {
   $(document.body)
     .on('chardinJs:start', enableMessage)
     .on('chardinJs:stop', disableMessage)
+    .on('keydown', hideHelp)
   $('#help').on('click', showHelp)
   preparePageHelp()
   setTimeout(() => {
@@ -35,12 +36,20 @@ function showHelp () {
   }
 }
 
+function hideHelp () {
+  if (shown) {
+    $(document.body).chardinJs('stop')
+  }
+}
+
 function enableMessage () {
   $('#help-message').show()
+  shown = true
 }
 
 function disableMessage () {
   $('#help-message').hide()
+  shown = false
 }
 
 export { initializeHelp, preparePageHelp, prepareTableHelp, showHelp }

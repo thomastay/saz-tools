@@ -20,7 +20,7 @@ You can also install the latest version of the tools using [GoBinaries] without 
 
     curl -sf https://gobinaries.com/prantlf/saz-tools | sh
 
-If you manage your software using [Homebrew], you can install one or both tools using their formulae:
+If you manage your software using [Homebrew], you can install the tools using their formula:
 
     brew install prantlf/tap/saz-tools
 
