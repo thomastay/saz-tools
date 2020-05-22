@@ -1,3 +1,17 @@
+## [0.0.10](https://github.com/prantlf/saz-tools/compare/v0.0.9...v0.0.10) (2020-05-22)
+
+### Bug Fixes
+
+* Remove platform binaries when uninstalling the NPM module ([ff8d5e2](https://github.com/prantlf/saz-tools/commit/ff8d5e219d5e4733a157f302b109292efcd4680a))
+
+### Features
+
+* Add command-line parameter to print the version of the tools ([fe9f7df](https://github.com/prantlf/saz-tools/commit/fe9f7df4debbe61a96afc88ec894d0ae9c33d6c1))
+* Add man pages ([9dd7c31](https://github.com/prantlf/saz-tools/commit/9dd7c31457c5282a4f95bb15743d5a6a0e764ea0))
+* Hide the help overlay on hitting any key ([cbed9bf](https://github.com/prantlf/saz-tools/commit/cbed9bfcfa571ac3be3fd7a8de75d45df964355e))
+* Use botstrap to show tooltips ([0daf5dc](https://github.com/prantlf/saz-tools/commit/0daf5dcaf8b8a08753e2e386a5bca32ccd2dada9))
+* Use icons on buttons, make colourng of network sessions optional ([654584f](https://github.com/prantlf/saz-tools/commit/654584fea4ea9fb3eddb518ee8ebcf9863bdd810))
+
 # [0.0.9](https://github.com/prantlf/saz-tools/compare/v0.0.8...v0.0.9) (2020-05-21)
 
 ## Features
@@ -8,7 +22,7 @@
 
 # [0.0.8](https://github.com/prantlf/saz-tools/compare/v0.0.7...v0.0.8) (2020-05-20)
 
-## Fixes
+## Bug Fixes
 
 * Correct computation of aggregated column stats ([da30713](https://github.com/prantlf/saz-tools/da30713688aa92358d79318e2881d6cfbad67a6a))
 
@@ -37,7 +51,7 @@ Other changes included:
 
 * Show network session details ([4f45dda](https://github.com/prantlf/saz-tools/4f45ddad8a9f2277371a615e8b19390b15e3f5fa))
 
-## Fixes
+## Bug Fixes
 
 * Remove the prefix saz from packages in pkg/ ([be663a6](https://github.com/prantlf/saz-tools/be663a6d379c96f618142704698d008844348781))
 
@@ -48,7 +62,7 @@ Other changes included:
 * Offer the export to Excel ([15f48d3](https://github.com/prantlf/saz-tools/15f48d34cc1c99ba86098dba1ca81f709091ff07))
 * Support drag and drop, accept multiple files ([22214c7](https://github.com/prantlf/saz-tools/22214c7c32c37fac9dc3feea4620b696b1ae697b))
 
-## Fixes
+## Bug Fixes
 
 * Do not distribute the build tool move-generated-comments ([648f23c](https://github.com/prantlf/saz-tools/648f23c4d917e5915907511db9d0b18176464f82))
 
@@ -58,7 +72,7 @@ Other changes included:
 
 * Cache SAZ files on the server, store previous SAZ files on the client ([4a163ff](https://github.com/prantlf/saz-tools/4a163ff2a262b5ed664792e8412a31c64de0b041))
 
-## Fixes
+## Bug Fixes
 
 * Fix leaking of properties from previously parsed sessions to next ones ([d98918b](https://github.com/prantlf/saz-tools/d98918b23365949c4a01d7c6ca03f667b6fc348d))
 
