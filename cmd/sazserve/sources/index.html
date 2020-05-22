@@ -70,12 +70,14 @@
 	<header class="container-fluid">
 		<h1>SAZ Viewer</h1>
 		<p>Displays content of a SAZ (Fiddler log) for analysis and export.</p>
-		<button id=theme-switcher class="btn btn-secondary btn-circle" type=button data-intro=#theme-switcher data-toggle=tooltip>
-			<span id=theme-switcher-text></span>
-		</button>
-		<button id=help class="btn btn-secondary btn-circle" type=button data-intro=#help data-toggle=tooltip title=Help>
-			<span>?</span>
-		</button>
+		<div class=buttons>
+			<button id=theme-switcher class="btn btn-secondary btn-circle" type=button data-intro=#theme-switcher data-toggle=tooltip>
+				<span id=theme-switcher-text class=action-button></span>
+			</button>
+			<button id=help class="btn btn-secondary btn-circle" type=button data-intro=#help data-toggle=tooltip title=Help>
+				<span class=action-button>&#xe941;</span>
+			</button>
+	</div>
 		<script>
 			updateThemeSwitcher()
 			function updateThemeSwitcher () {
@@ -83,15 +85,15 @@
 				const label = document.getElementById('theme-switcher-text')
 				switch (sazTheme) {
 					case 'dark':
-						label.textContent = '\u263E';
+						label.textContent = '\ueaaf';
 						button.title = 'Theme: Dark'
 						break
 					case 'light':
-						label.textContent = '\u263C';
+						label.textContent = '\ue9d4';
 						button.title = 'Theme: Light'
 						break
 					default:
-						label.textContent = '\u273E'
+						label.textContent = '\ue9ca'
 						button.title = 'Theme: System'
 				}
 				if (typeof $ !== 'undefined') {

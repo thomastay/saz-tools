@@ -26,7 +26,7 @@ function initializeFixedSettings () {
 }
 
 function ensureDefaultConfiguration () {
-  let { columns, order, search, help } = configuration
+  let { columns, order, search, help, colorfulSessions } = configuration
   if (columns === undefined) {
     configuration.columns = columns = {}
   }
@@ -36,13 +36,20 @@ function ensureDefaultConfiguration () {
     }
   }
   if (order === undefined) {
-    configuration.order = { column: 'Number' }
+    if (columns.Number && columns.Number.visible !== false) {
+      configuration.order = { column: 'Number' }
+    } else {
+      configuration.order = {}
+    }
   }
   if (search === undefined) {
     configuration.search = ''
   }
   if (help === undefined) {
     configuration.help = {}
+  }
+  if (colorfulSessions === undefined) {
+    configuration.colorfulSessions = true
   }
 }
 

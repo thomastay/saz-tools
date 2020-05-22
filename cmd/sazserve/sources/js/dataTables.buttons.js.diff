@@ -1,0 +1,11 @@
+--- node_modules/datatables.net-buttons/js/dataTables.buttons.js.vendor	2020-05-22 12:22:25.000000000 +0200
++++ node_modules/datatables.net-buttons/js/dataTables.buttons.js	2020-05-22 12:23:28.000000000 +0200
+@@ -1073,7 +1073,7 @@
+ 
+ 			// Get the size of the popover (left and width - and ...)
+ 			var popoverLeft = display.offset().left;
+-			var popoverWidth = display.width();
++			var popoverWidth = content.width();
+ 			var popoverRight = popoverLeft + popoverWidth;
+ 
+ 			// Get the size of the host buttons (left and width - and ...)

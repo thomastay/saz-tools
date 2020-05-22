@@ -11,6 +11,7 @@ import buttonsPrint from 'datatables.net-buttons/js/buttons.print.js'
 import colReorder from 'datatables.net-colreorder-bs4'
 import fixedHeader from 'datatables.net-fixedheader-bs4'
 import jsonExport from './json-export.js'
+import colorfulSessions from './colorful-sessions.js'
 import { displayDetails, openSession } from './session-details.js'
 import { formatColumnStats } from './footer-formatters.js'
 import {
@@ -78,6 +79,7 @@ function initializeSessionTable () {
   colReorder(window, $)
   fixedHeader(window, $)
   jsonExport(window, $)
+  colorfulSessions(window, $)
 }
 
 function displaySessionTable (sessions) {
@@ -86,11 +88,16 @@ function displaySessionTable (sessions) {
   const order = convertOrder(orderSettings)
   const data = prepareData(sessions)
   const detailRows = []
-  const table = $('<table class="table table-sm table-striped table-hover nowrap compact display">')
+  let classes = 'table table-sm table-striped table-hover nowrap compact display'
+  if (configuration.colorfulSessions) {
+    classes += ' colorful'
+  }
+  const table = $(`<table class="${classes}">`)
   table.append('<thead></thead>')
   table.append('<tbody></tbody>')
   table.append('<tfoot><tr></tr></tfoot>')
-  dataTable = table.on('column-visibility.dt', columnVisibilityChanged)
+  dataTable = table
+    .on('column-visibility.dt', columnVisibilityChanged)
     .on('search.dt', filterChanged)
     .on('order.dt', orderChanged)
     .appendTo(tableWrapper)
@@ -106,16 +113,26 @@ function displaySessionTable (sessions) {
       buttons: [
         {
           extend: 'colvis',
-          text: 'Columns'
+          text: '\uea71',
+          align: 'button-right',
+          className: 'toggles'
         },
         {
           extend: 'collection',
-          text: 'Export',
+          text: '\uea7d',
+          align: 'button-right',
           buttons: ['copy', 'print',
             {
               extend: 'json',
               className: 'divide-at-top'
             }, 'csv', 'excel', 'pdf']
+        },
+        {
+          extend: 'collection',
+          text: '\ue994',
+          align: 'button-right',
+          className: 'toggles',
+          buttons: ['colorful']
         }
       ],
       rowCallback,

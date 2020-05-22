@@ -22,7 +22,8 @@
     "node": ">=10"
   },
   "files": [
-    "install.js", "uninstall.js"
+    "install.js",
+    "uninstall.js"
   ],
   "scripts": {
     "postinstall": "node install",
@@ -48,11 +49,12 @@
   "devDependencies": {
     "bootstrap": "4.5.0",
     "chardin.js": "git://github.com/prantlf/chardin.js.git#b49968b92cb8f5306df67239a6dd0a039fc0f1bd",
-    "datatables.net": "1.10.20",
-    "datatables.net-bs4": "1.10.20",
-    "datatables.net-buttons-bs4": "1.6.1",
+    "datatables.net": "1.10.21",
+    "datatables.net-bs4": "1.10.21",
+    "datatables.net-buttons": "1.6.2",
+    "datatables.net-buttons-bs4": "1.6.2",
     "datatables.net-colreorder-bs4": "1.5.2",
-    "datatables.net-fixedheader-bs4": "3.1.6",
+    "datatables.net-fixedheader-bs4": "3.1.7",
     "jquery": "3.5.1",
     "js-yaml": "3.13.1",
     "jszip": "3.4.0",

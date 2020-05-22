@@ -5,7 +5,6 @@
 .gitignore
 .goreleaser.yml
 .hadolint.yaml
-.ncurc.yml
 .travis.yml
 .vscode
 bin

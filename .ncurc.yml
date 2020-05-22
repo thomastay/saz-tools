@@ -1,6 +1,0 @@
-reject:
- - datatables.net
- - datatables.net-bs4
- - datatables.net-buttons-bs4
- - datatables.net-colreorder-bs4
- - datatables.net-fixedheader-bs4
