@@ -2,7 +2,14 @@
 
 [![Build Status](https://travis-ci.org/prantlf/saz-tools.svg?branch=master)](https://travis-ci.org/prantlf/saz-tools)
 [![Go Report Card](https://goreportcard.com/badge/github.com/prantlf/saz-tools)](https://goreportcard.com/report/github.com/prantlf/saz-tools)
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/prantlf/saz-tools?color=teal)
 [![Documentation](https://godoc.org/github.com/prantlf/saz-tools?status.svg)](http://godoc.org/github.com/prantlf/saz-tools)
+[![Homebrew](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/prantlf/homebrew-tap/master/Info/saz-tools.json&query=$.versions.stable&label=homebrew)](https://github.com/prantlf/homebrew-tap#readme)
+[![Snap](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/prantlf/saz-tools/master/package.json&query=$.version&label=snap)](https://snapcraft.io/saz-tools)
+[![Scoop](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/prantlf/saz-tools/master/package.json&query=$.version&label=scoop)](https://github.com/prantlf/scoop-bucket#readme)
+[![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/prantlf/saz-tools?include_prereleases&label=github%2Fdeb%2Frpm)](https://github.com/prantlf/saz-tools/releases)
+[![npm](https://img.shields.io/npm/v/saz-tools)](https://www.npmjs.com/package/saz-tools#top)
+![Docker Image Version (latest by date)](https://img.shields.io/docker/v/prantlf/sazdump?color=cyan&label=docker)
 
 Tools for parsing SAZ files (Fiddler logs) and either [printing their content] on the console, or [viewing them on a web page] and offering basic analysis and export. Try the [on-line version] of the SAZ Viewer.
 
@@ -16,7 +23,7 @@ If you have [Node.js] installed, you can use [NPM] to install a global module ea
 
     npm i -g saz-tools
 
-You can also install the latest version of the tools using [GoBinaries] without any developer tools:
+If you have the standard `sh` available, you can use the installation script from [GoBinaries]:
 
     curl -sf https://gobinaries.com/prantlf/saz-tools | sh
 
@@ -31,9 +38,11 @@ Windows users can install using the [Scoop manifest]:
 
 Ubuntu users can install the [Snap package]:
 
-     sudo snap install saz-tools
+    sudo snap install saz-tools
 
-If you work on Linux and install `deb` or `rpm` packages, download and install your package from [GitHub releases]. Or download and unpack a binary archive with a specific version from there too.
+If you work on Linux which uses `deb` or `rpm` packages, you can download and install a package from [GitHub releases].
+
+Or download and unpack a binary archive for your operation system from [GitHub releases] directly.
 
 If you want to install a specific commit or the latest master and you do not have the development environment to build it, you can use Docker to [`build`]:
 
@@ -41,6 +50,8 @@ If you want to install a specific commit or the latest master and you do not hav
     cd saz-tools
     docker run --rm -it -v ${PWD}:/work -w /work \
       prantlf/golang-make-nodejs-git clean prepare all DOCKER=1
+
+If you want to run the tools using [Docker] images, see the [instructions below](#docker).
 
 ## Tools
 
@@ -111,7 +122,7 @@ You need [Go], [Make], [Node.js], [NPM] and [Patch] to build all parts of this m
 
 [The `sazdump` image] and [the `sazserve` image] allows you to execute the tools described above. They are built automatically on the top of the tag `latest` from the [scratch image].
 
-The following [tags] are available for the `prantlf/saztools` image:
+The following tags are available for the `prantlf/sazdump` and `prantlf/sazserve` images:
 
 - `latest`
 
@@ -180,6 +191,7 @@ Licensed under the MIT license.
 [Homebrew]: https://brew.sh/
 [Snap package]: https://snapcraft.io/saz-tools
 [Scoop manifest]: https://github.com/prantlf/scoop-bucket#prantlfscoop-bucket
+[Docker]: https://www.docker.com/
 [Make]: https://www.gnu.org/software/make/
 [Patch]: http://man7.org/linux/man-pages/man1/patch.1.html
 [Node.js]: https://nodejs.org/
@@ -188,7 +200,6 @@ Licensed under the MIT license.
 [GitHub releases]: https://github.com/prantlf/saz-tools/releases
 [The `sazdump` image]: https://hub.docker.com/repository/docker/prantlf/sazdump
 [the `sazserve` image]: https://hub.docker.com/repository/docker/prantlf/sazserve
-[tags]: https://hub.docker.com/repository/docker/prantlf/saztools/tags
 [scratch image]: https://hub.docker.com/_/scratch
 [`build`]: bin/build
 [`sazdump`]: bin/sazdump
