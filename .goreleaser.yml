@@ -84,8 +84,20 @@ snapcrafts:
   confinement: strict
   publish: true
   license: MIT
+  replacements:
+    amd64: x86_64
   apps:
     sazdump:
-      plugs: ["home", "network", "personal-files"]
+      plugs: ["home"]
     sazserve:
       plugs: ["network"]
+scoop:
+  description: Parsing, dumping, viewing and analysing tools for SAZ (Fiddler) files
+  homepage: https://github.com/prantlf/saz-tools
+  license: MIT
+  bucket:
+    owner: prantlf
+    name: scoop-bucket
+  commit_author:
+    name: Ferdinand Prantl
+    email: prantlf@gmail.com

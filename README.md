@@ -24,7 +24,16 @@ If you manage your software using [Homebrew], you can install the tools using th
 
     brew install prantlf/tap/saz-tools
 
-If you work on Linux and install `deb` or `rpm` packages, download and install your package from [GitHub releases].Or download and unpack a binary archive with a specific version from [GitHub releases].
+Windows users can install using the [Scoop manifest]:
+
+    scoop bucket add prantlf https://github.com/prantlf/scoop-bucket.git
+    scoop install prantlf/saz-tools
+
+Ubuntu users can install the [Snap package]:
+
+     sudo snap install saz-tools
+
+If you work on Linux and install `deb` or `rpm` packages, download and install your package from [GitHub releases]. Or download and unpack a binary archive with a specific version from there too.
 
 If you want to install a specific commit or the latest master and you do not have the development environment to build it, you can use Docker to [`build`]:
 
@@ -169,6 +178,8 @@ Licensed under the MIT license.
 [Go]: https://golang.org/
 [golang repository]: https://hub.docker.com/_/golang
 [Homebrew]: https://brew.sh/
+[Snap package]: https://snapcraft.io/saz-tools
+[Scoop manifest]: https://github.com/prantlf/scoop-bucket#prantlfscoop-bucket
 [Make]: https://www.gnu.org/software/make/
 [Patch]: http://man7.org/linux/man-pages/man1/patch.1.html
 [Node.js]: https://nodejs.org/

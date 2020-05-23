@@ -127,10 +127,10 @@ debug-assets :: node_modules/datatables.net/js/jquery.dataTables.js.vendor node_
 	cp $(SOURCE_DIR)/css/overrides.darkly.css $(ASSET_DIR)/css/overrides.darkly.min.css
 	cp $(SOURCE_DIR)/index.html $(ASSET_DIR)/index.html
 
-prepare :: go-prepare npm-prepare
+prepare :: npm-prepare go-prepare
 
-npm-prepare :: go-prepare
-	npm ci --only=dev --ignore-scripts
+npm-prepare ::
+	npm ci --ignore-scripts
 
 go-prepare ::
 	go get -u github.com/go-bindata/go-bindata/v3/...
