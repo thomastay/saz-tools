@@ -21,9 +21,11 @@ uninstallBinaries()
   .catch(({ message }) => fail(message))
 
 async function uninstallBinaries () {
-  const directory = getBinaryDirectory()
+  const binaryDirectory = getBinaryDirectory()
+  const manualDirectory = getManualDirectory()
   await Promise.all([
-    deleteFile('sazdump', directory), deleteFile('sazserve', directory)])
+    deleteBinary('sazdump', binaryDirectory), deleteBinary('sazserve', binaryDirectory),
+    deleteManual('sazdump', manualDirectory), deleteManual('sazserve', manualDirectory)])
   console.log()
 }
 
@@ -32,10 +34,23 @@ function getBinaryDirectory () {
   return __dirname.startsWith(root) ? `${root}/bin` : `${__dirname}/node_modules/.bin`
 }
 
-async function deleteFile (name, directory) {
+function getManualDirectory () {
+  const root = resolve(process.execPath, '../..')
+  return __dirname.startsWith(root) && `${root}/share/man/man1`
+}
+
+async function deleteBinary (name, directory) {
   const path = `${directory}/${name}${extension}`
   console.log(`Deleting ${path}.`)
   await unlink(path)
+}
+
+async function deleteManual (name, directory) {
+  if (directory) {
+    const path = `${directory}/${name}.1`
+    console.log(`Deleting ${path}.`)
+    await unlink(path)
+  }
 }
 
 function fail (message) {
