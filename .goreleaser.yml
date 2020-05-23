@@ -74,3 +74,18 @@ nfpms:
   formats:
   - deb
   - rpm
+snapcrafts:
+- summary: Parsing, dumping, viewing and analysing tools for SAZ (Fiddler) files
+  description: |
+    Tools for parsing SAZ files (Fiddler logs) and either printing their
+    content on the console, or viewing them on a web page and offering
+    basic analysis and export.
+  grade: stable
+  confinement: strict
+  publish: true
+  license: MIT
+  apps:
+    sazdump:
+      plugs: ["home", "network", "personal-files"]
+    sazserve:
+      plugs: ["network"]

@@ -147,9 +147,12 @@ push ::
 
 publish ::
 	GITLAB_TOKEN= goreleaser --rm-dist && \
-	npm publish && \
-	cp dist/saz-tools.rb ../homebrew-tap/Formula && \
-	cd ../homebrew-tap && git commit -am 'Upgrade saz-tools' && git push
+	npm publish
+	# cp dist/saz-tools.rb ../homebrew-tap/Formula && \
+	# cd ../homebrew-tap && git commit -am 'Upgrade saz-tools' && git push
+
+snapshot ::
+	GITLAB_TOKEN= goreleaser --skip-validate --skip-publish --snapshot --rm-dist
 
 docker-clean ::
 	docker image rm sazdump
