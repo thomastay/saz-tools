@@ -20,7 +20,6 @@ const platformAliases = {
 const archAliases = {
   arm: 'armv6',
   arm64: 'arm64',
-  x32: 'i386',
   x64: 'x86_64'
 }
 const formats = {

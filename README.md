@@ -24,7 +24,7 @@ If you manage your software using [Homebrew], you can install the tools using th
 
     brew install prantlf/tap/saz-tools
 
-Or download and unpack an archive with a specific version from [GitHub releases].
+If you work on Linux and install `deb` or `rpm` packages, download and install your package from [GitHub releases].Or download and unpack a binary archive with a specific version from [GitHub releases].
 
 If you want to install a specific commit or the latest master and you do not have the development environment to build it, you can use Docker to [`build`]:
 
