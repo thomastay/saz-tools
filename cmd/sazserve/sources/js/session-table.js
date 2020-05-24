@@ -132,7 +132,17 @@ function displaySessionTable (sessions) {
           text: '\ue994',
           align: 'button-right',
           className: 'toggles',
-          buttons: ['colorful']
+          buttons: [
+            'colorful',
+            {
+              text: 'Redraw table',
+              className: 'divide-at-top',
+              action: function (event, dataTable, button, definition) {
+                destroySessionTable()
+                displaySessionTable(sazStore.loaded.Sessions)
+              }
+            }
+          ]
         }
       ],
       rowCallback,
