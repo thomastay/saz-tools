@@ -6,10 +6,6 @@ import (
 	"time"
 )
 
-func parseTime(dateTime string) (time.Time, error) {
-	return time.Parse(time.RFC3339Nano, dateTime)
-}
-
 func parseDuration(duration string) (time.Duration, error) {
 	duration = strings.Replace(duration, ":", "h", 1)
 	duration = strings.Replace(duration, ":", "m", 1)

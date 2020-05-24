@@ -40,13 +40,13 @@ func printResult(session *analyzer.Session, durationPrecision int) error {
 	request := session.Request
 	response := session.Response
 	method := request.Method
-	clientBegin, err := parseTime(session.Timers.ClientBegin)
+	clientBegin, err := analyzer.ParseTime(session.Timers.ClientBegin)
 	if err != nil {
 		message := fmt.Sprintf("Parsing ClientBegin time from \"%s\" failed.",
 			session.Timers.ClientBegin)
 		return fmt.Errorf("%s\n%s", message, err.Error())
 	}
-	clientDoneResponse, err := parseTime(session.Timers.ClientDoneResponse)
+	clientDoneResponse, err := analyzer.ParseTime(session.Timers.ClientDoneResponse)
 	if err != nil {
 		message := fmt.Sprintf("Parsing ClientDoneResponse time from \"%s\" failed.",
 			session.Timers.ClientDoneResponse)

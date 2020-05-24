@@ -37,47 +37,65 @@ func ParseReader(reader io.ReaderAt, size int64) ([]Session, error) {
 }
 
 func parseArchive(archiveReader *zip.Reader) ([]Session, error) {
-	var session Session
-	var sessions []Session
+	count, err := countSessions(archiveReader)
+	if err != nil {
+		return nil, err
+	}
 
+	sessions := make([]Session, count/3)
 	for _, archivedFile := range archiveReader.File {
 		match, number, fileType := parseArchivedFileName(archivedFile.Name)
 		if !match {
 			continue
 		}
+		session := &sessions[number-1]
 
 		switch fileType {
 		case "c":
-			err := parseRequest(archivedFile, &session, number)
+			err := parseRequest(archivedFile, session)
 			if err != nil {
 				return nil, err
 			}
 
 		case "m":
-			err := parseSessionAttributes(archivedFile, &session)
+			session.Number = number
+			err := parseSessionAttributes(archivedFile, session)
 			if err != nil {
 				return nil, err
 			}
 
 		case "s":
-			err := parseResponse(archivedFile, &session, number)
+			err := parseResponse(archivedFile, session)
 			if err != nil {
 				return nil, err
 			}
-
-			session.Number = number
-			sessions = append(sessions, session)
-			session = Session{}
 		}
 	}
 
-	if len(sessions) == 0 {
-		return nil, errors.New("saz/parser: no network sessions were found")
+	if err := checkSessions(sessions); err != nil {
+		return nil, err
 	}
 	return sessions, nil
 }
 
-func parseRequest(archivedFile *zip.File, session *Session, number int) error {
+func countSessions(archiveReader *zip.Reader) (int, error) {
+	count := 0
+	for _, archivedFile := range archiveReader.File {
+		match, _, _ := parseArchivedFileName(archivedFile.Name)
+		if match {
+			count++
+		}
+	}
+	if count == 0 {
+		return 0, errors.New("saz/parser: no network sessions were found")
+	}
+	if count%3 != 0 {
+		return 0, errors.New("saz/parser: incomplete file triplet detected")
+	}
+	return count, nil
+}
+
+func parseRequest(archivedFile *zip.File, session *Session) error {
 	fileReader, err := archivedFile.Open()
 	if err != nil {
 		message := fmt.Sprintf("Opening \"%s\" failed.", archivedFile.Name)
@@ -96,15 +114,21 @@ func parseRequest(archivedFile *zip.File, session *Session, number int) error {
 
 	err = slurpRequestBody(session)
 	if err != nil {
-		message := fmt.Sprintf("Buffering request body from %s network session failed.",
-			pluralizer.FormatOrdinal(number))
+		message := fmt.Sprintf("Buffering request body from \"%s\" failed.", archivedFile.Name)
 		return fmt.Errorf("%s\n%s", message, err.Error())
 	}
 
 	return nil
 }
 
-func parseResponse(archivedFile *zip.File, session *Session, number int) error {
+func parseResponse(archivedFile *zip.File, session *Session) error {
+	if archivedFile.UncompressedSize == 0 {
+		session.Response = &http.Response{
+			Status: "Connection Closed", Request: session.Request,
+		}
+		return nil
+	}
+
 	fileReader, err := archivedFile.Open()
 	if err != nil {
 		message := fmt.Sprintf("Opening \"%s\" failed.", archivedFile.Name)
@@ -123,8 +147,7 @@ func parseResponse(archivedFile *zip.File, session *Session, number int) error {
 
 	err = slurpResponseBody(session)
 	if err != nil {
-		message := fmt.Sprintf("Buffering response body from %s network session failed.",
-			pluralizer.FormatOrdinal(number))
+		message := fmt.Sprintf("Buffering response body from \"%s\" failed.", archivedFile.Name)
 		return fmt.Errorf("%s\n%s", message, err.Error())
 	}
 
@@ -153,5 +176,24 @@ func parseSessionAttributes(archivedFile *zip.File, session *Session) error {
 		return fmt.Errorf("%s\n%s", message, err.Error())
 	}
 
+	return nil
+}
+
+func checkSessions(sessions []Session) error {
+	for i := range sessions {
+		session := &sessions[i]
+		if session.Number == 0 {
+			return fmt.Errorf("saz/parser: attributes missing in %s network session",
+				pluralizer.FormatOrdinal(i))
+		}
+		if session.Request.URL.String() == "" {
+			return fmt.Errorf("saz/parser: request data missing in %s network session",
+				pluralizer.FormatOrdinal(i))
+		}
+		if session.Response.Request == nil {
+			return fmt.Errorf("saz/parser: response data missing in %s network session",
+				pluralizer.FormatOrdinal(i))
+		}
+	}
 	return nil
 }

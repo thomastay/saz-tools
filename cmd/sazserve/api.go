@@ -47,7 +47,7 @@ func postSaz(responseWriter http.ResponseWriter, request *http.Request) interfac
 	}
 	sazKey, err := sessionCache.Put(rawSessions)
 	if err != nil {
-		message := fmt.Sprintf("Caching %d network sessions to cache failed.", len(rawSessions))
+		message := fmt.Sprintf("Caching %d network sessions failed.", len(rawSessions))
 		err = fmt.Errorf("%s\n%s", message, err.Error())
 		http.Error(responseWriter, err.Error(), http.StatusInternalServerError)
 		return nil
@@ -56,7 +56,7 @@ func postSaz(responseWriter http.ResponseWriter, request *http.Request) interfac
 	if err != nil {
 		message := fmt.Sprintf("Analyzing %d network sessions failed.", len(rawSessions))
 		err = fmt.Errorf("%s\n%s", message, err.Error())
-		http.Error(responseWriter, err.Error(), http.StatusInternalServerError)
+		http.Error(responseWriter, err.Error(), http.StatusBadRequest)
 		return nil
 	}
 	return sazData{sazKey, fineSessions}
@@ -144,7 +144,7 @@ func getNetworkSessions(responseWriter http.ResponseWriter, rawSessions []parser
 		message := fmt.Sprintf("Analyzing %d network sessions with the key %s failed.",
 			len(rawSessions), sazKey)
 		err = fmt.Errorf("%s\n%s", message, err.Error())
-		http.Error(responseWriter, err.Error(), http.StatusInternalServerError)
+		http.Error(responseWriter, err.Error(), http.StatusBadRequest)
 		return nil, false
 	}
 	return fineSessions, true
@@ -156,7 +156,7 @@ func getNetworkSession(responseWriter http.ResponseWriter, rawSessions []parser.
 		message := fmt.Sprintf("Parsing ClientConnected time from \"%s\" in the first network session with the key %s failed.",
 			rawSessions[0].Timers.ClientConnected, sazKey)
 		message = fmt.Sprintf("%s\n%s", message, err.Error())
-		http.Error(responseWriter, message, http.StatusInternalServerError)
+		http.Error(responseWriter, message, http.StatusBadRequest)
 		return nil, false
 	}
 	response, err := analyzer.MergeExtras(session, clientBeginSessions)

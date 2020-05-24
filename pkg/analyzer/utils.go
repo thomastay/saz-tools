@@ -11,6 +11,9 @@ import (
 
 // ParseTime parses a network session timer in the maximum precision.
 func ParseTime(dateTime string) (time.Time, error) {
+	if dateTime == "0001-01-01T00:00:00" {
+		return time.Time{}, nil
+	}
 	return time.Parse(time.RFC3339Nano, dateTime)
 }
 
@@ -173,14 +176,21 @@ func fillSessionTimers(rawSession *parser.Session, fineSession *Session, clientB
 			rawSession.Timers.ClientDoneResponse)
 		return fmt.Errorf("%s\n%s", message, err.Error())
 	}
-	fineSession.Timeline = formatDuration(clientBegin.Sub(clientBeginSessions))
+	fineSession.Timeline = formatDuration(computeDuration(clientBeginSessions, clientBegin))
 	fineSession.Timers.ClientBegin = clientBeginTimer
-	fineSession.Timers.RequestResponseTime = formatDuration(clientDoneResponse.Sub(clientBegin))
-	fineSession.Timers.RequestSendTime = formatDuration(serverGotRequest.Sub(clientBegin))
-	fineSession.Timers.ServerProcessTime = formatDuration(serverBeginResponse.Sub(serverGotRequest))
-	fineSession.Timers.ResponseReceiveTime = formatDuration(clientDoneResponse.Sub(serverBeginResponse))
+	fineSession.Timers.RequestResponseTime = formatDuration(computeDuration(clientBegin, clientDoneResponse))
+	fineSession.Timers.RequestSendTime = formatDuration(computeDuration(clientBegin, serverGotRequest))
+	fineSession.Timers.ServerProcessTime = formatDuration(computeDuration(serverGotRequest, serverBeginResponse))
+	fineSession.Timers.ResponseReceiveTime = formatDuration(computeDuration(serverBeginResponse, clientDoneResponse))
 	fineSession.Timers.ClientDoneResponse = rawSession.Timers.ClientDoneResponse
 	return nil
+}
+
+func computeDuration(start time.Time, stop time.Time) time.Duration {
+	if stop.IsZero() {
+		return 0
+	}
+	return stop.Sub(start)
 }
 
 func formatDuration(duration time.Duration) string {
