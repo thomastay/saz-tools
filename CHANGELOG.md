@@ -1,3 +1,16 @@
+## [0.0.11](https://github.com/prantlf/saz-tools/compare/v0.0.10...v0.0.11) (2020-05-24)
+
+### Bug Fixes
+
+* Recognize zero-length responses, when the server just closed the connection ([c674936](https://github.com/prantlf/saz-tools/commit/c67493603708552ff5f95db8820587b82ce898aa))
+* Recover a previous session in the table properly ([349c83f](https://github.com/prantlf/saz-tools/commit/349c83f4f1cd65672fd4e1c5c9d1c7597046ba57))
+* Remove man pages when uninstalling the NPM package ([7721ce6](https://github.com/prantlf/saz-tools/commit/7721ce6d12c0a8d73c127dbc7b4d31507481d2cd))
+
+### Features
+
+* Add a snap package for Ubuntu ([ebec33f](https://github.com/prantlf/saz-tools/commit/ebec33ff85704629eef6db3fd291220743acab23))
+* Introduce a button for redrawing the table if the additionaly shown columns got tool wide ([46c1371](https://github.com/prantlf/saz-tools/commit/46c1371a83c164836cef47466080898def663ed9))
+
 ## [0.0.10](https://github.com/prantlf/saz-tools/compare/v0.0.9...v0.0.10) (2020-05-22)
 
 ### Bug Fixes
