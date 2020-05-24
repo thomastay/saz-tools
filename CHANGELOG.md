@@ -1,3 +1,14 @@
+## [0.0.15](https://github.com/prantlf/saz-tools/compare/v0.0.14...v0.0.15) (2020-05-24)
+
+### Bug Fixes
+
+* Correct computation of durations in column stats ([876da42](https://github.com/prantlf/saz-tools/commit/876da42e96f9b547c6e2bd082a383ff5797bd0dc))
+
+### Features
+
+* Check if the file name was provided to sazdump to show a better error message ([0a13246](https://github.com/prantlf/saz-tools/commit/0a13246f15f3bfa2accf9c02de3d2f8c3dce6fce))
+* Sort uploaded .saz files alphabetically by their names ([df1706f](https://github.com/prantlf/saz-tools/commit/df1706f95483a6058253211e32ea7afa948282b9))
+
 ## [0.0.11](https://github.com/prantlf/saz-tools/compare/v0.0.10...v0.0.11) (2020-05-24)
 
 ### Bug Fixes
