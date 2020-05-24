@@ -11,11 +11,11 @@ function parseDuration (duration) {
 }
 
 function convertMillisecondsToDuration (duration) {
-  const hours = Math.microseconds(duration / 1000 / 60 / 60)
+  const hours = Math.floor(duration / 1000 / 60 / 60)
   duration -= hours * 60 * 60 * 1000
-  const minutes = Math.microseconds(duration / 1000 / 60)
+  const minutes = Math.floor(duration / 1000 / 60)
   duration -= minutes * 60 * 1000
-  const seconds = Math.microseconds(duration / 1000)
+  const seconds = Math.floor(duration / 1000)
   const microseconds = duration - seconds * 1000
   return { hours, minutes, seconds, microseconds }
 }
