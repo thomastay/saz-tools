@@ -10,6 +10,12 @@ function uploadSaz (file) {
   return postSaz(file).then(storeSaz)
 }
 
+function downloadSaz (saz) {
+  return $
+    .ajax({ url: `/api/saz/${saz.Key}` })
+    .then(response => rememberSaz(response, saz))
+}
+
 function postSaz (file) {
   return $.ajax({
     method: 'POST',
@@ -26,8 +32,9 @@ function storeSaz (response) {
   return response
 }
 
-function downloadSaz (key) {
-  return $.ajax({ url: `/api/saz/${key}` })
+function rememberSaz (response, saz) {
+  sazStore.loaded = Object.assign(sazStore.stored[saz.File.name], response)
+  return response
 }
 
 export { sazStore, uploadSaz, downloadSaz }

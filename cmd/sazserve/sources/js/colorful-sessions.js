@@ -2,7 +2,7 @@ import { configuration, saveConfiguration } from './configuration.js'
 
 export default function (window, $) {
   $.fn.dataTable.ext.buttons.colorful = {
-    text: 'Colourful Sessions',
+    text: 'Colourful sessions',
     init: function (dataTable, button, definition) {
       this.active(configuration.colorfulSessions)
     },

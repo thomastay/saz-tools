@@ -83,7 +83,7 @@ function previousSazChanged (event) {
   const name = Object.keys(sazStore.stored)[$(event.target).prop('selectedIndex')]
   const saz = sazStore.stored[name]
   startProgress()
-  downloadSaz(saz.Key)
+  downloadSaz(saz)
     .then(sessions => {
       resetPage()
       displaySessionTable(sessions)
