@@ -50,6 +50,7 @@ $(ASSET_DIR)/js/index.min.js: node_modules/datatables.net/js/jquery.dataTables.j
 	$(MINIFY) -o $(ASSET_DIR)/css/bootstrap.darkly.min.css $(SOURCE_DIR)/css/bootstrap.darkly.css
 	$(MINIFY) -o $(ASSET_DIR)/css/overrides.darkly.min.css $(SOURCE_DIR)/css/overrides.darkly.css
 	$(MINIFY) -o $(ASSET_DIR)/index.html $(SOURCE_DIR)/index.html
+	sed -i "s/VERSION/$(VERSION)/" $(ASSET_DIR)/index.html
 
 cmd/sazserve/assets/json/help-page.json: cmd/sazserve/sources/yml/help-page.yml
 	mkdir -p $(ASSET_DIR)/json
@@ -126,6 +127,7 @@ debug-assets :: node_modules/datatables.net/js/jquery.dataTables.js.vendor node_
 	cp $(SOURCE_DIR)/css/bootstrap.darkly.css $(ASSET_DIR)/css/bootstrap.darkly.min.css
 	cp $(SOURCE_DIR)/css/overrides.darkly.css $(ASSET_DIR)/css/overrides.darkly.min.css
 	cp $(SOURCE_DIR)/index.html $(ASSET_DIR)/index.html
+	sed -i "s/VERSION/$VERSION/" $(ASSET_DIR)/index.html
 
 prepare :: npm-prepare go-prepare
 
