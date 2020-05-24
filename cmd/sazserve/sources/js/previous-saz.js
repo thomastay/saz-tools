@@ -14,8 +14,14 @@ function resetPreviousSaz () {
 function updatePreviousSaz () {
   setTimeout(() => {
     previousSaz.html('')
-    for (const name in sazStore.stored) {
-      const option = $('<option>').text(name)
+    const names = Object
+      .keys(sazStore.stored)
+      .map((name, index) => ({ name, index }))
+      .sort((left, right) => left.name.localeCompare(right.name))
+    for (const { name, index } of names) {
+      const option = $('<option>')
+        .text(name)
+        .attr('value', index.toString())
       if (name === sazStore.loaded.File.name) {
         option.attr('selected', 'selected')
       }

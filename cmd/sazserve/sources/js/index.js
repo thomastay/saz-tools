@@ -80,7 +80,10 @@ function processSazs (files) {
 }
 
 function previousSazChanged (event) {
-  const name = Object.keys(sazStore.stored)[$(event.target).prop('selectedIndex')]
+  const selection = $(event.target).prop('selectedOptions')
+  if (!selection.length) return
+  const index = +selection[0].getAttribute('value')
+  const name = Object.keys(sazStore.stored)[index]
   const saz = sazStore.stored[name]
   startProgress()
   downloadSaz(saz)
