@@ -6,7 +6,7 @@
 [![Documentation](https://godoc.org/github.com/prantlf/saz-tools?status.svg)](http://godoc.org/github.com/prantlf/saz-tools)
 [![Homebrew](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/prantlf/homebrew-tap/master/Info/saz-tools.json&query=$.versions.stable&label=homebrew)](https://github.com/prantlf/homebrew-tap#readme)
 [![Snap](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/prantlf/saz-tools/master/package.json&query=$.version&label=snap)](https://snapcraft.io/saz-tools)
-[![Scoop](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/prantlf/saz-tools/master/package.json&query=$.version&label=scoop)](https://github.com/prantlf/scoop-bucket#readme)
+[![Scoop](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/prantlf/scoop-bucket/master/saz-tools.json&query=$.version&label=scoop)](https://github.com/prantlf/scoop-bucket#readme)
 [![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/prantlf/saz-tools?include_prereleases&label=github%2Fdeb%2Frpm)](https://github.com/prantlf/saz-tools/releases)
 [![npm](https://img.shields.io/npm/v/saz-tools)](https://www.npmjs.com/package/saz-tools#top)
 ![Docker Image Version (latest by date)](https://img.shields.io/docker/v/prantlf/sazdump?color=cyan&label=docker)

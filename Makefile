@@ -143,13 +143,15 @@ clean ::
 		cmd/sazdump/version.go cmd/sazserve/version.go $(ASSET_DIR)/index.html dist
 
 push ::
-	git push heroku master && git push && git push --tags
+	git push heroku master
+	git push
+	git push --tags
 
 publish ::
-	GITLAB_TOKEN= goreleaser --rm-dist && \
+	GITLAB_TOKEN= goreleaser --rm-dist
 	npm publish
-	# cp dist/saz-tools.rb ../homebrew-tap/Formula && \
-	# cd ../homebrew-tap && git commit -am 'Upgrade saz-tools' && git push
+	cd ../homebrew-tap && git pull && make push-info
+	cd ../scoop-bucket && git pull
 
 snapshot ::
 	GITLAB_TOKEN= goreleaser --skip-validate --skip-publish --snapshot --rm-dist
