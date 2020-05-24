@@ -1,6 +1,6 @@
 {
   "name": "saz-tools",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Parsing, dumping, viewing and analysing tools for SAZ (Fiddler) files",
   "author": "Ferdinand Prantl <prantlf@gmail.com> (http://prantl.tk/)",
   "homepage": "https://github.com/prantlf/saz-tools#readme",
