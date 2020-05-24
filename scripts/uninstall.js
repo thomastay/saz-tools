@@ -31,7 +31,7 @@ async function uninstallBinaries () {
 
 function getBinaryDirectory () {
   const root = resolve(process.execPath, '../..')
-  return __dirname.startsWith(root) ? `${root}/bin` : `${__dirname}/node_modules/.bin`
+  return __dirname.startsWith(root) ? `${root}/bin` : `${__dirname}/../node_modules/.bin`
 }
 
 function getManualDirectory () {

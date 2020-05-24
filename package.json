@@ -1,6 +1,7 @@
 {
   "name": "saz-tools",
-  "version": "0.0.11",
+  "version": "0.0.12",
+  "goVersion": "0.0.11",
   "description": "Parsing, dumping, viewing and analysing tools for SAZ (Fiddler) files",
   "author": "Ferdinand Prantl <prantlf@gmail.com> (http://prantl.tk/)",
   "homepage": "https://github.com/prantlf/saz-tools#readme",
@@ -22,10 +23,8 @@
     "node": ">=10"
   },
   "files": [
-    "install.js",
-    "uninstall.js",
-    "man/sazdump.1",
-    "man/sazserve.1"
+    "scripts",
+    "man"
   ],
   "man": [
     "man/sazdump.1",

@@ -1,4 +1,4 @@
-const { name, version } = require('./package.json')
+const { name, goVersion: version } = require('../package.json')
 const { createHash } = require('crypto')
 let { chmod, mkdir, writeFile } = require('fs')
 const { concat: downloadBuffer } = require('simple-get')
@@ -171,7 +171,7 @@ async function decompressZip (archive, name) {
 
 function getBinaryDirectory () {
   const root = resolve(process.execPath, '../..')
-  return __dirname.startsWith(root) ? `${root}/bin` : `${__dirname}/node_modules/.bin`
+  return __dirname.startsWith(root) ? `${root}/bin` : `${__dirname}/../node_modules/.bin`
 }
 
 async function saveFile (name, directory, content) {

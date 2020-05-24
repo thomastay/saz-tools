@@ -34,8 +34,6 @@ archives:
     - man/*
     - README.md
     - LICENSE
-source:
-  enabled: true
 checksum:
   name_template: 'checksums.txt'
 snapshot:
