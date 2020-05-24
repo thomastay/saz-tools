@@ -130,7 +130,7 @@ debug-assets :: node_modules/datatables.net/js/jquery.dataTables.js.vendor node_
 prepare :: npm-prepare go-prepare
 
 npm-prepare ::
-	npm ci --ignore-scripts
+	npm ci
 
 go-prepare ::
 	go get -u github.com/go-bindata/go-bindata/v3/...
