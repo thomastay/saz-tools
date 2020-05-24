@@ -1,6 +1,6 @@
 {
   "name": "saz-tools",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "goVersion": "0.0.11",
   "description": "Parsing, dumping, viewing and analysing tools for SAZ (Fiddler) files",
   "author": "Ferdinand Prantl <prantlf@gmail.com> (http://prantl.tk/)",
@@ -31,8 +31,8 @@
     "man/sazserve.1"
   ],
   "scripts": {
-    "postinstall": "node install",
-    "preuninstall": "node uninstall"
+    "postinstall": "node scripts/install",
+    "preuninstall": "node scripts/uninstall"
   },
   "keywords": [
     "saz ",
