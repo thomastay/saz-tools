@@ -41,8 +41,8 @@ func parseArchive(archiveReader *zip.Reader) ([]Session, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	sessions := make([]Session, count/3)
+
 	for _, archivedFile := range archiveReader.File {
 		match, number, fileType := parseArchivedFileName(archivedFile.Name)
 		if !match {
@@ -71,11 +71,7 @@ func parseArchive(archiveReader *zip.Reader) ([]Session, error) {
 			}
 		}
 	}
-
-	if err := checkSessions(sessions); err != nil {
-		return nil, err
-	}
-	return sessions, nil
+	return checkSessions(sessions)
 }
 
 func countSessions(archiveReader *zip.Reader) (int, error) {
@@ -179,21 +175,21 @@ func parseSessionAttributes(archivedFile *zip.File, session *Session) error {
 	return nil
 }
 
-func checkSessions(sessions []Session) error {
+func checkSessions(sessions []Session) ([]Session, error) {
 	for i := range sessions {
 		session := &sessions[i]
 		if session.Number == 0 {
-			return fmt.Errorf("saz/parser: attributes missing in %s network session",
+			return nil, fmt.Errorf("saz/parser: attributes missing in %s network session",
 				pluralizer.FormatOrdinal(i))
 		}
 		if session.Request.URL.String() == "" {
-			return fmt.Errorf("saz/parser: request data missing in %s network session",
+			return nil, fmt.Errorf("saz/parser: request data missing in %s network session",
 				pluralizer.FormatOrdinal(i))
 		}
 		if session.Response.Request == nil {
-			return fmt.Errorf("saz/parser: response data missing in %s network session",
+			return nil, fmt.Errorf("saz/parser: response data missing in %s network session",
 				pluralizer.FormatOrdinal(i))
 		}
 	}
-	return nil
+	return sessions, nil
 }
