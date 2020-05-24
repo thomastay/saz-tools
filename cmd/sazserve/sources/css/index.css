@@ -49,6 +49,7 @@ header.container-fluid {
 footer.container-fluid {
   margin-top: auto;
   padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 header > h1,
