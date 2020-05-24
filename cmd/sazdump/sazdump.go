@@ -33,6 +33,11 @@ func main() {
 		os.Exit(0)
 	}
 	sazFile := flag.Arg(0)
+	if sazFile == "" {
+		fmt.Println("sazdump: missing .saz file name")
+		flag.Usage()
+		os.Exit(1)
+	}
 	sessions, err := parser.ParseFile(sazFile)
 	if err != nil {
 		fmt.Printf("Parsing \"%s\" failed.\n", sazFile)
