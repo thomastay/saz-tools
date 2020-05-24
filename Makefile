@@ -133,9 +133,21 @@ npm-prepare ::
 	npm ci
 
 go-prepare ::
+	go get github.com/go-bindata/go-bindata/v3/...
+	go get github.com/evanw/esbuild/...
+	go get github.com/tdewolff/minify/v2/...
+
+upgrade :: npm-upgrade go-upgrade
+	make clean all
+
+go-upgrade ::
 	go get -u github.com/go-bindata/go-bindata/v3/...
 	go get -u github.com/evanw/esbuild/...
 	go get -u github.com/tdewolff/minify/v2/...
+
+npm-upgrade ::
+	ncu -u
+	npm i
 
 clean ::
 	rm -rf sazdump sazserve $(ASSET_BIN) $(ASSET_DIR)/css $(ASSET_DIR)/js \
