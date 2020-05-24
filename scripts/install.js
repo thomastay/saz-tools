@@ -46,10 +46,6 @@ const checksumURL = `${releaseURL}checksums.txt`
 const archiveName = `${name}_${version}_${platform}_${arch}.${format}`
 const archiveURL = `${releaseURL}${archiveName}`
 
-if (name === 'saz-tools') {
-  console.log('Skipping installation of the binary within the original package.')
-  process.exit(0)
-}
 if (process.env.DYNO !== undefined) {
   console.log('Skipping installation of the binary on Heroku.')
   process.exit(0)
