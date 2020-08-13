@@ -15,4 +15,6 @@ README.md
 bin
 dist
 node_modules
+sazdump
+sazserve
 scripts

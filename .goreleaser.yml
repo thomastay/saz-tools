@@ -48,7 +48,7 @@ changelog:
 brews:
 - description: Parsing, dumping, viewing and analysing tools for SAZ (Fiddler) files
   homepage: https://github.com/prantlf/saz-tools
-  github:
+  tap:
     owner: prantlf
     name: homebrew-tap
   commit_author:

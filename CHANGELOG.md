@@ -1,3 +1,9 @@
+## [0.0.16](https://github.com/prantlf/saz-tools/compare/v0.0.15...v0.0.16) (2020-08-13)
+
+### Chores
+
+* Upgrade development tools ([8a24459](https://github.com/prantlf/saz-tools/commit/8a244595559d0d01f16fc03789c8ae7929d45436))
+
 ## [0.0.15](https://github.com/prantlf/saz-tools/compare/v0.0.14...v0.0.15) (2020-05-24)
 
 ### Bug Fixes

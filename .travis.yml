@@ -1,11 +1,17 @@
-git:
-  depth: 1
 language: go
 go:
   - 1.x
+before_install:
+  - nvm install lts/*
+  - curl -L https://unpkg.com/@pnpm/self-installer | node
+  - pnpm config set store-dir ~/.pnpm-store
 install:
   - make prepare
 script:
   - make all
 notifications:
   email: false
+cache:
+  npm: false
+  directories:
+    - "~/.pnpm-store"

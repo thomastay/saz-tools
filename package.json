@@ -1,6 +1,6 @@
 {
   "name": "saz-tools",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "Parsing, dumping, viewing and analysing tools for SAZ (Fiddler) files",
   "author": "Ferdinand Prantl <prantlf@gmail.com> (http://prantl.tk/)",
   "homepage": "https://github.com/prantlf/saz-tools#readme",
@@ -47,22 +47,22 @@
   "dependencies": {
     "gather-stream": "1.0.0",
     "simple-get": "4.0.0",
-    "tar": "6.0.2",
+    "tar": "6.0.5",
     "yauzl": "2.10.0"
   },
   "devDependencies": {
-    "bootstrap": "4.5.0",
+    "bootstrap": "4.5.2",
     "chardin.js": "git://github.com/prantlf/chardin.js.git#b49968b92cb8f5306df67239a6dd0a039fc0f1bd",
     "datatables.net": "1.10.21",
     "datatables.net-bs4": "1.10.21",
-    "datatables.net-buttons": "1.6.2",
-    "datatables.net-buttons-bs4": "1.6.2",
+    "datatables.net-buttons": "1.6.3",
+    "datatables.net-buttons-bs4": "1.6.3",
     "datatables.net-colreorder-bs4": "1.5.2",
     "datatables.net-fixedheader-bs4": "3.1.7",
     "jquery": "3.5.1",
     "js-yaml": "3.14.0",
-    "jszip": "3.4.0",
-    "pdfmake": "0.1.65",
+    "jszip": "3.5.0",
+    "pdfmake": "0.1.68",
     "popper.js": "1.16.1",
     "standard": "14.3.4",
     "stream": "0.0.2"

@@ -84,10 +84,10 @@ ifneq (,$(wildcard node_modules/datatables.net-buttons/js/dataTables.buttons.js.
 endif
 
 cmd/sazdump/version.go: package.json
-	echo "package main\n\nconst version = \"$(VERSION)\"" > $@
+	printf "package main\n\nconst version = \"$(VERSION)\"\n" > $@
 
 cmd/sazserve/version.go: package.json
-	echo "package main\n\nconst version = \"$(VERSION)\"" > $@
+	printf "package main\n\nconst version = \"$(VERSION)\"\n" > $@
 
 generate ::
 ifeq (,$(wildcard $(ASSET_BIN)))
@@ -132,7 +132,8 @@ debug-assets :: node_modules/datatables.net/js/jquery.dataTables.js.vendor node_
 prepare :: npm-prepare go-prepare
 
 npm-prepare ::
-	npm ci
+	wget -O - https://unpkg.com/@pnpm/self-installer | node
+	pnpm i --frozen-lockfile --no-verify-store-integrity
 
 go-prepare ::
 	go get github.com/go-bindata/go-bindata/v3/...
@@ -149,7 +150,7 @@ go-upgrade ::
 
 npm-upgrade ::
 	ncu -u
-	npm i
+	pnpm i
 
 clean ::
 	rm -rf sazdump sazserve $(ASSET_BIN) $(ASSET_DIR)/css $(ASSET_DIR)/js \
@@ -195,7 +196,7 @@ docker-dump-example ::
 	docker run --rm -it -v ${PWD}:/work -w /work sazdump examples/test.saz
 
 docker-serve-example ::
-	docker run --rm -it sazserve
+	docker run --rm -it -p 7000:7000 sazserve
 
 docker-tag ::
 	docker tag sazdump prantlf/sazdump:latest

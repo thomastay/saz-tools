@@ -19,9 +19,11 @@ If you have [Go] installed, using [`go get`] to install a global module is the e
 
     $ GO111MODULE=off go get -u github.com/prantlf/saz-tools/...
 
-If you have [Node.js] installed, you can use [NPM] to install a global module easily:
+If you have [Node.js] installed, you can use [NPM], [Yarn] or [PNPM] to install a global module easily:
 
     npm i -g saz-tools
+    yarn global add saz-tools
+    pnpm i -g saz-tools
 
 If you have the standard `sh` available, you can use the installation script from [GoBinaries]:
 
@@ -196,6 +198,8 @@ Licensed under the MIT license.
 [Patch]: http://man7.org/linux/man-pages/man1/patch.1.html
 [Node.js]: https://nodejs.org/
 [NPM]: https://docs.npmjs.com/cli/npm
+[Yarn]: https://classic.yarnpkg.com/docs/cli/
+[PNPM]: https://pnpm.js.org/pnpm-cli
 [GoBinaries]: https://gobinaries.com/
 [GitHub releases]: https://github.com/prantlf/saz-tools/releases
 [The `sazdump` image]: https://hub.docker.com/repository/docker/prantlf/sazdump
