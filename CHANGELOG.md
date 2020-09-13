@@ -2,7 +2,7 @@
 
 ### Chores
 
-* Upgrade development tools ([8a24459](https://github.com/prantlf/saz-tools/commit/8a244595559d0d01f16fc03789c8ae7929d45436))
+* Upgrade development tools ([fde8629](https://github.com/prantlf/saz-tools/commit/fde8629773dab6f71e35fd82be74dad49bdeecee))
 
 ## [0.0.15](https://github.com/prantlf/saz-tools/compare/v0.0.14...v0.0.15) (2020-05-24)
 
