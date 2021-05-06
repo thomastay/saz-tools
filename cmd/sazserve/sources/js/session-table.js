@@ -188,10 +188,8 @@ function configureColumns (columnSettings) {
 
 function convertOrder (orderSettings) {
   const { column: orderColumn, descending } = orderSettings
-  return [
-    columns.findIndex(({ data }) => data === orderColumn),
-    descending ? 'desc' : 'asc'
-  ]
+  const colIndex = columns.findIndex(({ data }) => data === orderColumn)
+  return colIndex < 0 ? undefined : [ colIndex, descending ? 'desc' : 'asc' ]
 }
 
 function prepareData (response) {
