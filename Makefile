@@ -40,7 +40,7 @@ $(ASSET_DIR)/js/index.min.js: node_modules/datatables.net/js/jquery.dataTables.j
 	$(ESBUILD) --outfile=$(ASSET_DIR)/js/index.min.js --format=iife --sourcemap \
 		--bundle --minify cmd/sazserve/sources/js/index.js
 	sed -i '1s/^\xEF\xBB\xBF//' node_modules/chardin.js/chardinjs.css
-	$(MINIFY) -o $(ASSET_DIR)/css/index.min.css \
+	$(MINIFY) -b -o $(ASSET_DIR)/css/index.min.css \
 		node_modules/datatables.net-bs4/css/dataTables.bootstrap4.css \
 		node_modules/datatables.net-buttons-bs4/css/buttons.bootstrap4.css \
 		node_modules/datatables.net-colreorder-bs4/css/colReorder.bootstrap4.css \
