@@ -24,6 +24,4 @@ jobs:
       - uses: pnpm/action-setup@v2.0.1
         with:
           version: '>=5'
-      - run:
-        - make prepare
-        - make
+      - run: make prepare lint all
