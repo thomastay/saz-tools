@@ -1,6 +1,8 @@
 # saz-tools
 
-[![Build Status](https://travis-ci.org/prantlf/saz-tools.svg?branch=master)](https://travis-ci.org/prantlf/saz-tools)
+[![Build Status](https://github.com/prantlf/saz-tools/workflows/Test/badge.svg)](https://github.com/prantlf/saz-tools/actions)
+[![Dependency Status](https://david-dm.org/prantlf/saz-tools.svg)](https://david-dm.org/prantlf/saz-tools)
+[![devDependency Status](https://david-dm.org/prantlf/saz-tools/dev-status.svg)](https://david-dm.org/prantlf/saz-tools#info=devDependencies)
 [![Go Report Card](https://goreportcard.com/badge/github.com/prantlf/saz-tools)](https://goreportcard.com/report/github.com/prantlf/saz-tools)
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/prantlf/saz-tools?color=teal)
 [![Documentation](https://godoc.org/github.com/prantlf/saz-tools?status.svg)](http://godoc.org/github.com/prantlf/saz-tools)
