@@ -1,0 +1,29 @@
+name: Test
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    types:
+    - opened
+    - reopened
+    - synchronize
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '^1.16.x'
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - uses: pnpm/action-setup@v2.0.1
+        with:
+          version: '>=5'
+      - run:
+        - make prepare
+        - make
