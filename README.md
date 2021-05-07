@@ -180,9 +180,20 @@ Local images are built as `sazdump` and `sazserve` and they are pushed to the do
     # Push local images to the docker hub:
     make docker-push
 
+## Release
+
+    # make all changes, bump the version and tag it
+    make clean prepare lint all
+    conventional-changelog -p angular -i CHANGELOG.md -s
+    # update the tag
+    snapcraft login --with snap.login
+    goreleaser release --rm-dist
+    # pull and update brew, update scoop
+    # push to heroku
+
 ## License
 
-Copyright (c) 2020 Ferdinand Prantl
+Copyright (c) 2020-2021 Ferdinand Prantl
 
 Licensed under the MIT license.
 
