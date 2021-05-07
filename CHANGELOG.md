@@ -1,3 +1,9 @@
+## [0.0.17](https://github.com/prantlf/saz-tools/compare/v0.0.16...v0.0.17) (2021-05-07)
+
+### Bug Fixes
+
+* Do not pass negative sort column index to DataTables ([68e4cfd](https://github.com/prantlf/saz-tools/commit/68e4cfddeafc9a41823b552dfea8d3dbcc884179))
+
 ## [0.0.16](https://github.com/prantlf/saz-tools/compare/v0.0.15...v0.0.16) (2020-08-13)
 
 ### Chores
