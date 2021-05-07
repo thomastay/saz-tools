@@ -189,13 +189,16 @@ function configureColumns (columnSettings) {
 function convertOrder (orderSettings) {
   const { column: orderColumn, descending } = orderSettings
   const colIndex = columns.findIndex(({ data }) => data === orderColumn)
-  return colIndex < 0 ? undefined : [ colIndex, descending ? 'desc' : 'asc' ]
+  return colIndex < 0 ? undefined : [colIndex, descending ? 'desc' : 'asc']
 }
 
 function prepareData (response) {
   const lastTimeLine = response[response.length - 1].Timeline
   const durationPrecision = lastTimeLine.startsWith('00:00')
-    ? 6 : lastTimeLine.startsWith('00') ? 3 : 0
+    ? 6
+    : lastTimeLine.startsWith('00')
+      ? 3
+      : 0
   return response.map(session => ({
     Number: session.Number,
     Timeline: reformatDuration(session.Timeline, durationPrecision),
@@ -277,8 +280,11 @@ function executeSearch (settings, data, dataString, input) {
         term = column
         column = null
       }
-      return term.startsWith('-') ? { column, exclude: true, term: term.substr(1) }
-        : term.startsWith('+') ? { column, term: term.substr(1) } : { column, term }
+      return term.startsWith('-')
+        ? { column, exclude: true, term: term.substr(1) }
+        : term.startsWith('+')
+          ? { column, term: term.substr(1) }
+          : { column, term }
     })
   dataString = dataString.trim().toLowerCase()
   for (const filter of filters) {
@@ -322,7 +328,7 @@ function columnVisibilityChanged (event, settings, column, state) {
 
 function filterChanged (event, settings) {
   if (dataTable) {
-    var search = settings.oPreviousSearch.sSearch
+    const search = settings.oPreviousSearch.sSearch
     if (search !== configuration.search) {
       configuration.search = search
       saveConfiguration()

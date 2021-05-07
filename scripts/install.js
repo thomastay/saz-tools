@@ -2,7 +2,7 @@ const { name, version } = require('../package.json')
 const { createHash } = require('crypto')
 let { chmod, mkdir, writeFile } = require('fs')
 const { concat: downloadBuffer } = require('simple-get')
-const { resolve } = require('path')
+const { join, resolve } = require('path')
 const { promisify } = require('util')
 const { t: openTar } = require('tar')
 const { fromBuffer: openZip } = require('yauzl')
@@ -167,7 +167,7 @@ async function decompressZip (archive, name) {
 
 function getBinaryDirectory () {
   const root = resolve(process.execPath, '../..')
-  return __dirname.startsWith(root) ? `${root}/bin` : `${__dirname}/../node_modules/.bin`
+  return __dirname.startsWith(root) ? join(root, 'bin') : join(__dirname, '../node_modules/.bin')
 }
 
 async function saveFile (name, directory, content) {

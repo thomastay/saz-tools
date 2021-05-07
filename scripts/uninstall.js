@@ -1,5 +1,5 @@
 let { unlink } = require('fs')
-const { resolve } = require('path')
+const { join, resolve } = require('path')
 const { promisify } = require('util')
 unlink = promisify(unlink)
 
@@ -31,7 +31,7 @@ async function uninstallBinaries () {
 
 function getBinaryDirectory () {
   const root = resolve(process.execPath, '../..')
-  return __dirname.startsWith(root) ? `${root}/bin` : `${__dirname}/../node_modules/.bin`
+  return __dirname.startsWith(root) ? join(root, 'bin') : join(__dirname, '../node_modules/.bin')
 }
 
 function getManualDirectory () {

@@ -137,10 +137,23 @@ function formatColumnStats (visibleRows, column) {
 }
 
 function compareDurations (left, right) {
-  return left.hours < right.hours ? -1 : left.hours > right.hours ? 1
-    : left.minutes < right.minutes ? -1 : left.minutes > right.minutes ? 1
-      : left.seconds < right.seconds ? -1 : left.seconds > right.seconds ? 1
-        : left.microseconds < right.microseconds ? -1 : left.microseconds > right.microseconds ? 1 : 0
+  return left.hours < right.hours
+    ? -1
+    : left.hours > right.hours
+      ? 1
+      : left.minutes < right.minutes
+        ? -1
+        : left.minutes > right.minutes
+          ? 1
+          : left.seconds < right.seconds
+            ? -1
+            : left.seconds > right.seconds
+              ? 1
+              : left.microseconds < right.microseconds
+                ? -1
+                : left.microseconds > right.microseconds
+                  ? 1
+                  : 0
 }
 
 function divideDuration ({ hours, minutes, seconds, microseconds }, divider) {

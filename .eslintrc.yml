@@ -2,3 +2,5 @@ extends: standard
 env:
   browser: true
   es6: true
+rules:
+  multiline-ternary: off

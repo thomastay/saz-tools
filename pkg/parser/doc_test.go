@@ -25,7 +25,7 @@ func ExampleParseReader() {
 	if err != nil {
 		panic(err)
 	}
-	var total int64 = 0
+	var total int64
 	for index := range sessions {
 		total += sessions[index].Response.ContentLength
 	}

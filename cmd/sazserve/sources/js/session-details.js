@@ -39,8 +39,10 @@ function formatDetails (session, key) {
   let responseLinks = ''
   if (session.Request.ContentLength > 0) {
     const requestUrl = `${sessionUrl}request/body`
-    const requestName = mimeType === 'application-json' ? 'body.json'
-      : mimeType === 'application-xml' || mimeType === 'text-xml' ? 'body.xml'
+    const requestName = mimeType === 'application-json'
+      ? 'body.json'
+      : mimeType === 'application-xml' || mimeType === 'text-xml'
+        ? 'body.xml'
         : 'body.txt'
     requestLinks = `Request Body:
     <a href=${requestUrl} target=_blank>Open</a>
