@@ -7,11 +7,26 @@
 1. Upgrade go.mod
 1. Print Response body / headers to output file or stdout, per curl syntax
 
-Usage:
+### Installation
+
+Requires Go 1.19
 
 ```
+go install https://github.com/thomastay/saz-tools/cmd/sazdump
+go install https://github.com/thomastay/saz-tools/cmd/sazserve
+```
+
+### Usage:
+
+```
+sazdump archive.saz
+    Dumps archive.sav to stdout
+
 sazdump -n 10 -o body.json archive.saz
     Saves response body number 10 to body.json
+
+sazdump -n 10 -o body.json -p password1234 archive.saz
+    Saves response body number 10 to body.json with password protected archive.sav
 
 sazdump -n 10 -I archive.saz
     Prints headers to stdout
