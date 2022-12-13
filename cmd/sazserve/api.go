@@ -187,7 +187,7 @@ func sendNetworkSessionRequestBody(responseWriter http.ResponseWriter, sazKey st
 
 func sendNetworkSessionResponseBody(responseWriter http.ResponseWriter, sazKey string, sessionNumber int, session *parser.Session) {
 	contentType := session.Response.Header.Get("Content-Type")
-	content := session.ResponseBody
+	content, _ := session.ResponseBody()
 	if strings.HasPrefix(contentType, "text/html") ||
 		strings.HasPrefix(contentType, "application/xhtml+xml") {
 		highlighted, err := syntaxhighlight.AsHTML(content)

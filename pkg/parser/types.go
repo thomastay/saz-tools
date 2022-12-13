@@ -2,6 +2,7 @@ package parser
 
 import (
 	"encoding/xml"
+	"fmt"
 	"net/http"
 )
 
@@ -15,7 +16,20 @@ type Session struct {
 	Request      *http.Request
 	Response     *http.Response
 	RequestBody  []byte
-	ResponseBody []byte
+	responseBody []byte
+}
+
+func (s *Session) ResponseBody() ([]byte, error) {
+	if s.responseBody != nil {
+		return s.responseBody, nil
+	}
+	body, err := slurpResponseBody(s)
+	if err != nil {
+		message := "Buffering response body failed."
+		return nil, fmt.Errorf("%s\n%s", message, err.Error())
+	}
+	s.responseBody = body
+	return body, nil
 }
 
 // Timers contain begin and end times of phases of a deserialized network session.

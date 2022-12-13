@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-var archivedFileName = regexp.MustCompile(`(\d+)_(\w)`)
+var archivedFileName = regexp.MustCompile(`(\d+)_(s|m|c)`)
 
 func parseArchivedFileName(name string) (bool, int, string) {
 	match := archivedFileName.FindAllStringSubmatch(name, -1)
@@ -32,9 +32,9 @@ func slurpRequestBody(session *Session) error {
 	return nil
 }
 
-func slurpResponseBody(session *Session) error {
+func slurpResponseBody(session *Session) ([]byte, error) {
 	if session.Response.ContentLength == 0 {
-		return nil
+		return nil, nil
 	}
 
 	var reader io.ReadCloser
@@ -44,16 +44,17 @@ func slurpResponseBody(session *Session) error {
 		if reader, err = gzip.NewReader(session.Response.Body); err != nil {
 			message := fmt.Sprintf("Opening gzipped %d bytes of the response body of the type \"%s\" failed.",
 				session.Response.ContentLength, session.Response.Header.Get("Content-Type"))
-			return fmt.Errorf("%s\n%s", message, err.Error())
+			return nil, fmt.Errorf("%s\n%s", message, err.Error())
 		}
 	default:
 		reader = session.Response.Body
 	}
 	defer reader.Close()
-	if session.ResponseBody, err = io.ReadAll(reader); err != nil {
+	body, err := io.ReadAll(reader)
+	if err != nil {
 		message := fmt.Sprintf("Reading %d bytes of the response body of the type \"%s\" failed.",
 			session.Response.ContentLength, session.Response.Header.Get("Content-Type"))
-		return fmt.Errorf("%s\n%s", message, err.Error())
+		return nil, fmt.Errorf("%s\n%s", message, err.Error())
 	}
-	return nil
+	return body, nil
 }

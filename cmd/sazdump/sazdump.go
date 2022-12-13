@@ -56,7 +56,8 @@ func main() {
 	if err != nil {
 		fmt.Printf("Parsing \"%s\" failed.\n", sazFile)
 		fmt.Println(err)
-		os.Exit(1)
+		// os.Exit(1)
+		return
 	}
 
 	var out io.Writer
@@ -94,7 +95,8 @@ func main() {
 				// Two CRLF delimiter
 				out.Write([]byte("\r\n\r\n"))
 			}
-			out.Write(session.ResponseBody)
+			body, _ := session.ResponseBody()
+			out.Write(body)
 		}
 	}
 }

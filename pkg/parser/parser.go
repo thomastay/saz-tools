@@ -4,6 +4,7 @@ package parser
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/xml"
 	"errors"
 	"fmt"
@@ -95,6 +96,8 @@ func countSessions(archiveReader *zip.Reader) (int, error) {
 	return count, nil
 }
 
+const cntHeader = "CNT"
+
 func parseRequest(archivedFile *zip.File, session *Session) error {
 	fileReader, err := archivedFile.Open()
 	if err != nil {
@@ -104,6 +107,23 @@ func parseRequest(archivedFile *zip.File, session *Session) error {
 	defer fileReader.Close()
 
 	requestReader := bufio.NewReader(fileReader)
+
+	// Special case CNT traffic
+	// For some reason, Edge on Windows sends a request with the initial three letters as CNT
+	// https://twitter.com/jonathansampson/status/1167314255386836992
+	// This breaks a lot of Fiddler requests
+	initialThree, err := requestReader.Peek(len(cntHeader))
+	if err != nil {
+		return err
+	}
+	if bytes.Equal(initialThree, []byte(cntHeader)) {
+		session.Request, err = http.NewRequest("GET", "https://msedge.explorer.com", requestReader)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
 	request, err := http.ReadRequest(requestReader)
 	if err != nil {
 		message := fmt.Sprintf("Reading request from \"%s\" failed.", archivedFile.Name)
@@ -144,13 +164,6 @@ func parseResponse(archivedFile *zip.File, session *Session) error {
 	}
 	defer response.Body.Close()
 	session.Response = response
-
-	err = slurpResponseBody(session)
-	if err != nil {
-		message := fmt.Sprintf("Buffering response body from \"%s\" failed.", archivedFile.Name)
-		return fmt.Errorf("%s\n%s", message, err.Error())
-	}
-
 	return nil
 }
 
