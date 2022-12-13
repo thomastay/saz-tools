@@ -12,8 +12,8 @@
 Requires Go 1.19
 
 ```
-go install https://github.com/thomastay/saz-tools/cmd/sazdump
-go install https://github.com/thomastay/saz-tools/cmd/sazserve
+go install github.com/thomastay/saz-tools/cmd/sazdump
+go install github.com/thomastay/saz-tools/cmd/sazserve
 ```
 
 ### Usage:
