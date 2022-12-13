@@ -58,8 +58,21 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+
+	var out io.Writer
+	if outFile != "" {
+		f, err := os.Create(outFile)
+		if err != nil {
+			log.Println(err)
+			os.Exit(1)
+		}
+		out = f
+	} else {
+		out = os.Stdout
+	}
+
 	if printNumber == -1 {
-		err = dumper.Dump(sessions)
+		err = dumper.Dump(sessions, out)
 		if err != nil {
 			fmt.Printf("Printing network sessions from \"%s\" failed.\n", sazFile)
 			fmt.Println(err)
@@ -72,18 +85,6 @@ func main() {
 			os.Exit(1)
 		}
 		session := sessions[printNumber-1]
-
-		var out io.Writer
-		if outFile != "" {
-			f, err := os.Create(outFile)
-			if err != nil {
-				log.Println(err)
-				os.Exit(1)
-			}
-			out = f
-		} else {
-			out = os.Stdout
-		}
 
 		if headers || onlyHeaders {
 			writeHeaders(out, session.Response)

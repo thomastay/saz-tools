@@ -3,6 +3,7 @@ package dumper
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"strings"
 
@@ -12,7 +13,7 @@ import (
 )
 
 // Dump prints a summary line on the console for each session returned by `parser`.
-func Dump(rawSessions []parser.Session) error {
+func Dump(rawSessions []parser.Session, writer io.Writer) error {
 	fmt.Println("Number\tTimeline\tMethod\tStatus\tURL\tBegin\tEnd\tDuration\tSize\tEncoding\tCaching\tProcess")
 	fineSessions, err := analyzer.Analyze(rawSessions)
 	if err != nil {
@@ -27,7 +28,7 @@ func Dump(rawSessions []parser.Session) error {
 		durationPrecision = 3
 	}
 	for index := range fineSessions {
-		err := printResult(&fineSessions[index], durationPrecision)
+		err := printResult(&fineSessions[index], durationPrecision, writer)
 		if err != nil {
 			message := fmt.Sprintf("Printing %s network session failed.",
 				pluralizer.FormatOrdinal(index+1))
@@ -37,7 +38,7 @@ func Dump(rawSessions []parser.Session) error {
 	return nil
 }
 
-func printResult(session *analyzer.Session, durationPrecision int) error {
+func printResult(session *analyzer.Session, durationPrecision int, writer io.Writer) error {
 	request := session.Request
 	response := session.Response
 	method := request.Method
@@ -65,12 +66,13 @@ func printResult(session *analyzer.Session, durationPrecision int) error {
 			session.Timers.RequestResponseTime)
 		log.Printf("%s\n%s", message, err.Error())
 	}
-	fmt.Printf("%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n",
+	message := fmt.Sprintf("%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n",
 		session.Number, formatDuration(timeline, durationPrecision),
 		method, response.StatusCode, request.URL.Full,
 		formatTime(clientBegin), formatTime(clientDoneResponse),
 		formatDuration(duration, durationPrecision), session.Response.ContentType,
 		formatSize(session.Response.ContentLength), session.Response.Encoding,
 		session.Response.Caching, session.Request.Process)
+	writer.Write([]byte(message))
 	return nil
 }
