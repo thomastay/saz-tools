@@ -3,8 +3,8 @@ package analyzer_test
 import (
 	"fmt"
 
-	"github.com/prantlf/saz-tools/pkg/analyzer"
-	"github.com/prantlf/saz-tools/pkg/parser"
+	"github.com/thomastay/saz-tools/pkg/analyzer"
+	"github.com/thomastay/saz-tools/pkg/parser"
 )
 
 // Analyze the content of `foo.saz` and print the duration of the network

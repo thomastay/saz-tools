@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/prantlf/saz-tools/internal/pluralizer"
-	"github.com/prantlf/saz-tools/pkg/parser"
+	"github.com/thomastay/saz-tools/internal/pluralizer"
+	"github.com/thomastay/saz-tools/pkg/parser"
 )
 
 // ParseTime parses a network session timer in the maximum precision.

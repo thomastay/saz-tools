@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/prantlf/saz-tools/pkg/parser"
+	"github.com/thomastay/saz-tools/pkg/parser"
 )
 
 // Parse the content of `foo.saz` and print the count of network sessions.

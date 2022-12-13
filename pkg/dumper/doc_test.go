@@ -1,8 +1,8 @@
 package dumper_test
 
 import (
-	"github.com/prantlf/saz-tools/pkg/dumper"
-	"github.com/prantlf/saz-tools/pkg/parser"
+	"github.com/thomastay/saz-tools/pkg/dumper"
+	"github.com/thomastay/saz-tools/pkg/parser"
 )
 
 // Pprint a summary line on the console for each session from `foo.saz`.

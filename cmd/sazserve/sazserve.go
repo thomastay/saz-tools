@@ -1,13 +1,13 @@
 // Views and analyzes SAZ files (Fiddler logs) in a web browser application.
 //
-//   $ sazserve -h
-//   Usage: sazserve [options]
-//   Options:
-//     -browser       : start the web browser automatically  (default false)
-//     -port <number> : port for the web server to listen on (default "7000")
+//	$ sazserve -h
+//	Usage: sazserve [options]
+//	Options:
+//	  -browser       : start the web browser automatically  (default false)
+//	  -port <number> : port for the web server to listen on (default "7000")
 //
-//   $ sazserve
-//   $ open http://localhost:7000/
+//	$ sazserve
+//	$ open http://localhost:7000/
 package main
 
 import (
@@ -18,8 +18,8 @@ import (
 	"os"
 
 	"github.com/CAFxX/gziphandler"
-	"github.com/prantlf/saz-tools/internal/cache"
 	"github.com/skratchdot/open-golang/open"
+	"github.com/thomastay/saz-tools/internal/cache"
 )
 
 var sessionCache *cache.Cache

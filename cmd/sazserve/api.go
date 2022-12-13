@@ -11,10 +11,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/prantlf/saz-tools/internal/pluralizer"
-	"github.com/prantlf/saz-tools/pkg/analyzer"
-	"github.com/prantlf/saz-tools/pkg/parser"
 	"github.com/sourcegraph/syntaxhighlight"
+	"github.com/thomastay/saz-tools/internal/pluralizer"
+	"github.com/thomastay/saz-tools/pkg/analyzer"
+	"github.com/thomastay/saz-tools/pkg/parser"
 )
 
 type sazData struct {

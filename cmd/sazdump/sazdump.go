@@ -18,8 +18,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/prantlf/saz-tools/pkg/dumper"
-	"github.com/prantlf/saz-tools/pkg/parser"
+	"github.com/thomastay/saz-tools/pkg/dumper"
+	"github.com/thomastay/saz-tools/pkg/parser"
 )
 
 func main() {

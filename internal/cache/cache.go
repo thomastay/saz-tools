@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/bluele/gcache"
-	"github.com/prantlf/saz-tools/pkg/parser"
 	"github.com/spaolacci/murmur3"
+	"github.com/thomastay/saz-tools/pkg/parser"
 )
 
 // Cache can be created by `Create` and will contain the cached sessions.

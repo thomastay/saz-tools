@@ -13,7 +13,7 @@ import (
 
 	"github.com/alexmullins/zip"
 
-	"github.com/prantlf/saz-tools/internal/pluralizer"
+	"github.com/thomastay/saz-tools/internal/pluralizer"
 )
 
 // ParseFile prses a file to an array of network sessions.
