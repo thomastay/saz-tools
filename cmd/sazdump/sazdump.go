@@ -56,8 +56,7 @@ func main() {
 	if err != nil {
 		fmt.Printf("Parsing \"%s\" failed.\n", sazFile)
 		fmt.Println(err)
-		// os.Exit(1)
-		return
+		os.Exit(1)
 	}
 
 	var out io.Writer
