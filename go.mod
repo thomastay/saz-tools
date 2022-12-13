@@ -1,4 +1,4 @@
-module github.com/thomastay/saz-tools
+module github.com/prantlf/saz-tools
 
 go 1.19
 
