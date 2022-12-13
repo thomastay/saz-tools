@@ -59,13 +59,16 @@ func main() {
 			os.Exit(1)
 		}
 	} else {
-		session := sessions[printNumber]
+		if printNumber == 0 {
+			log.Println("Fiddler logs start with 1")
+			os.Exit(1)
+		}
+		session := sessions[printNumber-1]
 		if outFile != "" {
 			os.WriteFile(outFile, session.ResponseBody, 0644)
 			log.Println("Wrote to", outFile)
 		} else {
-			fmt.Println(session.ResponseBody)
-
+			fmt.Println(string(session.ResponseBody))
 		}
 	}
 }
