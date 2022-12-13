@@ -1,3 +1,11 @@
+## [0.0.18](https://github.com/thomastay/saz-tools/compare/v0.0.17...v0.0.18)
+
+1. More lenient parsing even if the HTTP requests don't meet spec
+1. Enable parsing of password protected SAZ files
+1. Upgrade go.mod
+1. Print Response body / headers to output file or stdout, per curl syntax
+
+
 ## [0.0.17](https://github.com/prantlf/saz-tools/compare/v0.0.16...v0.0.17) (2021-05-07)
 
 ### Bug Fixes
