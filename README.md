@@ -7,6 +7,16 @@
 1. Upgrade go.mod
 1. Print Response body / headers to output file or stdout, per curl syntax
 
+Usage:
+
+```
+sazdump -n 10 -o body.json archive.saz
+    Saves response body number 10 to body.json
+
+sazdump -n 10 -I archive.saz
+    Prints headers to stdout
+```
+
 # Old README
 
 [![Build Status](https://github.com/prantlf/saz-tools/workflows/Test/badge.svg)](https://github.com/prantlf/saz-tools/actions)
