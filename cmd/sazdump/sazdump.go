@@ -89,8 +89,10 @@ func main() {
 			writeHeaders(out, session.Response)
 		}
 		if !onlyHeaders {
-			// Two CRLF delimiter
-			out.Write([]byte("\r\n\r\n"))
+			if headers {
+				// Two CRLF delimiter
+				out.Write([]byte("\r\n\r\n"))
+			}
 			out.Write(session.ResponseBody)
 		}
 	}
