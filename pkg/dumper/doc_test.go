@@ -1,6 +1,8 @@
 package dumper_test
 
 import (
+	"os"
+
 	"github.com/thomastay/saz-tools/pkg/dumper"
 	"github.com/thomastay/saz-tools/pkg/parser"
 )
@@ -11,7 +13,7 @@ func ExampleDump() {
 	if err != nil {
 		panic(err)
 	}
-	err = dumper.Dump(sessions)
+	err = dumper.Dump(sessions, os.Stdout)
 	if err != nil {
 		panic(err)
 	}

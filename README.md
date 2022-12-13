@@ -20,7 +20,7 @@ go install https://github.com/thomastay/saz-tools/cmd/sazserve
 
 ```
 sazdump archive.saz
-    Dumps archive.sav to stdout
+    Dumps archive.saz to stdout
 
 sazdump -n 10 -o body.json archive.saz
     Saves response body number 10 to body.json
