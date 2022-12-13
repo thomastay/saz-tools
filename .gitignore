@@ -9,3 +9,6 @@
 /sazdump
 /sazserve
 /snap.login
+
+bin/*.exe
+bin/*-darwin-*

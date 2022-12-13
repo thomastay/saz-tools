@@ -13,7 +13,6 @@ foreach ($platform in $platforms) {
 			if ($platform -eq "windows") {
 				$name = "$package-$platform-$arch.exe"
 			}
-			$name = "$package-$platform-$arch"
 			go build -ldflags="-s -w" -o bin/$name "./cmd/$package"
 		}
 	}
