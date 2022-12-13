@@ -7,7 +7,7 @@ import (
 
 // Pprint a summary line on the console for each session from `foo.saz`.
 func ExampleDump() {
-	sessions, err := parser.ParseFile("foo.saz")
+	sessions, err := parser.ParseFile("foo.saz", "")
 	if err != nil {
 		panic(err)
 	}

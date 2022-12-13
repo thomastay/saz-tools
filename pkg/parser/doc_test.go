@@ -9,7 +9,7 @@ import (
 
 // Parse the content of `foo.saz` and print the count of network sessions.
 func ExampleParseFile() {
-	sessions, err := parser.ParseFile("foo.saz")
+	sessions, err := parser.ParseFile("foo.saz", "")
 	if err != nil {
 		panic(err)
 	}

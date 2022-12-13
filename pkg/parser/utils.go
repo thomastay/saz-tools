@@ -4,7 +4,6 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"regexp"
 	"strconv"
 )
@@ -25,7 +24,7 @@ func slurpRequestBody(session *Session) error {
 		return nil
 	}
 	var err error
-	if session.RequestBody, err = ioutil.ReadAll(session.Request.Body); err != nil {
+	if session.RequestBody, err = io.ReadAll(session.Request.Body); err != nil {
 		message := fmt.Sprintf("Reading %d bytes of the request body of the type \"%s\" failed.",
 			session.Request.ContentLength, session.Request.Header.Get("Content-Type"))
 		return fmt.Errorf("%s\n%s", message, err.Error())
@@ -34,9 +33,10 @@ func slurpRequestBody(session *Session) error {
 }
 
 func slurpResponseBody(session *Session) error {
-	if session.Response.ContentLength <= 0 {
+	if session.Response.ContentLength == 0 {
 		return nil
 	}
+
 	var reader io.ReadCloser
 	var err error
 	switch session.Response.Header.Get("Content-Encoding") {
@@ -50,7 +50,7 @@ func slurpResponseBody(session *Session) error {
 		reader = session.Response.Body
 	}
 	defer reader.Close()
-	if session.ResponseBody, err = ioutil.ReadAll(reader); err != nil {
+	if session.ResponseBody, err = io.ReadAll(reader); err != nil {
 		message := fmt.Sprintf("Reading %d bytes of the response body of the type \"%s\" failed.",
 			session.Response.ContentLength, session.Response.Header.Get("Content-Type"))
 		return fmt.Errorf("%s\n%s", message, err.Error())

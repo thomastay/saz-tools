@@ -10,7 +10,7 @@ import (
 // Analyze the content of `foo.saz` and print the duration of the network
 // session with the biggest response.
 func ExampleAnalyze() {
-	rawSessions, err := parser.ParseFile("foo.saz")
+	rawSessions, err := parser.ParseFile("foo.saz", "")
 	if err != nil {
 		panic(err)
 	}

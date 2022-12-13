@@ -3,27 +3,28 @@
 package parser
 
 import (
-	"archive/zip"
 	"bufio"
 	"encoding/xml"
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
+	"log"
 	"net/http"
+
+	"github.com/alexmullins/zip"
 
 	"github.com/prantlf/saz-tools/internal/pluralizer"
 )
 
 // ParseFile prses a file to an array of network sessions.
-func ParseFile(fileName string) ([]Session, error) {
+func ParseFile(fileName string, password string) ([]Session, error) {
 	archiveReader, err := zip.OpenReader(fileName)
 	if err != nil {
 		message := fmt.Sprintf("Opening zipped \"%s\" failed.", fileName)
 		return nil, fmt.Errorf("%s\n%s", message, err.Error())
 	}
 	defer archiveReader.Close()
-	return parseArchive(&archiveReader.Reader)
+	return parseArchive(&archiveReader.Reader, password)
 }
 
 // ParseReader parses a file content passed by a reader to an array of network sessions.
@@ -33,10 +34,10 @@ func ParseReader(reader io.ReaderAt, size int64) ([]Session, error) {
 		message := fmt.Sprintf("Opening zipped %d bytes failed.", size)
 		return nil, fmt.Errorf("%s\n%s", message, err.Error())
 	}
-	return parseArchive(archiveReader)
+	return parseArchive(archiveReader, "")
 }
 
-func parseArchive(archiveReader *zip.Reader) ([]Session, error) {
+func parseArchive(archiveReader *zip.Reader, password string) ([]Session, error) {
 	count, err := countSessions(archiveReader)
 	if err != nil {
 		return nil, err
@@ -44,6 +45,9 @@ func parseArchive(archiveReader *zip.Reader) ([]Session, error) {
 	sessions := make([]Session, count/3)
 
 	for _, archivedFile := range archiveReader.File {
+		if password != "" {
+			archivedFile.SetPassword(password)
+		}
 		match, number, fileType := parseArchivedFileName(archivedFile.Name)
 		if !match {
 			continue
@@ -54,20 +58,20 @@ func parseArchive(archiveReader *zip.Reader) ([]Session, error) {
 		case "c":
 			err := parseRequest(archivedFile, session)
 			if err != nil {
-				return nil, err
+				log.Printf("Could not parse request %d, skipping. Err: %s\n", number, err.Error())
 			}
 
 		case "m":
 			session.Number = number
 			err := parseSessionAttributes(archivedFile, session)
 			if err != nil {
-				return nil, err
+				log.Printf("Could not parse session attributes %d, skipping. Err: %s\n", number, err.Error())
 			}
 
 		case "s":
 			err := parseResponse(archivedFile, session)
 			if err != nil {
-				return nil, err
+				log.Printf("Could not parse response %d, skipping. Err: %s\n", number, err.Error())
 			}
 		}
 	}
@@ -158,7 +162,7 @@ func parseSessionAttributes(archivedFile *zip.File, session *Session) error {
 	}
 	defer fileReader.Close()
 
-	bytes, err := ioutil.ReadAll(fileReader)
+	bytes, err := io.ReadAll(fileReader)
 	if err != nil {
 		message := fmt.Sprintf("Reading session timers and flags from \"%s\" failed.",
 			archivedFile.Name)

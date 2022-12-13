@@ -3,6 +3,7 @@ package dumper
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/prantlf/saz-tools/internal/pluralizer"
@@ -56,13 +57,13 @@ func printResult(session *analyzer.Session, durationPrecision int) error {
 	if err != nil {
 		message := fmt.Sprintf("Parsing Timeline duration from \"%s\" failed.",
 			session.Timeline)
-		return fmt.Errorf("%s\n%s", message, err.Error())
+		log.Printf("%s\n%s", message, err.Error())
 	}
 	duration, err := parseDuration(session.Timers.RequestResponseTime)
 	if err != nil {
 		message := fmt.Sprintf("Parsing RequestResponseTime duration from \"%s\" failed.",
 			session.Timers.RequestResponseTime)
-		return fmt.Errorf("%s\n%s", message, err.Error())
+		log.Printf("%s\n%s", message, err.Error())
 	}
 	fmt.Printf("%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n",
 		session.Number, formatDuration(timeline, durationPrecision),
