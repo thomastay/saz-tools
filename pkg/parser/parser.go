@@ -180,10 +180,17 @@ func parseSessionAttributes(archivedFile *zip.File, session *Session) error {
 }
 
 func checkSessions(sessions []Session) ([]Session, error) {
-	for i := range sessions {
-		session := &sessions[i]
+	for i, session := range sessions {
 		if session.Number == 0 {
 			return nil, fmt.Errorf("saz/parser: attributes missing in %s network session",
+				pluralizer.FormatOrdinal(i))
+		}
+		if session.Request == nil {
+			return nil, fmt.Errorf("saz/parser: request data missing in %s network session",
+				pluralizer.FormatOrdinal(i))
+		}
+		if session.Response == nil {
+			return nil, fmt.Errorf("saz/parser: Response data missing in %s network session",
 				pluralizer.FormatOrdinal(i))
 		}
 		if session.Request.URL.String() == "" {
