@@ -13,7 +13,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/prantlf/saz-tools/pkg/dumper"
@@ -25,11 +27,16 @@ func main() {
 	printNumber := -1
 	outFile := ""
 	password := ""
+	headers := false
+	onlyHeaders := false
 	flag.BoolVar(&printVersion, "version", printVersion, "print the version of this tool and exit")
 	flag.BoolVar(&printVersion, "v", printVersion, "print the version of this tool and exit (shorthand)")
 	flag.IntVar(&printNumber, "n", printNumber, "Session ID to dump (dumps response body)")
-	flag.StringVar(&outFile, "o", outFile, "Out File")
 	flag.StringVar(&password, "password", password, "Password")
+	// flags based on https://curl.se/docs/manpage.html
+	flag.StringVar(&outFile, "o", outFile, "Out File")
+	flag.BoolVar(&headers, "i", headers, "Include the response headers")
+	flag.BoolVar(&onlyHeaders, "I", onlyHeaders, "Include only the response headers")
 	flag.Usage = func() {
 		fmt.Println("Usage: sazdump <file.saz>")
 		flag.PrintDefaults()
@@ -59,16 +66,45 @@ func main() {
 			os.Exit(1)
 		}
 	} else {
+		// User specified a specific option
 		if printNumber == 0 {
 			log.Println("Fiddler logs start with 1")
 			os.Exit(1)
 		}
 		session := sessions[printNumber-1]
+
+		var out io.Writer
 		if outFile != "" {
-			os.WriteFile(outFile, session.ResponseBody, 0644)
-			log.Println("Wrote to", outFile)
+			f, err := os.Create(outFile)
+			if err != nil {
+				log.Println(err)
+				os.Exit(1)
+			}
+			out = f
 		} else {
-			fmt.Println(string(session.ResponseBody))
+			out = os.Stdout
+		}
+
+		if headers || onlyHeaders {
+			writeHeaders(out, session.Response)
+		}
+		if !onlyHeaders {
+			// Two CRLF delimiter
+			out.Write([]byte("\r\n\r\n"))
+			out.Write(session.ResponseBody)
+		}
+	}
+}
+
+func writeHeaders(out io.Writer, r *http.Response) {
+	statusLine := fmt.Sprintf("%s %s\n", r.Proto, r.Status)
+	out.Write([]byte(statusLine))
+	// Loop over header names
+	for name, values := range r.Header {
+		// Loop over all values for the name.
+		for _, value := range values {
+			m := fmt.Sprintf("%s: %s\n", name, value)
+			out.Write([]byte(m))
 		}
 	}
 }
