@@ -25,7 +25,7 @@ sazdump archive.saz
 sazdump -n 10 -o body.json archive.saz
     Saves response body number 10 to body.json
 
-sazdump -n 10 -o body.json -p password1234 archive.saz
+sazdump -n 10 -o body.json -password password1234 archive.saz
     Saves response body number 10 to body.json with password protected archive.sav
 
 sazdump -n 10 -I archive.saz
