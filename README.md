@@ -1,4 +1,13 @@
-# saz-tools
+# Fork of saz-tools
+
+# Changelog:
+
+1. More lenient parsing even if the HTTP requests don't meet spec
+1. Enable parsing of password protected SAZ files
+1. Upgrade go.mod
+1. Print Response body / headers to output file or stdout, per curl syntax
+
+# Old README
 
 [![Build Status](https://github.com/prantlf/saz-tools/workflows/Test/badge.svg)](https://github.com/prantlf/saz-tools/actions)
 [![Dependency Status](https://david-dm.org/prantlf/saz-tools.svg)](https://david-dm.org/prantlf/saz-tools)
@@ -84,10 +93,10 @@ $ open http://localhost:7000/
 
 ## API
 
-* [parser].[ParseFile](fileName string) ([] [parser.Session], error)
-* [parser].[ParseReader](reader ReaderAt, size int64) ([] [parser.Session], error)
-* [analyzer].[Analyze](sessions [] [parser.Session]) ([] [analyzer.Session], error)
-* [dumper].[Dump](sessions [] [parser.Session]) error
+- [parser].[ParseFile](fileName string) ([] [parser.Session], error)
+- [parser].[ParseReader](reader ReaderAt, size int64) ([] [parser.Session], error)
+- [analyzer].[Analyze](sessions [] [parser.Session]) ([] [analyzer.Session], error)
+- [dumper].[Dump](sessions [] [parser.Session]) error
 
 ```go
 import (
@@ -201,21 +210,21 @@ Licensed under the MIT license.
 
 [on-line version]: https://viewsaz.herokuapp.com/
 [`go get`]: https://golang.org/cmd/go/#hdr-Add_dependencies_to_current_module_and_install_them
-[Go]: https://golang.org/
+[go]: https://golang.org/
 [golang repository]: https://hub.docker.com/_/golang
-[Homebrew]: https://brew.sh/
-[Snap package]: https://snapcraft.io/saz-tools
-[Scoop manifest]: https://github.com/prantlf/scoop-bucket#prantlfscoop-bucket
-[Docker]: https://www.docker.com/
-[Make]: https://www.gnu.org/software/make/
-[Patch]: http://man7.org/linux/man-pages/man1/patch.1.html
-[Node.js]: https://nodejs.org/
-[NPM]: https://docs.npmjs.com/cli/npm
-[Yarn]: https://classic.yarnpkg.com/docs/cli/
-[PNPM]: https://pnpm.js.org/pnpm-cli
-[GoBinaries]: https://gobinaries.com/
-[GitHub releases]: https://github.com/prantlf/saz-tools/releases
-[The `sazdump` image]: https://hub.docker.com/repository/docker/prantlf/sazdump
+[homebrew]: https://brew.sh/
+[snap package]: https://snapcraft.io/saz-tools
+[scoop manifest]: https://github.com/prantlf/scoop-bucket#prantlfscoop-bucket
+[docker]: https://www.docker.com/
+[make]: https://www.gnu.org/software/make/
+[patch]: http://man7.org/linux/man-pages/man1/patch.1.html
+[node.js]: https://nodejs.org/
+[npm]: https://docs.npmjs.com/cli/npm
+[yarn]: https://classic.yarnpkg.com/docs/cli/
+[pnpm]: https://pnpm.js.org/pnpm-cli
+[gobinaries]: https://gobinaries.com/
+[github releases]: https://github.com/prantlf/saz-tools/releases
+[the `sazdump` image]: https://hub.docker.com/repository/docker/prantlf/sazdump
 [the `sazserve` image]: https://hub.docker.com/repository/docker/prantlf/sazserve
 [scratch image]: https://hub.docker.com/_/scratch
 [`build`]: bin/build
@@ -224,11 +233,11 @@ Licensed under the MIT license.
 [printing their content]: https://godoc.org/github.com/prantlf/saz-tools/cmd/sazdump
 [viewing them on a web page]: https://godoc.org/github.com/prantlf/saz-tools/cmd/sazserve
 [parser]: https://godoc.org/github.com/prantlf/saz-tools/pkg/parser
-[parser.Session]: https://godoc.org/github.com/prantlf/saz-tools/pkg/parser#Session
-[ParseFile]: https://godoc.org/github.com/prantlf/saz-tools/pkg/parser#ParseFile
-[ParseReader]: https://godoc.org/github.com/prantlf/saz-tools/pkg/parser#ParseReader
+[parser.session]: https://godoc.org/github.com/prantlf/saz-tools/pkg/parser#Session
+[parsefile]: https://godoc.org/github.com/prantlf/saz-tools/pkg/parser#ParseFile
+[parsereader]: https://godoc.org/github.com/prantlf/saz-tools/pkg/parser#ParseReader
 [analyzer]: https://godoc.org/github.com/prantlf/saz-tools/pkg/analyzer
-[analyzer.Session]: https://godoc.org/github.com/prantlf/saz-tools/pkg/analyzer#Session
-[Analyze]: https://godoc.org/github.com/prantlf/saz-tools/pkg/analyzer#Analyze
+[analyzer.session]: https://godoc.org/github.com/prantlf/saz-tools/pkg/analyzer#Session
+[analyze]: https://godoc.org/github.com/prantlf/saz-tools/pkg/analyzer#Analyze
 [dumper]: https://godoc.org/github.com/prantlf/saz-tools/pkg/dumper
-[Dump]: https://godoc.org/github.com/prantlf/saz-tools/pkg/dumper#Dump
+[dump]: https://godoc.org/github.com/prantlf/saz-tools/pkg/dumper#Dump
